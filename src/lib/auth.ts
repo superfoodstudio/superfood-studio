@@ -1,7 +1,7 @@
-const { prisma } = require('./prisma');
-const { PrivyClient } = require('@privy-io/server-auth');
+import { prisma } from './prisma';
+import { PrivyClient } from '@privy-io/server-auth';
 
-class AuthService {
+export class AuthService {
   private static instance: AuthService;
   private privy: PrivyClient;
 
@@ -79,6 +79,4 @@ class AuthService {
       throw error;
     }
   }
-}
-
-module.exports = { AuthService }; 
+} 
