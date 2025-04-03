@@ -1,198 +1,109 @@
 'use client';
 
 import { useState } from 'react';
-import { View, Text, Button, Select, TextArea } from 'reshaped';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { uploadToPinata } from '@/lib/services/pinata';
+import { View, Button, Text, TextArea } from 'reshaped';
+import { usePrivy } from '@privy-io/react-auth';
 
-export default function NewRecipe() {
-  const router = useRouter();
-  const [isLive, setIsLive] = useState(false);
-  const [loading, setLoading] = useState(false);
+export default function NewRecipePage() {
   const [formData, setFormData] = useState({
-    name: '',
-    category: '',
+    title: '',
     description: '',
-    ingredients: '',
-    mediaUrl: '',
+    imageUrl: '',
   });
+  const [uploading, setUploading] = useState(false);
+  const { getAccessToken } = usePrivy();
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0]) return;
-    
+  const handleFileUpload = async (file: File) => {
     try {
-      setLoading(true);
-      const mediaUrl = await uploadToPinata(e.target.files[0]);
-      setFormData(prev => ({ ...prev, mediaUrl }));
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setUploading(true);
+      const token = await getAccessToken();
+      
+      const formData = new FormData();
+      formData.append('file', file);
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/recipes', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...formData,
-          isPublished: isLive,
-        }),
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create recipe');
+        throw new Error('Upload failed');
       }
 
-      router.push('/admin/recipes');
+      const data = await response.json();
+      console.log('Upload successful:', data);
+      setFormData(prev => ({ ...prev, imageUrl: data.pinataUrl }));
     } catch (error) {
-      console.error('Error creating recipe:', error);
+      console.error('Upload error:', error);
+      throw error;
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
   return (
-    <View direction="column" gap={6} padding={8} backgroundColor="page">
-      <View direction="row" justify="space-between" align="center">
-        <Text variant="title-2">ADD ITEM</Text>
-        <View 
-          direction="row" 
-          align="center" 
-          gap={2} 
-          backgroundColor="elevation-base"
-          padding={2}
-          attributes={{
-            style: { borderRadius: '20px' }
+    <View padding={4} gap={4}>
+      <Text variant="featured-3">Create New Recipe</Text>
+      
+      <View gap={2}>
+        <Text>Title</Text>
+        <TextArea
+          name="title"
+          value={formData.title}
+          onChange={({ value }) => setFormData(prev => ({ ...prev, title: value }))}
+          placeholder="Recipe title"
+        />
+      </View>
+
+      <View gap={2}>
+        <Text>Description</Text>
+        <TextArea
+          name="description"
+          value={formData.description}
+          onChange={({ value }) => setFormData(prev => ({ ...prev, description: value }))}
+          placeholder="Recipe description"
+        />
+      </View>
+
+      <View gap={2}>
+        <Text>Image</Text>
+        <input
+          type="file"
+          accept="image/*"
+          disabled={uploading}
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              try {
+                await handleFileUpload(file);
+              } catch (error) {
+                console.error('Failed to upload image:', error);
+              }
+            }
           }}
-        >
-          <Text variant="body-2">Item is {isLive ? 'Live' : 'Not Live'}</Text>
-          <Button 
-            variant="ghost" 
-            onClick={() => setIsLive(!isLive)}
-          >
-            {isLive ? '👁' : '👁‍🗨'}
-          </Button>
-        </View>
+        />
+        {formData.imageUrl && (
+          <img 
+            src={formData.imageUrl} 
+            alt="Recipe preview" 
+            style={{ maxWidth: '300px', height: 'auto' }} 
+          />
+        )}
       </View>
 
-      <View direction="row" gap={8}>
-        {/* Left Column - Image Upload */}
-        <View direction="column" gap={4} flex={1}>
-          <View 
-            height={400} 
-            backgroundColor="elevation-base" 
-            align="center" 
-            justify="center"
-            attributes={{
-              style: { position: 'relative' }
-            }}
-          >
-            {formData.mediaUrl ? (
-              <Image
-                src={formData.mediaUrl}
-                alt="Recipe preview"
-                fill
-                style={{ objectFit: 'cover' }}
-              />
-            ) : (
-              <Text variant="body-2" color="neutral-faded">No image uploaded</Text>
-            )}
-          </View>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            style={{ display: 'none' }}
-            id="image-upload"
-          />
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById('image-upload')?.click()}
-            disabled={loading}
-          >
-            ADD MORE
-          </Button>
-        </View>
-
-        {/* Right Column - Form Fields */}
-        <View direction="column" gap={4} flex={1}>
-          <input
-            type="text"
-            placeholder="item name"
-            value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '4px',
-              fontSize: '16px',
-            }}
-          />
-
-          <Select
-            name="category"
-            placeholder="category"
-            value={formData.category}
-            onChange={(value) => setFormData(prev => ({ ...prev, category: String(value.value) }))}
-            options={[
-              { value: 'food', label: 'Food' },
-              { value: 'beauty', label: 'Beauty' },
-              { value: 'wellness', label: 'Wellness' },
-            ]}
-          />
-
-          <TextArea
-            name="description"
-            placeholder="description"
-            value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.value }))}
-            attributes={{
-              rows: 6
-            }}
-          />
-
-          <TextArea
-            name="ingredients"
-            placeholder="ingredients"
-            value={formData.ingredients}
-            onChange={(e) => setFormData(prev => ({ ...prev, ingredients: e.value }))}
-            attributes={{
-              rows: 6
-            }}
-          />
-
-          <View direction="row" gap={2}>
-            <Button
-              variant="solid"
-              onClick={handleSubmit}
-              disabled={loading}
-              attributes={{
-                style: { flex: 1, backgroundColor: '#2E1A47' }
-              }}
-            >
-              SAVE
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.back()}
-              disabled={loading}
-              attributes={{
-                style: { flex: 1 }
-              }}
-            >
-              BACK
-            </Button>
-          </View>
-        </View>
-      </View>
+      <Button 
+        variant="solid"
+        disabled={uploading || !formData.title || !formData.description || !formData.imageUrl}
+        onClick={async () => {
+          // TODO: Create recipe
+          console.log('Creating recipe:', formData);
+        }}
+      >
+        Create Recipe
+      </Button>
     </View>
   );
 } 
