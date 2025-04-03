@@ -1,0 +1,13 @@
+query RecipesQuery($category: String, $status: String, $search: String, $sort: String) {
+  recipes(category: $category, status: $status, search: $search, sort: $sort) {
+    id
+    name
+    description
+    category
+    isPublished
+    mediaUrl
+    uploadDate
+    createdAt
+    updatedAt
+  }
+} 
