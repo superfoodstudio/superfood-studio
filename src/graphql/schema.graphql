@@ -37,7 +37,49 @@ input UpdateRecipeInput {
   instructions: [String!]
 }
 
+# Product schema
+type Product {
+  id: ID!
+  name: String!
+  description: String!
+  photoUrl: String!
+  videoUrl: String
+  price: Float!
+  category: String!
+  tags: [String!]!
+  inventory: Int!
+  isActive: Boolean!
+  stripeProductId: String
+  stripePriceId: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateProductInput {
+  name: String!
+  description: String!
+  photoUrl: String!
+  videoUrl: String
+  price: Float!
+  category: String!
+  tags: [String!]!
+  inventory: Int
+}
+
+input UpdateProductInput {
+  name: String
+  description: String
+  photoUrl: String
+  videoUrl: String
+  price: Float
+  category: String
+  tags: [String!]
+  inventory: Int
+  isActive: Boolean
+}
+
 type Query {
+  # Recipe queries
   recipes(
     category: String
     status: String
@@ -45,16 +87,36 @@ type Query {
     sort: String
   ): [Recipe!]!
   recipe(id: ID!): Recipe
+
+  # Product queries
+  products(
+    category: String
+    status: String
+    search: String
+    sort: String
+  ): [Product!]!
+  product(id: ID!): Product
 }
 
 type Mutation {
+  # Recipe mutations
   createRecipe(input: CreateRecipeInput!): Recipe!
   updateRecipe(id: ID!, input: UpdateRecipeInput!): Recipe!
   deleteRecipe(id: ID!): DeleteRecipeResponse!
   toggleRecipeStatus(id: ID!): Recipe!
+
+  # Product mutations
+  createProduct(input: CreateProductInput!): Product!
+  updateProduct(id: ID!, input: UpdateProductInput!): Product!
+  deleteProduct(id: ID!): DeleteProductResponse!
+  toggleProductStatus(id: ID!): Product!
 }
 
 type DeleteRecipeResponse {
+  success: Boolean!
+}
+
+type DeleteProductResponse {
   success: Boolean!
 }
 

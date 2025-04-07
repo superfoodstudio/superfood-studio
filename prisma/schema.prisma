@@ -52,6 +52,10 @@ model Product {
   tags            String[]
   inventory       Int       @default(0)
   isActive        Boolean   @default(true)
+  // Stripe integration
+  stripeProductId String?   @unique  // ID of the corresponding product in Stripe
+  stripePriceId   String?   // ID of the default price in Stripe
+  // Relations
   orderItems      OrderItem[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -86,6 +90,9 @@ model Subscription {
   plan            Plan
   startDate       DateTime
   endDate         DateTime?
+  // Stripe integration
+  stripeSubscriptionId String? @unique
+  stripePriceId        String?
   // We'll add Stripe-specific fields later
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
