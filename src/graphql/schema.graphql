@@ -1,0 +1,51 @@
+# Import all schema files
+# This is the main schema file used by the Relay compiler
+
+# Recipe schema
+scalar DateTime
+
+type Recipe {
+  id: ID!
+  name: String!
+  description: String!
+  category: String!
+  isPublished: Boolean!
+  mediaUrl: String!
+  uploadDate: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input CreateRecipeInput {
+  name: String!
+  description: String!
+  category: String!
+  mediaUrl: String!
+}
+
+input UpdateRecipeInput {
+  name: String
+  description: String
+  category: String
+  mediaUrl: String
+  isPublished: Boolean
+}
+
+type Query {
+  recipes(
+    category: String
+    status: String
+    search: String
+    sort: String
+  ): [Recipe!]!
+  recipe(id: ID!): Recipe
+}
+
+type Mutation {
+  createRecipe(input: CreateRecipeInput!): Recipe!
+  updateRecipe(id: ID!, input: UpdateRecipeInput!): Recipe!
+  deleteRecipe(id: ID!): Boolean!
+  toggleRecipeStatus(id: ID!): Recipe!
+}
+
+# Add other schemas here as your application grows 

@@ -1,7 +1,22 @@
-import { Environment, Network, RecordSource, Store } from 'relay-runtime';
+import { 
+  Environment, 
+  Network, 
+  RecordSource, 
+  Store,
+  FetchFunction,
+  RequestParameters,
+  Variables
+} from 'relay-runtime';
 
-const fetchFn = async (request: Request, variables: Record<string, unknown>) => {
-  const resp = await fetch('/api/graphql', {
+const fetchFn: FetchFunction = async (
+  request: RequestParameters, 
+  variables: Variables
+) => {
+  const url = typeof window !== 'undefined' 
+    ? `${window.location.origin}/api/graphql` 
+    : 'http://localhost:3000/api/graphql';
+    
+  const resp = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

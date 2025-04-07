@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { RootLayoutClient } from '@/components/layout/RootLayoutClient';
-
-const inter = Inter({ subsets: ['latin'] });
 
 // Debug environment variables
 console.log('Root Layout - Privy App ID:', process.env.NEXT_PUBLIC_PRIVY_APP_ID);
@@ -20,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <RootLayoutClient>{children}</RootLayoutClient>
       </body>
     </html>
