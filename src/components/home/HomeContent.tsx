@@ -41,29 +41,49 @@ export function HomeContent() {
       </View>
 
       {/* Become a Superfoodie Section */}
-      <View as="section" direction="column" align="center" gap={6} padding={8}>
-        <Text variant="title-2" align="center">
+      <View
+        as="section"
+        direction="column"
+        align="center"
+        gap={4}
+        padding={8}
+        backgroundColor="primary-faded"
+      >
+        <Text variant="featured-2" align="center">
           BECOME A SUPERFOODIE
         </Text>
-        <View direction="row" gap={4} justify="center">
-          <Text variant="featured-2">🫕</Text>
-          <Text variant="featured-2">🥑</Text>
-          <Text variant="featured-2">📅</Text>
-        </View>
-        <Text variant="body-1" align="center">
-          learn the craft of building a plant-forward plate
+        <Text variant="body-1" align="center" color="neutral">
+          everything you&apos;ll need to curate quality, fresh meals at home
         </Text>
-        <Text variant="body-2" align="center" color="neutral">
-          unlock access to weekly recipes, special offers on our small batch goods, quarterly masterclasses
-          with top culinary artists and member rates on our in-person garden-to-table activations
+        <Link href="/shop">
+          <Button variant="outline">SHOP NOW</Button>
+        </Link>
+      </View>
+
+      {/* Monthly Recipes Section */}
+      <View
+        as="section"
+        direction="column"
+        align="center"
+        gap={4}
+        padding={8}
+        backgroundColor="positive-faded"
+      >
+        <Text variant="featured-2" align="center">
+          MONTHLY RECIPES
         </Text>
-        <Button variant="solid">LET'S GET COOKING</Button>
+        <Text variant="body-1" align="center" color="neutral">
+          let&apos;s get cooking
+        </Text>
+        <Link href="/recipes">
+          <Button variant="solid">VIEW RECIPES</Button>
+        </Link>
       </View>
 
       {/* Instagram Feed Section */}
       <View as="section" direction="column" align="center" gap={4} padding={8}>
         <Text variant="title-2" align="center">
-          SEE WHAT'S HAPPENING IN THE STUDIO
+          SEE WHAT&apos;S HAPPENING IN THE STUDIO
         </Text>
         <View direction="row" gap={2} wrap justify="center">
           {/* We'll replace these with actual Instagram feed later */}

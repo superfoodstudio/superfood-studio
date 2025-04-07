@@ -1,10 +1,3 @@
-import { PinataPinOptions, PinataClient } from '@pinata/sdk';
-
-const pinata = new PinataPinOptions({
-  pinataApiKey: process.env.PINATA_API_KEY!,
-  pinataSecretApiKey: process.env.PINATA_SECRET_API_KEY!,
-});
-
 export async function uploadToPinata(file: File): Promise<string> {
   try {
     const formData = new FormData();

@@ -131,23 +131,31 @@ export const productResolvers = {
         });
 
         // Now create the product in our database with Stripe IDs
-        // Use a type cast to avoid TypeScript errors with the Prisma schema
-        const productData: any = {
+        // Create a base product without Stripe fields first
+        const productBase = {
           name: input.name,
-          description: input.description,
-          photoUrl: input.photoUrl,
+          description: input.description || "",  // Ensure required fields are not undefined
+          photoUrl: input.photoUrl || "",
           videoUrl: input.videoUrl,
           price: input.price,
           category: input.category,
-          tags: input.tags,
+          tags: input.tags || [],
           inventory: input.inventory || 0,
-          stripeProductId: stripeProduct.id,
-          stripePriceId: stripePrice.id,
-          isActive: true, // Set isActive to true by default for new products
+          isActive: true,
         };
 
-        return prisma.product.create({
-          data: productData,
+        // Create the product first
+        const product = await prisma.product.create({
+          data: productBase,
+        });
+
+        // Then update it with Stripe IDs
+        return prisma.product.update({
+          where: { id: product.id },
+          data: {
+            stripeProductId: stripeProduct.id,
+            stripePriceId: stripePrice.id,
+          },
         });
       } catch (error) {
         console.error('Error creating product with Stripe:', error);

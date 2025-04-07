@@ -2,6 +2,7 @@
 
 import { View, Text, Button } from 'reshaped';
 import Link from 'next/link';
+import React from 'react';
 
 export default function AdminLayout({
   children,
@@ -21,7 +22,7 @@ export default function AdminLayout({
       >
         <Text variant="title-2">Admin Recipes</Text>
         <Link href="/profile">
-          <Button variant="ghost" icon="user" />
+          <Button variant="ghost">Profile</Button>
         </Link>
       </View>
 
@@ -42,7 +43,7 @@ export default function AdminLayout({
       </View>
 
       {/* Main Content */}
-      <View flex={1} padding={4}>
+      <View grow padding={4}>
         {children}
       </View>
     </View>
