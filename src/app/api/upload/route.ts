@@ -1,16 +1,40 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import pinataSDK from '@pinata/sdk';
 import { AuthService } from '@/lib/auth';
+import { Readable } from 'stream';
 
-const pinata = new pinataSDK({
-  pinataApiKey: process.env.PINATA_API_KEY!,
-  pinataSecretApiKey: process.env.PINATA_SECRET_KEY!
-});
+const pinata = new pinataSDK(
+  process.env.PINATA_API_KEY!,
+  process.env.PINATA_SECRET_KEY!
+);
 
-export async function POST(request: Request) {
+function bufferToStream(buffer: Buffer): Readable {
+  const stream = new Readable();
+  stream.push(buffer);
+  stream.push(null);
+  return stream;
+}
+
+async function uploadToIPFS(buffer: Buffer, filename: string): Promise<string> {
+  const stream = bufferToStream(buffer);
+  const options = {
+    pinataMetadata: { name: filename },
+    pinataOptions: { cidVersion: 1 as const },
+  };
+
+  try {
+    const result = await pinata.pinFileToIPFS(stream, options);
+    return `ipfs://${result.IpfsHash}`;
+  } catch (error) {
+    console.error('Failed to upload to IPFS:', error);
+    throw new Error('Failed to upload file.');
+  }
+}
+
+export async function POST(req: NextRequest) {
   try {
     // Verify admin access
-    const authHeader = request.headers.get('authorization');
+    const authHeader = req.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -25,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     // Handle file upload
-    const formData = await request.formData();
+    const formData = await req.formData();
     const file = formData.get('file') as File;
     
     if (!file) {
@@ -33,21 +57,20 @@ export async function POST(request: Request) {
     }
 
     // Convert File to Buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(fileBuffer);
+    const filename = file.name || 'uploaded_file';
 
     // Upload to Pinata
-    const result = await pinata.pinFileToIPFS(buffer, {
-      pinataMetadata: {
-        name: file.name,
-      },
-    });
+    const ipfsUrl = await uploadToIPFS(buffer, filename);
 
-    return NextResponse.json({
-      ipfsHash: result.IpfsHash,
-      pinataUrl: `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`,
-    });
+    return NextResponse.json({ url: ipfsUrl }, { status: 200 });
+
   } catch (error) {
     console.error('Upload error:', error);
+    if (error instanceof Error && error.message === 'Failed to upload file.') {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
