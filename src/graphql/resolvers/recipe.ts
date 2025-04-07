@@ -81,10 +81,15 @@ export const recipeResolvers = {
     },
 
     deleteRecipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
-      await prisma.recipe.delete({
-        where: { id },
-      });
-      return true;
+      try {
+        await prisma.recipe.delete({
+          where: { id },
+        });
+        return { success: true };
+      } catch (error) {
+        console.error('Error deleting recipe:', error);
+        return { success: false };
+      }
     },
 
     toggleRecipeStatus: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {

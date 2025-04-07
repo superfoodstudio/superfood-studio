@@ -6,11 +6,11 @@ import { recipeResolvers } from '@/graphql/resolvers/recipe';
 import { createContext } from '@/graphql/context';
 
 // Read schema files
-const recipeSchema = readFileSync(join(process.cwd(), 'src/graphql/schema/recipe.graphql'), 'utf-8');
+const unifiedSchema = readFileSync(join(process.cwd(), 'src/graphql/schema.graphql'), 'utf-8');
 
 // Create schema
 const schema = makeExecutableSchema({
-  typeDefs: [recipeSchema],
+  typeDefs: [unifiedSchema],
   resolvers: [recipeResolvers],
 });
 

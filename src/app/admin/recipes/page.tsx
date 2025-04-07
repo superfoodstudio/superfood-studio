@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Table, Button } from 'reshaped';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // Define the expected shape of a recipe item based on the query
 interface RecipeItem {
@@ -14,6 +15,7 @@ interface RecipeItem {
 }
 
 export default function AdminRecipesPage() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<RecipeItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,11 @@ export default function AdminRecipesPage() {
     fetchRecipes();
   }, []);
 
+  // Handler for navigating to the edit page
+  const handleEditClick = (id: string) => {
+    router.push(`/admin/recipes/${id}`);
+  };
+
   return (
     <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
       <View direction="column" gap={6} padding={8}>
@@ -107,8 +114,13 @@ export default function AdminRecipesPage() {
                   <Table.Cell>{new Date(item.uploadDate).toLocaleDateString()}</Table.Cell>
                   <Table.Cell>
                     <View direction="row" gap={2}>
-                      <Button variant="outline" size="small">Edit</Button>
-                      <Button variant="solid" color="critical" size="small">Delete</Button>
+                      <Button 
+                        variant="outline" 
+                        size="small" 
+                        onClick={() => handleEditClick(item.id)}
+                      >
+                        Edit
+                      </Button>
                     </View>
                   </Table.Cell>
                 </Table.Row>

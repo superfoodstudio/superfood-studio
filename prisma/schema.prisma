@@ -28,15 +28,17 @@ model User {
 }
 
 model Recipe {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String
-  category    String   // food, beauty, wellness
-  isPublished Boolean  @default(false)
-  mediaUrl    String   // IPFS URL from Pinata
-  uploadDate  DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  description  String
+  category     String   // food, beauty, wellness
+  isPublished  Boolean  @default(false)
+  mediaUrl     String   // IPFS URL from Pinata
+  ingredients  String[] // List of ingredients
+  instructions String[] // List of preparation steps
+  uploadDate   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Product {

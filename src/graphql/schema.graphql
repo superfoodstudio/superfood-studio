@@ -14,6 +14,8 @@ type Recipe {
   uploadDate: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
+  ingredients: [String!]
+  instructions: [String!]
 }
 
 input CreateRecipeInput {
@@ -21,6 +23,8 @@ input CreateRecipeInput {
   description: String!
   category: String!
   mediaUrl: String!
+  ingredients: [String!]
+  instructions: [String!]
 }
 
 input UpdateRecipeInput {
@@ -29,6 +33,8 @@ input UpdateRecipeInput {
   category: String
   mediaUrl: String
   isPublished: Boolean
+  ingredients: [String!]
+  instructions: [String!]
 }
 
 type Query {
@@ -44,8 +50,12 @@ type Query {
 type Mutation {
   createRecipe(input: CreateRecipeInput!): Recipe!
   updateRecipe(id: ID!, input: UpdateRecipeInput!): Recipe!
-  deleteRecipe(id: ID!): Boolean!
+  deleteRecipe(id: ID!): DeleteRecipeResponse!
   toggleRecipeStatus(id: ID!): Recipe!
+}
+
+type DeleteRecipeResponse {
+  success: Boolean!
 }
 
 # Add other schemas here as your application grows 
