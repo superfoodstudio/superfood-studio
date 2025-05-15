@@ -2,75 +2,36 @@
 
 import { useCallback } from 'react';
 import { View, Grid, Text } from 'reshaped';
-import { usePreloadedQuery, usePaginationFragment } from 'react-relay';
-import { graphql } from 'relay-runtime';
+import { usePreloadedQuery, PreloadedQuery } from 'react-relay';
+import { ProductsConnectionQuery } from '@/graphql/queries/ProductQueries';
 import { ProductCard } from '@/components/products/ProductCard';
 import Pagination from '@/components/common/Pagination';
-
-// Define the fragment for pagination
-export const PaginatedProductsFragment = graphql`
-  fragment PaginatedProducts_products on Query
-  @refetchable(queryName: "PaginatedProductsPaginationQuery") {
-    productsConnection(
-      first: $first
-      after: $after
-      category: $category
-    ) {
-      edges {
-        cursor
-        node {
-          id
-          ...ProductCardFragment
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-    }
-  }
-`;
-
-// Define the query that uses the fragment
-export const PaginatedProductsInitialQuery = graphql`
-  query PaginatedProductsQuery(
-    $first: Int!
-    $after: String
-    $category: String
-  ) {
-    ...PaginatedProducts_products
-  }
-`;
+import { ProductQueriesProductsConnectionQuery } from '@/__generated__/ProductQueriesProductsConnectionQuery.graphql';
 
 interface PaginatedProductsProps {
-  queryRef: any; // This should be properly typed once the generated types are available
+  queryRef: PreloadedQuery<ProductQueriesProductsConnectionQuery>;
 }
 
 export default function PaginatedProducts({ queryRef }: PaginatedProductsProps) {
-  const query = usePreloadedQuery(
-    PaginatedProductsInitialQuery,
+  const data = usePreloadedQuery(
+    ProductsConnectionQuery,
     queryRef
   );
 
-  const { data, loadNext, loadPrevious, hasNext, hasPrevious, isLoadingNext, isLoadingPrevious } =
-    usePaginationFragment(
-      PaginatedProductsFragment,
-      query
-    );
+  const hasNext = data.productsConnection?.pageInfo?.hasNextPage || false;
+  const hasPrevious = data.productsConnection?.pageInfo?.hasPreviousPage || false;
+  const products = data.productsConnection?.edges || [];
 
+  // To be implemented with useQueryLoader in parent component
   const handleLoadMore = useCallback(() => {
-    if (isLoadingNext) return;
-    loadNext(8);
-  }, [isLoadingNext, loadNext]);
+    // Will be implemented with pagination
+    console.log("Load more clicked");
+  }, []);
 
   const handleLoadPrevious = useCallback(() => {
-    if (isLoadingPrevious) return;
-    loadPrevious(8);
-  }, [isLoadingPrevious, loadPrevious]);
-
-  const products = data?.productsConnection?.edges || [];
+    // Will be implemented with pagination
+    console.log("Load previous clicked");
+  }, []);
 
   return (
     <View direction="column" gap={6}>
@@ -91,7 +52,7 @@ export default function PaginatedProducts({ queryRef }: PaginatedProductsProps) 
           <Pagination
             hasNextPage={hasNext}
             hasPreviousPage={hasPrevious}
-            isLoading={isLoadingNext || isLoadingPrevious}
+            isLoading={false}
             onLoadMore={handleLoadMore}
             onLoadPrevious={handleLoadPrevious}
           />

@@ -67,6 +67,20 @@ function getRandomElement(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
+// Helper function to generate slug
+function generateSlug(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')       // Replace spaces with -
+    .replace(/&/g, '-and-')     // Replace & with 'and'
+    .replace(/[^\w\-]+/g, '')   // Remove all non-word characters
+    .replace(/\-\-+/g, '-')     // Replace multiple - with single -
+    .replace(/^-+/, '')         // Trim - from start of text
+    .replace(/-+$/, '');        // Trim - from end of text
+}
+
 // Create users with different roles
 async function createUsers() {
   console.log('🧑‍🤝‍🧑 Creating users...');
@@ -145,9 +159,11 @@ async function createProducts() {
     const category = getRandomElement(categories);
     // Make names unique by adding a timestamp and index
     const name = `${faker.commerce.productAdjective()} ${faker.commerce.product()} ${Date.now()}-${i}`;
+    const slug = generateSlug(name);
     
     products.push({
       name,
+      slug,
       description: faker.commerce.productDescription(),
       photoUrl: getRandomImage(category),
       videoUrl: i % 5 === 0 ? 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4' : null,
@@ -171,29 +187,41 @@ async function createProducts() {
   return await prisma.product.findMany();
 }
 
-// Create recipes with ingredients and instructions
+// Create recipes in different categories
 async function createRecipes() {
   console.log('🍲 Creating recipes...');
   
-  const categories = ['food', 'beauty', 'wellness'];
+  const categories = ['food', 'drink', 'dessert'];
   const recipes = [];
   
   for (let i = 0; i < NUM_RECIPES; i++) {
     const category = getRandomElement(categories);
-    const ingredients = Array(faker.number.int({ min: 3, max: 10 }))
-      .fill(null)
-      .map(() => `${faker.number.int({ min: 1, max: 4 })} ${faker.science.unit().name} ${faker.commerce.productName()}`);
+    const name = `${faker.color.human()} ${faker.animal.type()} Dish`;
+    const slug = generateSlug(name);
     
-    const instructions = Array(faker.number.int({ min: 3, max: 8 }))
-      .fill(null)
-      .map((_, index) => `Step ${index + 1}: ${faker.lorem.sentence()}`);
+    // Generate 3-6 ingredients
+    const ingredientCount = faker.number.int({ min: 3, max: 6 });
+    const ingredients = Array(ingredientCount).fill(null).map(() => {
+      const quantity = faker.number.int({ min: 1, max: 5 });
+      const unit = getRandomElement(['tablespoon', 'teaspoon', 'cup', 'gram', 'ounce', 'pound', 'mole', 'joule', 'ampere', 'kelvin', 'candela', 'volt']);
+      const ingredient = faker.commerce.productName();
+      return `${quantity} ${unit} ${ingredient}`;
+    });
+    
+    // Generate 3-6 instructions
+    const instructionCount = faker.number.int({ min: 3, max: 6 });
+    const instructions = Array(instructionCount).fill(null).map((_, index) => {
+      return `Step ${index + 1}: ${faker.lorem.sentence()}`;
+    });
     
     recipes.push({
-      name: `${faker.word.adjective()} ${faker.animal.type()} ${category === 'food' ? 'Dish' : 'Recipe'}`,
+      name,
+      slug,
       description: faker.lorem.paragraph(),
       category,
-      isPublished: faker.datatype.boolean(0.8), // 80% are published
-      mediaUrl: getRandomImage(category),
+      isPublished: Math.random() > 0.1, // 90% published
+      mediaUrl: getRandomImage('food'),
+      uploadDate: faker.date.past(),
       ingredients,
       instructions,
     });

@@ -1,34 +1,38 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { View, Text } from 'reshaped';
-import { RelayEnvironmentProvider } from 'react-relay';
-import { createRelayEnvironment } from '@/lib/relay/environment';
-
-function ShopContent() {
-  return (
-    <View direction="column" gap={6} padding={8}>
-      <Text variant="title-2">Shop</Text>
-      <Text>
-        Browse our collection of superfood products. Pagination will be implemented shortly.
-      </Text>
-    </View>
-  );
-}
+import { useQueryLoader } from 'react-relay';
+import { ProductsQuery } from '@/graphql/queries/ProductQueries';
+import { AppContainer } from '@/components/layout/AppContainer';
+import ProductList from './ProductList';
 
 export default function ShopPage() {
-  // Create a new environment for this page
-  const environment = createRelayEnvironment();
-  
+  const [queryRef, loadQuery] = useQueryLoader(ProductsQuery);
+
+  useEffect(() => {
+    loadQuery({ 
+      category: null,
+      status: "active",
+      search: null,
+      sort: "newest"
+    });
+  }, [loadQuery]);
+
   return (
-    <RelayEnvironmentProvider environment={environment}>
-      <Suspense fallback={
-        <View padding={8}>
-          <Text>Loading products...</Text>
+    <AppContainer>
+      <View direction="column" gap={4}>
+        <View direction="column" align="center" padding={4}>
+          <Text variant="title-1" align="center">Our Products</Text>
+          <Text variant="body-1" align="center">
+            Discover our superfoods and health products
+          </Text>
         </View>
-      }>
-        <ShopContent />
-      </Suspense>
-    </RelayEnvironmentProvider>
+        
+        <Suspense fallback={<Text align="center">Loading products...</Text>}>
+          {queryRef && <ProductList queryRef={queryRef} />}
+        </Suspense>
+      </View>
+    </AppContainer>
   );
 } 
