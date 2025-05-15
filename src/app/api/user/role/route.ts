@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { AuthService } from '@/lib/auth';
 
+// Mark this route as dynamic since it uses headers
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     // Check for admin override test header

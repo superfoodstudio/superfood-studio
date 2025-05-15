@@ -24,16 +24,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url));
       }
 
-      // Check if user exists and has admin role in your database
-      const response = await fetch(`${request.nextUrl.origin}/api/user/role`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+      // Check if user exists and has admin role directly from database
+      const user = await prisma.user.findUnique({
+        where: { email: userDetails.email.address },
+        select: { role: true },
       });
-
-      const { role } = await response.json();
       
-      if (role !== 'ADMIN') {
+      if (user?.role !== 'ADMIN') {
         return NextResponse.redirect(new URL('/', request.url));
       }
 
