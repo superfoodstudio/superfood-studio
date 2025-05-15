@@ -133,3 +133,43 @@ The API follows RESTful conventions and includes the following main endpoints:
 ## Contributors
 
 - Superfood Studio Team
+
+## Development Setup
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run the development server
+pnpm dev
+
+# Compile Relay GraphQL artifacts
+pnpm relay
+
+# Watch for GraphQL changes and recompile automatically
+pnpm relay:watch
+```
+
+## Build and Deployment
+
+The project has two build scripts:
+
+```bash
+# Regular build for Vercel deployment - doesn't run relay-compiler to avoid stack overflow
+pnpm build
+
+# Full build with Relay compilation - use this locally before pushing
+pnpm build:with-relay
+```
+
+**Important:** Always run `pnpm relay` or `pnpm build:with-relay` locally before pushing changes that affect GraphQL queries. The Vercel build doesn't include relay-compiler to avoid deployment errors.
+
+## Environment Variables
+
+Create a `.env.local` file with the following variables:
+
+```
+DATABASE_URL=your_mongodb_connection_string
+NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
+PRIVY_APP_SECRET=your_privy_secret
+```
