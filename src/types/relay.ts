@@ -4,8 +4,10 @@
  * This file contains TypeScript interfaces for GraphQL operations used in the application.
  */
 
-import { RecipeCardFragment, RecipeDetailFragment } from "@/graphql/queries/RecipeQueries";
-import { ProductCardFragment, ProductDetailFragment } from "@/graphql/queries/ProductQueries";
+import { RecipeDetailFragment } from "@/graphql/queries/RecipeQueries";
+import { recipeCardFragment as RecipeCardFragment } from "@/components/recipes/RecipeCard";
+import { ProductCardFragment } from "@/components/products/ProductCard";
+import { ProductDetailFragment } from "@/graphql/queries/ProductQueries";
 import { CartDetailsFragment } from "@/graphql/queries/CartQueries";
 
 // Recipe Types

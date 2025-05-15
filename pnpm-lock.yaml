@@ -41,6 +41,9 @@ importers:
       next:
         specifier: 14.0.4
         version: 14.0.4(@babel/core@7.27.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      phosphor-react:
+        specifier: ^1.4.1
+        version: 1.4.1(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -3274,6 +3277,12 @@ packages:
 
   path@0.12.7:
     resolution: {integrity: sha512-aXXC6s+1w7otVF9UletFkFcDsJeO7lSZBPUQhtb5O0xJe8LtYhj/GxldoL09bBj9+ZmE2hNoHqQSFMN5fikh4Q==}
+
+  phosphor-react@1.4.1:
+    resolution: {integrity: sha512-gO5j7U0xZrdglTAYDYPACU4xDOFBTJmptrrB/GeR+tHhCZF3nUMyGmV/0hnloKjuTrOmpSFlbfOY78H39rgjUQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16'
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -8247,6 +8256,10 @@ snapshots:
     dependencies:
       process: 0.11.10
       util: 0.10.4
+
+  phosphor-react@1.4.1(react@18.2.0):
+    dependencies:
+      react: 18.2.0
 
   picocolors@1.1.1: {}
 

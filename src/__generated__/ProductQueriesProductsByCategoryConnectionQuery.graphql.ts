@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<42d5aa68ddaa188dd10616f90713df2b>>
+ * @generated SignedSource<<7417fc100aed2b66804f82eff9743ef3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -260,6 +260,13 @@ return {
                     "kind": "ScalarField",
                     "name": "tags",
                     "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "inventory",
+                    "storageKey": null
                   }
                 ],
                 "storageKey": null
@@ -274,12 +281,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "f7c3b944c0f714c7c9929c56cd25cf2d",
+    "cacheID": "b925b480776c4977ed046127b28417b2",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductsByCategoryConnectionQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductsByCategoryConnectionQuery(\n  $first: Int\n  $after: String\n  $category: String!\n) {\n  productsByCategoryConnection(first: $first, after: $after, category: $category) {\n    edges {\n      cursor\n      node {\n        ...ProductCardFragment\n        id\n      }\n    }\n    pageInfo {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n}\n"
+    "text": "query ProductQueriesProductsByCategoryConnectionQuery(\n  $first: Int\n  $after: String\n  $category: String!\n) {\n  productsByCategoryConnection(first: $first, after: $after, category: $category) {\n    edges {\n      cursor\n      node {\n        ...ProductCardFragment\n        id\n      }\n    }\n    pageInfo {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n}\n"
   }
 };
 })();

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d9b90cee3bcbdd1f078104ad65129cc3>>
+ * @generated SignedSource<<b4ff5e0a79468d37fb49fabb95e03174>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -175,6 +175,13 @@ return {
             "kind": "ScalarField",
             "name": "tags",
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "inventory",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -182,12 +189,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ef322c278dadb0e696f2a32ad623821f",
+    "cacheID": "6df3007495e629333fa611e2858f1fe2",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductsQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductsQuery(\n  $category: String\n  $status: String\n  $search: String\n  $sort: String\n) {\n  products(category: $category, status: $status, search: $search, sort: $sort) {\n    ...ProductCardFragment\n    id\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n}\n"
+    "text": "query ProductQueriesProductsQuery(\n  $category: String\n  $status: String\n  $search: String\n  $sort: String\n) {\n  products(category: $category, status: $status, search: $search, sort: $sort) {\n    ...ProductCardFragment\n    id\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n}\n"
   }
 };
 })();

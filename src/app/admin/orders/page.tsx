@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button, View, Text, Card, Grid } from 'reshaped';
+import { Button, View, Text, Card } from 'reshaped';
 
 // Mock order data - this would come from your GraphQL API in a real implementation
 const MOCK_ORDERS = [
@@ -112,56 +112,71 @@ export default function AdminOrdersPage() {
           </View>
         ) : (
           <View direction="column" gap={4}>
-            <Grid
-              columns="repeat(7, 1fr)"
+            {/* Table Header */}
+            <View 
+              direction="row" 
               padding={2}
-              style={{ fontWeight: 'bold', borderBottom: '1px solid #eaeaea' }}
+              attributes={{ style: { 
+                borderBottom: '1px solid #eaeaea',
+                fontWeight: 'bold'
+              }}}
             >
-              <Text>Order ID</Text>
-              <Text>Customer</Text>
-              <Text>Date</Text>
-              <Text>Items</Text>
-              <Text>Total</Text>
-              <Text>Status</Text>
-              <Text>Actions</Text>
-            </Grid>
+              <View width="14.28%"><Text>Order ID</Text></View>
+              <View width="14.28%"><Text>Customer</Text></View>
+              <View width="14.28%"><Text>Date</Text></View>
+              <View width="14.28%"><Text>Items</Text></View>
+              <View width="14.28%"><Text>Total</Text></View>
+              <View width="14.28%"><Text>Status</Text></View>
+              <View width="14.28%"><Text>Actions</Text></View>
+            </View>
             
+            {/* Table Rows */}
             {orders.map((order) => (
-              <Grid
-                key={order.id}
-                columns="repeat(7, 1fr)"
+              <View 
+                key={order.id} 
+                direction="row"
                 padding={2}
-                style={{ borderBottom: '1px solid #eaeaea' }}
+                attributes={{ style: { borderBottom: '1px solid #eaeaea' }}}
               >
-                <Text style={{ fontWeight: 'medium' }}>{order.id}</Text>
-                <View direction="column" gap={1}>
-                  <Text>{order.customerName}</Text>
-                  <Text style={{ fontSize: '0.8rem', color: '#666' }}>{order.customerEmail}</Text>
+                <View width="14.28%">
+                  <Text weight="medium">{order.id}</Text>
                 </View>
-                <Text>{formatDate(order.date)}</Text>
-                <Text>{order.items}</Text>
-                <Text style={{ fontWeight: 'medium' }}>${order.total.toFixed(2)}</Text>
-                <Text>
+                <View width="14.28%" direction="column" gap={1}>
+                  <Text>{order.customerName}</Text>
+                  <Text variant="caption-1" color="neutral-faded">{order.customerEmail}</Text>
+                </View>
+                <View width="14.28%">
+                  <Text>{formatDate(order.date)}</Text>
+                </View>
+                <View width="14.28%">
+                  <Text>{order.items}</Text>
+                </View>
+                <View width="14.28%">
+                  <Text weight="medium">${order.total.toFixed(2)}</Text>
+                </View>
+                <View width="14.28%">
                   <span style={{
                     padding: '4px 8px',
                     borderRadius: '4px',
                     fontSize: '0.8rem',
                     backgroundColor: getStatusColor(order.status) === 'amber' ? '#FEF3C7' :
-                                     getStatusColor(order.status) === 'blue' ? '#DBEAFE' :
-                                     getStatusColor(order.status) === 'green' ? '#D1FAE5' : 
-                                     getStatusColor(order.status) === 'red' ? '#FEE2E2' : '#F3F4F6',
+                                    getStatusColor(order.status) === 'blue' ? '#DBEAFE' :
+                                    getStatusColor(order.status) === 'green' ? '#D1FAE5' : 
+                                    getStatusColor(order.status) === 'red' ? '#FEE2E2' : '#F3F4F6',
                     color: getStatusColor(order.status) === 'amber' ? '#92400E' :
-                           getStatusColor(order.status) === 'blue' ? '#1E40AF' :
-                           getStatusColor(order.status) === 'green' ? '#065F46' : 
-                           getStatusColor(order.status) === 'red' ? '#B91C1C' : '#374151',
+                          getStatusColor(order.status) === 'blue' ? '#1E40AF' :
+                          getStatusColor(order.status) === 'green' ? '#065F46' : 
+                          getStatusColor(order.status) === 'red' ? '#B91C1C' : '#374151',
                   }}>
                     {order.status}
                   </span>
-                </Text>
-                <Link href={`/admin/orders/${order.id}`} passHref>
-                  <Button size="small">View Details</Button>
-                </Link>
-              </Grid>
+                </View>
+                <View width="14.28%">
+                  <Link href={`/admin/orders/${order.id}`} passHref>
+                    <Button size="small">View Details</Button>
+                  </Link>
+                </View>
+              </View>
             ))}
           </View>
         )}

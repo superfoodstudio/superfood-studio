@@ -1,16 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
+import { useLazyLoadQuery } from 'react-relay';
+import { CartQuery } from '@/graphql/queries/CartQueries';
+import { AppContainer } from '@/components/layout/AppContainer';
+import { View, Text, Button, Divider } from 'reshaped';
 
 export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    address: '',
+    street: '',
     city: '',
     state: '',
     zipCode: '',
@@ -19,11 +24,84 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { ready, authenticated, user } = usePrivy();
 
+  // Set isReady to true when component mounts
+  useEffect(() => {
+    setIsReady(true);
+    
+    // Populate email if available
+    if (user?.email?.address) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email?.address || ''
+      }));
+    }
+  }, [user]);
+
   // Redirect if not authenticated
-  if (ready && !authenticated) {
-    router.push('/cart');
+  useEffect(() => {
+    if (ready && !authenticated) {
+      router.push('/cart');
+    }
+  }, [ready, authenticated, router]);
+
+  if (!isReady) {
+    return <AppContainer><Text align="center">Loading checkout...</Text></AppContainer>;
+  }
+
+  // Don't try to fetch cart if not authenticated
+  if (!authenticated) {
     return null;
   }
+
+  // This is a client component, so we can use hooks conditionally after the initial checks
+  const CartSummary = () => {
+    try {
+      const data: any = useLazyLoadQuery(CartQuery, {});
+      const cart = data.cart;
+      
+      if (!cart || cart.items.length === 0) {
+        router.push('/cart');
+        return null;
+      }
+      
+      // Format currency
+      const formatPrice = (price: number) => {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(price);
+      };
+      
+      return (
+        <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+          <Text variant="title-3">Order Summary</Text>
+          <Divider />
+          
+          {cart.items.map((item: any) => (
+            <View key={item.id} direction="row" justify="space-between" padding={1}>
+              <Text>
+                {item.product.name} ({item.quantity})
+              </Text>
+              <Text>{formatPrice(item.price * item.quantity)}</Text>
+            </View>
+          ))}
+          
+          <Divider />
+          <View direction="row" justify="space-between">
+            <Text variant="title-4">Total</Text>
+            <Text variant="title-4">{formatPrice(cart.total)}</Text>
+          </View>
+        </View>
+      );
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      return (
+        <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+          <Text color="critical">Error loading cart</Text>
+        </View>
+      );
+    }
+  };
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
@@ -38,15 +116,37 @@ export default function CheckoutPage() {
     setIsLoading(true);
 
     try {
-      // In a real implementation, we would send the checkout data to the backend
-      // and redirect to Stripe Checkout with the returned session URL
-      console.log('Checkout data:', formData);
+      // Send checkout data to API endpoint
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shippingAddress: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            country: formData.country,
+          },
+          // Include billing address if different
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+
+      const data = await response.json();
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock successful checkout
-      router.push('/checkout/success?session_id=mock_session_id&order_id=mock_order_id');
+      // Redirect to Stripe Checkout
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
     } catch (error) {
       console.error('Checkout error:', error);
       alert('There was an error processing your payment. Please try again.');
@@ -55,170 +155,155 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl mb-4">Checkout</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl mb-4">Shipping Information</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block mb-1">First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block mb-1">Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="block mb-1">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block mb-1">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                required
-                className="w-full border rounded px-3 py-2"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block mb-1">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block mb-1">State/Province</label>
-                <input
-                  type="text"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block mb-1">ZIP/Postal Code</label>
-                <input
-                  type="text"
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-              <div>
-                <label className="block mb-1">Country</label>
-                <select
-                  name="country"
-                  value={formData.country}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full border rounded px-3 py-2"
-                >
-                  <option value="US">United States</option>
-                  <option value="CA">Canada</option>
-                  <option value="MX">Mexico</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <h2 className="text-xl mb-4">Payment Method</h2>
-              <p className="text-sm text-gray-600 mb-4">
-                You will be redirected to our secure payment provider to complete your purchase.
-              </p>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {isLoading ? 'Processing...' : 'Complete Purchase'}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div>
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl mb-4">Order Summary</h2>
-            <div className="mb-4 border-b pb-4">
-              <div className="flex justify-between mb-2">
-                <span>Superfood Smoothie Mix (2)</span>
-                <span>$39.98</span>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span>Organic Chia Seeds (1)</span>
-                <span>$12.99</span>
-              </div>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span>Subtotal</span>
-              <span>$52.97</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span>Shipping</span>
-              <span>$7.95</span>
-            </div>
-            <div className="flex justify-between mb-2">
-              <span>Tax</span>
-              <span>$4.77</span>
-            </div>
-            <div className="flex justify-between pt-2 mt-2 border-t">
-              <span className="font-bold">Total</span>
-              <span className="font-bold">$65.69</span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => router.push('/cart')}
-            className="text-green-600 hover:text-green-700"
-          >
-            ← Return to Cart
-          </button>
-        </div>
-      </div>
-    </div>
+    <AppContainer>
+      <View direction="column" gap={4} padding={4}>
+        <Text variant="title-1" align="center">Checkout</Text>
+        
+        <View direction="row" gap={6} attributes={{ style: { flexWrap: 'wrap' } }}>
+          {/* Shipping Information */}
+          <View direction="column" gap={4} attributes={{ style: { flex: 1 } }}>
+            <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+              <Text variant="title-3">Shipping Information</Text>
+              <Divider />
+              
+              <form onSubmit={handleSubmit}>
+                <View direction="column" gap={3}>
+                  <View direction="row" gap={2}>
+                    <View direction="column" gap={1} grow>
+                      <Text>First Name</Text>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full p-2 border rounded"
+                      />
+                    </View>
+                    <View direction="column" gap={1} grow>
+                      <Text>Last Name</Text>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full p-2 border rounded"
+                      />
+                    </View>
+                  </View>
+                  
+                  <View direction="column" gap={1}>
+                    <Text>Email</Text>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border rounded"
+                    />
+                  </View>
+                  
+                  <View direction="column" gap={1}>
+                    <Text>Street Address</Text>
+                    <input
+                      type="text"
+                      name="street"
+                      value={formData.street}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full p-2 border rounded"
+                    />
+                  </View>
+                  
+                  <View direction="row" gap={2}>
+                    <View direction="column" gap={1} grow>
+                      <Text>City</Text>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full p-2 border rounded"
+                      />
+                    </View>
+                    <View direction="column" gap={1} grow>
+                      <Text>State</Text>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.state}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full p-2 border rounded"
+                      />
+                    </View>
+                  </View>
+                  
+                  <View direction="row" gap={2}>
+                    <View direction="column" gap={1} grow>
+                      <Text>ZIP Code</Text>
+                      <input
+                        type="text"
+                        name="zipCode"
+                        value={formData.zipCode}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full p-2 border rounded"
+                      />
+                    </View>
+                    <View direction="column" gap={1} grow>
+                      <Text>Country</Text>
+                      <select
+                        name="country"
+                        value={formData.country}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full p-2 border rounded"
+                      >
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="MX">Mexico</option>
+                      </select>
+                    </View>
+                  </View>
+                  
+                  <View direction="column" gap={2} padding={2}>
+                    <Text>Payment Method</Text>
+                    <Text variant="body-2" color="neutral-faded">
+                      You will be redirected to our secure payment provider to complete your purchase.
+                    </Text>
+                  </View>
+                  
+                  <View direction="row" gap={2}>
+                    <Button
+                      variant="outline"
+                      onClick={() => router.push('/cart')}
+                    >
+                      Return to Cart
+                    </Button>
+                    <Button
+                      variant="solid"
+                      type="submit"
+                      disabled={isLoading}
+                      fullWidth
+                    >
+                      {isLoading ? 'Processing...' : 'Complete Purchase'}
+                    </Button>
+                  </View>
+                </View>
+              </form>
+            </View>
+          </View>
+          
+          {/* Order Summary */}
+          <View width={{ s: '100%', m: '300px' }}>
+            <CartSummary />
+          </View>
+        </View>
+      </View>
+    </AppContainer>
   );
 } 

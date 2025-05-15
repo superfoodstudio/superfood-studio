@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6fb747e3ce15350d6d76d21de4f9e7ca>>
+ * @generated SignedSource<<52e5b0179db5d94685f85de119f7d63f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,6 +14,7 @@ export type ProductCardFragment$data = {
   readonly category: string;
   readonly description: string;
   readonly id: string;
+  readonly inventory: number;
   readonly name: string;
   readonly photoUrl: string;
   readonly price: number;
@@ -87,12 +88,19 @@ const node: ReaderFragment = {
       "kind": "ScalarField",
       "name": "tags",
       "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "inventory",
+      "storageKey": null
     }
   ],
   "type": "Product",
   "abstractKey": null
 };
 
-(node as any).hash = "bf11546720a553e260751e69656ecaef";
+(node as any).hash = "d8850dbfed4118b404aacccede7bbfa5";
 
 export default node;

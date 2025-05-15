@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
 
+// Helper function to generate slug
+function generateSlug(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')       // Replace spaces with -
+    .replace(/&/g, '-and-')     // Replace & with 'and'
+    .replace(/[^\w\-]+/g, '')   // Remove all non-word characters
+    .replace(/\-\-+/g, '-')     // Replace multiple - with single -
+    .replace(/^-+/, '')         // Trim - from start of text
+    .replace(/-+$/, '');        // Trim - from end of text
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Verify admin access
@@ -26,14 +40,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Generate a slug from the name
+    const slug = generateSlug(name);
+
     // Create recipe in database
     const newRecipe = await prisma.recipe.create({
       data: {
         name,
+        slug,
         description,
         mediaUrl,
         category: 'food',
         isPublished: false,
+        uploadDate: new Date(),
       },
     });
 
