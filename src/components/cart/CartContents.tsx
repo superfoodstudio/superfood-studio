@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, Button, Divider } from 'reshaped';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { 
@@ -27,10 +27,20 @@ type CartItem = {
 export function CartContents() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+  // Debug log to check if component is rendering
+  useEffect(() => {
+    console.log('CartContents component mounted');
+  }, []);
   
   try {
+    console.log('Attempting to fetch cart data with Relay...');
+    
     // Fetch cart data with type assertion to avoid unknown type issues
     const data = useLazyLoadQuery(CartQuery, {}) as any;
+    
+    console.log('Cart data received:', data);
     
     // Setup mutations
     const [removeFromCart] = useMutation(RemoveFromCartMutation);
@@ -38,7 +48,21 @@ export function CartContents() {
     const [clearCart] = useMutation(ClearCartMutation);
     
     // Check if cart is empty
-    if (!data.cart || data.cart.items.length === 0) {
+    if (!data.cart) {
+      console.log('Cart is null in the response');
+      return (
+        <View direction="column" align="center" padding={8} gap={4}>
+          <Text variant="title-2">Your cart is empty</Text>
+          <Text variant="body-1">Add some items to your cart and they will appear here.</Text>
+          <Link href="/shop">
+            <Button variant="solid">Continue Shopping</Button>
+          </Link>
+        </View>
+      );
+    }
+    
+    if (data.cart.items.length === 0) {
+      console.log('Cart has 0 items');
       return (
         <View direction="column" align="center" padding={8} gap={4}>
           <Text variant="title-2">Your cart is empty</Text>
@@ -65,8 +89,10 @@ export function CartContents() {
         onCompleted: () => {
           setIsLoading(false);
         },
-        onError: () => {
+        onError: (error) => {
+          console.error('Error removing item:', error);
           setIsLoading(false);
+          setErrorMessage('Failed to remove item');
         }
       });
     };
@@ -92,8 +118,10 @@ export function CartContents() {
         onCompleted: () => {
           setIsLoading(false);
         },
-        onError: () => {
+        onError: (error) => {
+          console.error('Error updating quantity:', error);
           setIsLoading(false);
+          setErrorMessage('Failed to update quantity');
         }
       });
     };
@@ -106,8 +134,10 @@ export function CartContents() {
         onCompleted: () => {
           setIsLoading(false);
         },
-        onError: () => {
+        onError: (error) => {
+          console.error('Error clearing cart:', error);
           setIsLoading(false);
+          setErrorMessage('Failed to clear cart');
         }
       });
     };
@@ -124,6 +154,18 @@ export function CartContents() {
         currency: 'USD' 
       }).format(price);
     };
+
+    if (errorMessage) {
+      return (
+        <View direction="column" align="center" padding={8} gap={4}>
+          <Text variant="title-2">Error</Text>
+          <Text variant="body-1">{errorMessage}</Text>
+          <Link href="/shop">
+            <Button variant="solid">Continue Shopping</Button>
+          </Link>
+        </View>
+      );
+    }
 
     return (
       <View direction="column" gap={4} padding={4}>
@@ -211,10 +253,13 @@ export function CartContents() {
     );
   } catch (error) {
     // If we hit an error with Relay, show a friendly message
+    console.error('Error in CartContents:', error);
+    
     return (
       <View direction="column" align="center" padding={8} gap={4}>
         <Text variant="title-2">Could not load your cart</Text>
         <Text variant="body-1">We're having trouble loading your cart information.</Text>
+        <Text variant="caption-1" color="critical">Error: {error instanceof Error ? error.message : String(error)}</Text>
         <Link href="/shop">
           <Button variant="solid">Continue Shopping</Button>
         </Link>

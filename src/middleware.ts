@@ -64,15 +64,18 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url));
       }
       
-      // Check if user has an active subscription
+      // Verify user exists in the database
       const user = await prisma.user.findUnique({
-        where: { email: userDetails.email.address },
-        include: { subscription: true }
+        where: { email: userDetails.email.address }
       });
       
-      if (!user || !user.subscription || user.subscription.status !== 'ACTIVE') {
-        return NextResponse.redirect(new URL('/subscription', request.url));
+      if (!user) {
+        return NextResponse.redirect(new URL('/', request.url));
       }
+      
+      // TEMPORARILY REMOVED: Subscription check
+      // We're allowing all authenticated users to access recipes and shop
+      // until subscription issues are fixed
       
       return NextResponse.next();
     } catch (error) {

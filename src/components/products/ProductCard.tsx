@@ -66,6 +66,9 @@ export function ProductCard({ product }: Props) {
         } else {
           localStorage.setItem('cartItemCount', '1');
         }
+        
+        // Dispatch event to notify Navigation component about cart updates
+        window.dispatchEvent(new Event('cartUpdated'));
       },
       onError: (error) => {
         console.error('Error adding to cart:', error);

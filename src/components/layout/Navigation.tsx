@@ -28,11 +28,19 @@ export function Navigation() {
       }
     };
 
-    // For demo purposes, set a random count between 0 and 5
-    setCartItemCount(Math.floor(Math.random() * 6));
+    // Fetch the cart count instead of generating random numbers
+    fetchCartCount();
     
-    // In a real app, we would use:
-    // fetchCartCount();
+    // Set up event listener for cart updates
+    const handleCartUpdate = () => {
+      fetchCartCount();
+    };
+    
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
   }, []);
 
   // Close dropdown when clicking outside
