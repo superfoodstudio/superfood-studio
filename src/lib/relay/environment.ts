@@ -64,7 +64,7 @@ const fetchFn: FetchFunction = async (
 };
 
 export const createRelayEnvironment = () => {
-  // Ensure we're in the browser
+  // Do not allow creation on the server
   if (typeof window === 'undefined') {
     return null;
   }
@@ -74,12 +74,17 @@ export const createRelayEnvironment = () => {
     return relayEnvironment;
   }
   
-  // Create the environment if it doesn't exist
-  relayEnvironment = new Environment({
-    network: Network.create(fetchFn),
-    store: new Store(new RecordSource()),
-    isServer: false,
-  });
-  
-  return relayEnvironment;
+  try {
+    // Create the environment if it doesn't exist
+    relayEnvironment = new Environment({
+      network: Network.create(fetchFn),
+      store: new Store(new RecordSource()),
+      isServer: false,
+    });
+    
+    return relayEnvironment;
+  } catch (error) {
+    console.error('Error creating Relay environment:', error);
+    return null;
+  }
 }; 

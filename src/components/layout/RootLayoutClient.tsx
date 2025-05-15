@@ -6,11 +6,17 @@ import { Navigation } from '@/components/layout/Navigation';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
-// Completely disable SSR for RelayProvider to prevent build errors
+// Import the RelayProvider with SSR disabled completely
 const RelayProvider = dynamic(
   () => import('@/components/providers/RelayProvider').then(mod => mod.RelayProvider),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => <>{/* Loading placeholder */}</>
+  }
 );
+
+// Log when this component renders - helps with debugging
+console.log('Root Layout - Privy App ID:', process.env.NEXT_PUBLIC_PRIVY_APP_ID);
 
 export function RootLayoutClient({ children }: { children: React.ReactNode }) {
   return (
@@ -25,9 +31,10 @@ export function RootLayoutClient({ children }: { children: React.ReactNode }) {
       }}
     >
       <ReshapedProvider>
-        <Suspense fallback={null}>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Navigation />
+          {/* Wrap only Relay-dependent content in RelayProvider */}
           <RelayProvider>
-            <Navigation />
             {children}
           </RelayProvider>
         </Suspense>

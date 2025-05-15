@@ -20,12 +20,17 @@ export async function GET(request: Request) {
 
     const token = authHeader.split(' ')[1];
     const authService = AuthService.getInstance();
-    const user = await authService.verifyToken(token);
     
-    // Pass the request headers to check for test override
-    const role = await authService.getUserRole(user.email, request.headers);
-
-    return NextResponse.json({ role });
+    try {
+      const user = await authService.verifyToken(token);
+      
+      // Pass the request headers to check for test override
+      const role = await authService.getUserRole(user.email, request.headers);
+      return NextResponse.json({ role });
+    } catch (tokenError) {
+      console.error('Token verification error:', tokenError);
+      return NextResponse.json({ role: 'PUBLIC', error: 'Invalid token' });
+    }
   } catch (error) {
     console.error('Error getting user role:', error);
     return NextResponse.json({ role: 'PUBLIC' });

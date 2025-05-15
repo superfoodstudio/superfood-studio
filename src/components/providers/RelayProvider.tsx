@@ -1,23 +1,39 @@
 'use client';
 
 import React from 'react';
-import { RelayEnvironmentProvider } from 'react-relay';
-import { createRelayEnvironment } from '@/lib/relay/environment';
+
+// Import react-relay only on the client side
+let RelayEnvironmentProvider: any = null;
+let createRelayEnvironment: any = null;
+
+// Only attempt to load Relay components on the client
+if (typeof window !== 'undefined') {
+  // Using require instead of import to avoid SSR loading
+  const reactRelay = require('react-relay');
+  const relayEnv = require('@/lib/relay/environment');
+  
+  RelayEnvironmentProvider = reactRelay.RelayEnvironmentProvider;
+  createRelayEnvironment = relayEnv.createRelayEnvironment;
+}
 
 export function RelayProvider({ children }: { children: React.ReactNode }) {
-  // Only create the environment on the client side
+  // On server, just return children
   if (typeof window === 'undefined') {
     return <>{children}</>;
   }
 
-  // Safe to use createRelayEnvironment on the client
+  // Ensure relay components are loaded
+  if (!RelayEnvironmentProvider || !createRelayEnvironment) {
+    return <>{children}</>;
+  }
+
+  // Create environment
   const environment = createRelayEnvironment();
-  
-  // Make sure we have an environment before using the provider
   if (!environment) {
     return <>{children}</>;
   }
 
+  // Use provider only on client
   return (
     <RelayEnvironmentProvider environment={environment}>
       {children}

@@ -1,14 +1,31 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { PrivyClient } from '@privy-io/server-auth';
-import { prisma } from './lib/prisma';
+
+// Import prisma conditionally to prevent browser bundling issues
+let prisma: any;
+if (typeof window === 'undefined') {
+  // Only import on server side
+  import('./lib/prisma').then(module => {
+    prisma = module.prisma;
+  });
+}
 
 export async function middleware(request: NextRequest) {
+  console.log('Middleware called for path:', request.nextUrl.pathname);
+  
+  // Log all cookies to help with debugging
+  console.log('All cookies:', request.cookies.getAll().map(c => `${c.name}`).join(', '));
+  // Check if Privy token exists
+  const privyToken = request.cookies.get('privy-token');
+  console.log('Privy token exists:', !!privyToken);
+  
   // Admin route protection
   if (request.nextUrl.pathname.startsWith('/admin')) {
     try {
       const authToken = request.cookies.get('privy-token')?.value;
       if (!authToken) {
+        console.log('Admin access: No auth token');
         return NextResponse.redirect(new URL('/', request.url));
       }
 
@@ -21,16 +38,22 @@ export async function middleware(request: NextRequest) {
       const userDetails = await privy.getUser(verifiedUser.userId);
 
       if (!userDetails.email?.address) {
+        console.log('Admin access: No email');
         return NextResponse.redirect(new URL('/', request.url));
       }
 
-      // Check if user exists and has admin role directly from database
-      const user = await prisma.user.findUnique({
-        where: { email: userDetails.email.address },
-        select: { role: true },
+      // Check if user exists and has admin role using edge function
+      // Since Prisma might not be available, we'll use the user role API instead
+      const roleResponse = await fetch(`${request.nextUrl.origin}/api/user/role`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
       });
       
-      if (user?.role !== 'ADMIN') {
+      const roleData = await roleResponse.json();
+      console.log('Admin access: User role =', roleData.role);
+      
+      if (roleData.role !== 'ADMIN') {
         return NextResponse.redirect(new URL('/', request.url));
       }
 
@@ -45,9 +68,12 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/recipes') || 
       request.nextUrl.pathname.startsWith('/shop')) {
     try {
+      console.log('Subscriber content access check');
+      
       const authToken = request.cookies.get('privy-token')?.value;
       
       if (!authToken) {
+        console.log('Subscriber content: No auth token');
         // Redirect to login without query parameters
         return NextResponse.redirect(new URL('/', request.url));
       }
@@ -61,23 +87,28 @@ export async function middleware(request: NextRequest) {
       const userDetails = await privy.getUser(verifiedUser.userId);
       
       if (!userDetails.email?.address) {
+        console.log('Subscriber content: No email');
         return NextResponse.redirect(new URL('/', request.url));
       }
       
-      // Verify user exists in the database
-      const user = await prisma.user.findUnique({
-        where: { email: userDetails.email.address }
+      // Check user role using API instead of Prisma directly
+      const roleResponse = await fetch(`${request.nextUrl.origin}/api/user/role`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
       });
       
-      if (!user) {
-        return NextResponse.redirect(new URL('/', request.url));
+      const roleData = await roleResponse.json();
+      console.log('Subscriber content: User role =', roleData.role);
+      
+      // Allow access based on role
+      if (roleData.role === 'SUBSCRIBER' || roleData.role === 'ADMIN') {
+        console.log('Access granted to subscriber content');
+        return NextResponse.next();
       }
       
-      // TEMPORARILY REMOVED: Subscription check
-      // We're allowing all authenticated users to access recipes and shop
-      // until subscription issues are fixed
-      
-      return NextResponse.next();
+      console.log('Access denied - redirecting to subscription page');
+      return NextResponse.redirect(new URL('/subscription', request.url));
     } catch (error) {
       console.error('Subscriber content middleware error:', error);
       return NextResponse.redirect(new URL('/', request.url));
