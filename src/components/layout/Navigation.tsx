@@ -87,17 +87,6 @@ export function Navigation() {
           <Link href="/">
             <Text>Home</Text>
           </Link>
-          <Link href="/about">
-            <Text>About</Text>
-          </Link>
-          <Link href="/shop">
-            <Text>Shop</Text>
-          </Link>
-          {authenticated && (
-            <Link href="/recipes">
-              <Text>Recipes</Text>
-            </Link>
-          )}
         </View>
       </View>
 

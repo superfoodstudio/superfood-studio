@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = await executeQuery(query, variables || {});
+    const data = await executeQuery(query, variables || {}, request);
 
     return NextResponse.json({ data });
   } catch (error) {

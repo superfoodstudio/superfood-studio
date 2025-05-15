@@ -78,6 +78,27 @@ input UpdateProductInput {
   isActive: Boolean
 }
 
+# Cart schema
+type CartItem {
+  id: ID!
+  product: Product!
+  quantity: Int!
+  price: Float!
+}
+
+type Cart {
+  id: ID!
+  items: [CartItem!]!
+  total: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input AddToCartInput {
+  productId: ID!
+  quantity: Int!
+}
+
 type Query {
   # Recipe queries
   recipes(
@@ -87,6 +108,13 @@ type Query {
     sort: String
   ): [Recipe!]!
   recipe(id: ID!): Recipe
+  
+  # Public Recipe queries
+  publicRecipes(
+    category: String
+    limit: Int
+    offset: Int
+  ): [Recipe!]!
 
   # Product queries
   products(
@@ -96,6 +124,16 @@ type Query {
     sort: String
   ): [Product!]!
   product(id: ID!): Product
+  
+  # Public Product queries
+  productsByCategory(
+    category: String!
+    limit: Int
+    offset: Int
+  ): [Product!]!
+  
+  # Cart queries
+  cart: Cart
 }
 
 type Mutation {
@@ -110,6 +148,12 @@ type Mutation {
   updateProduct(id: ID!, input: UpdateProductInput!): Product!
   deleteProduct(id: ID!): DeleteProductResponse!
   toggleProductStatus(id: ID!): Product!
+  
+  # Cart mutations
+  addToCart(input: AddToCartInput!): Cart!
+  removeFromCart(cartItemId: ID!): Cart!
+  updateCartItem(cartItemId: ID!, quantity: Int!): Cart!
+  clearCart: Cart!
 }
 
 type DeleteRecipeResponse {

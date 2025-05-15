@@ -4,18 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "build:themes": "reshaped theming --output src/themes",
     "promote-admin": "ts-node scripts/promote-admin.ts",
-    "relay": "relay-compiler"
+    "relay": "relay-compiler",
+    "test-api": "ts-node scripts/test-api.ts"
   },
   "dependencies": {
     "@graphql-tools/schema": "^10.0.23",
     "@pinata/sdk": "^2.1.0",
     "@privy-io/react-auth": "^2.8.0",
     "@privy-io/server-auth": "^1.19.2",
+    "axios": "^1.9.0",
+    "chalk": "^5.4.1",
+    "form-data": "^4.0.2",
     "graphql-yoga": "^5.13.2",
     "next": "15.2.4",
     "react": "^19.0.0",
@@ -24,6 +28,7 @@
     "react-relay": "^18.2.0",
     "relay-runtime": "^18.2.0",
     "reshaped": "^3.4.5",
+    "sharp": "^0.34.1",
     "stripe": "^18.0.0"
   },
   "devDependencies": {
@@ -31,19 +36,19 @@
     "@babel/preset-typescript": "^7.27.0",
     "@eslint/eslintrc": "^3",
     "@prisma/client": "^6.5.0",
-    "@tailwindcss/postcss": "^4",
+    "@types/form-data": "^2.5.2",
     "@types/node": "^20.17.30",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
     "@types/react-relay": "^18.2.0",
     "@types/relay-runtime": "^18.2.5",
+    "@types/sharp": "^0.32.0",
     "babel-plugin-relay": "^18.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "graphql": "^16.10.0",
     "prisma": "^6.5.0",
     "relay-compiler": "^18.2.0",
-    "tailwindcss": "^4",
     "ts-node": "^10.9.1",
     "typescript": "^5"
   }

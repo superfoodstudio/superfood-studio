@@ -8,6 +8,12 @@ interface RecipeFilters {
   sort?: 'a-z' | 'z-a' | 'oldest' | 'newest';
 }
 
+interface PublicRecipeFilters {
+  category?: string;
+  limit?: number;
+  offset?: number;
+}
+
 export const recipeResolvers = {
   Query: {
     recipes: async (_parent: unknown, args: RecipeFilters, { prisma }: GraphQLContext) => {
@@ -50,6 +56,23 @@ export const recipeResolvers = {
     recipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
       return prisma.recipe.findUnique({
         where: { id },
+      });
+    },
+    
+    publicRecipes: async (_parent: unknown, args: PublicRecipeFilters, { prisma, user }: GraphQLContext) => {
+      const { category, limit = 10, offset = 0 } = args;
+      
+      // For public recipes, we only show published recipes
+      const where: Prisma.RecipeWhereInput = {
+        isPublished: true,
+        ...(category ? { category } : {}),
+      };
+      
+      return prisma.recipe.findMany({
+        where,
+        orderBy: { uploadDate: 'desc' },
+        take: limit,
+        skip: offset,
       });
     },
   },

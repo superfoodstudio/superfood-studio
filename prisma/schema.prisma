@@ -23,6 +23,7 @@ model User {
   shippingAddress Address?
   subscription    Subscription?
   orders         Order[]
+  cart           Cart?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
@@ -57,8 +58,29 @@ model Product {
   stripePriceId   String?   // ID of the default price in Stripe
   // Relations
   orderItems      OrderItem[]
+  cartItems       CartItem[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model Cart {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?    @db.ObjectId @unique
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  guestId   String?    // For non-authenticated users
+}
+
+model CartItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String   @db.ObjectId
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  productId String   @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
 }
 
 model Order {
@@ -68,6 +90,7 @@ model Order {
   items           OrderItem[]
   status          OrderStatus
   total           Float
+  stripeSessionId String?   // Stripe checkout session ID
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -121,6 +144,7 @@ enum OrderStatus {
 
 enum SubscriptionStatus {
   ACTIVE
+  PENDING
   CANCELED
   EXPIRED
 }

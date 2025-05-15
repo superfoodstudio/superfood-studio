@@ -1,5 +1,6 @@
 import { prisma } from './prisma';
 import { PrivyClient } from '@privy-io/server-auth';
+import type { headers as NextHeaders } from 'next/headers';
 
 export class AuthService {
   private static instance: AuthService;
@@ -23,7 +24,7 @@ export class AuthService {
     return AuthService.instance;
   }
 
-  async verifyToken(token: string) {
+  async verifyToken(token: string, requestHeaders?: Headers) {
     try {
       // First verify the token to get the user ID
       const verifiedClaims = await this.privy.verifyAuthToken(token);
@@ -52,8 +53,22 @@ export class AuthService {
     }
   }
 
-  async getUserRole(email: string) {
+  async getUserRole(email: string, requestHeaders?: Headers) {
     try {
+      // Check for the test admin override header
+      let adminOverride = false;
+      
+      // For browser requests, check the passed headers
+      if (requestHeaders && requestHeaders.get('X-Admin-Test-Override') === 'true') {
+        adminOverride = true;
+      }
+      
+      // For testing only - return ADMIN role if the override header is present
+      if (adminOverride && (process.env.NODE_ENV === 'test' || process.env.TESTING === 'true')) {
+        console.log('⚠️ Using admin override for testing - NEVER USE IN PRODUCTION');
+        return 'ADMIN';
+      }
+      
       const user = await prisma.user.findUnique({
         where: { email },
         select: { role: true },

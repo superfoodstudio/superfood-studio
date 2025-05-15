@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Superfood Studio
+
+A comprehensive e-commerce platform for superfood products and premium recipes.
+
+## Features
+
+- **Products Store**: Browse and purchase superfood products
+- **Recipe Repository**: Access free and premium recipes
+- **Subscription Service**: Sign up for monthly/yearly subscription plans
+- **User Authentication**: Secure authentication with Privy
+- **Shopping Cart**: Add products to cart and checkout
+- **Payment Processing**: Secure payments via Stripe
+- **Media Uploads**: IPFS-based storage for images using Pinata
+- **Admin Dashboard**: Manage products, recipes, and users
+
+## Technical Stack
+
+- **Frontend**: Next.js 15, React, TailwindCSS
+- **Backend**: Next.js API routes, GraphQL
+- **Database**: MongoDB with Prisma ORM
+- **Authentication**: Privy
+- **Payment Processing**: Stripe
+- **Media Storage**: Pinata (IPFS)
+- **Deployment**: Vercel (recommended)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+ and pnpm
+- MongoDB instance
+- Privy account for authentication
+- Stripe account for payments
+- Pinata account for IPFS storage
+
+### Environment Setup
+
+Create a `.env.local` file with the following values:
+
+```
+# Database
+DATABASE_URL="mongodb+srv://..."
+
+# Authentication
+PRIVY_APP_ID="..."
+PRIVY_APP_SECRET="..."
+
+# Payments
+STRIPE_SECRET_KEY="..."
+STRIPE_WEBHOOK_SECRET="..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="..."
+
+# Media Storage
+PINATA_API_KEY="..."
+PINATA_API_SECRET="..."
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Install dependencies
+pnpm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Generate Prisma client
+pnpm prisma generate
 
-## Learn More
+# Run development server
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Building for Production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Build the application
+pnpm build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Start production server
+pnpm start
+```
 
-## Deploy on Vercel
+### API Testing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Run API tests (requires environment setup)
+pnpm test-api
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### CI/CD
+
+A CI script is provided to run on your CI/CD platform:
+
+```bash
+# Run CI checks (build, lint, test)
+./scripts/ci.sh
+```
+
+## Frontend Routes
+
+The application includes the following main user routes:
+
+- `/` - Home page
+- `/cart` - Shopping cart
+- `/checkout` - Checkout flow
+- `/checkout/success` - Successful checkout page
+- `/checkout/cancel` - Cancelled checkout page
+- `/profile` - User profile management
+- `/subscription` - Subscription management
+- `/recipes` - Recipes listing page
+- `/recipes/[id]` - Individual recipe page
+
+Admin routes:
+
+- `/admin` - Admin dashboard
+- `/admin/products` - Product management
+- `/admin/recipes` - Recipe management
+
+## API Endpoints
+
+The API follows RESTful conventions and includes the following main endpoints:
+
+- `/api/graphql` - GraphQL API
+- `/api/cart` - Shopping cart management
+- `/api/checkout` - Payment processing
+- `/api/subscription` - Subscription management
+- `/api/upload` - Media upload
+- `/api/user/profile` - User profile management
+- `/api/webhooks/stripe` - Stripe webhook handler
+
+## License
+
+[MIT License](LICENSE)
+
+## Contributors
+
+- Superfood Studio Team
