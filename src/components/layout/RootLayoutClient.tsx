@@ -7,11 +7,11 @@ import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
 // Import the RelayProvider with SSR disabled completely
-const RelayProvider = dynamic(
-  () => import('@/components/providers/RelayProvider').then(mod => mod.RelayProvider),
+const ClientOnly = dynamic(
+  () => import('@/components/providers/ClientOnly').then(mod => mod.ClientOnly),
   { 
     ssr: false,
-    loading: () => <>{/* Loading placeholder */}</>
+    loading: () => <div>Loading application...</div>
   }
 );
 
@@ -33,10 +33,10 @@ export function RootLayoutClient({ children }: { children: React.ReactNode }) {
       <ReshapedProvider>
         <Suspense fallback={<div>Loading...</div>}>
           <Navigation />
-          {/* Wrap only Relay-dependent content in RelayProvider */}
-          <RelayProvider>
+          {/* Use a client-only wrapper instead of directly embedding RelayProvider */}
+          <ClientOnly>
             {children}
-          </RelayProvider>
+          </ClientOnly>
         </Suspense>
       </ReshapedProvider>
     </PrivyProvider>

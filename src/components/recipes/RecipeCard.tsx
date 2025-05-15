@@ -6,6 +6,11 @@ import Link from 'next/link';
 import { View, Text, Button } from 'reshaped';
 import { RecipeCardFragment$key } from '@/__generated__/RecipeCardFragment.graphql';
 
+// Prevent server-side execution
+if (typeof window === 'undefined') {
+  throw new Error('RecipeCard can only be used on the client side');
+}
+
 // Use a unique name with proper module prefix
 export const recipeCardFragment = graphql`
   fragment RecipeCardFragment on Recipe {

@@ -1,5 +1,17 @@
 import { graphql } from 'relay-runtime';
-import { recipeCardFragment } from '@/components/recipes/RecipeCard';
+
+// Define the fragment directly to avoid circular dependencies
+export const RecipeCardFragment = graphql`
+  fragment RecipeCardFragment on Recipe {
+    id
+    name
+    slug
+    description
+    category
+    mediaUrl
+    uploadDate
+  }
+`;
 
 export const RecipeListQuery = graphql`
   query RecipeQueriesRecipeListQuery($category: String, $limit: Int, $offset: Int) {

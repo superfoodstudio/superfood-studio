@@ -1,12 +1,13 @@
 import { View, Text } from 'reshaped';
 import { AppContainer } from '@/components/layout/AppContainer';
-import dynamic from 'next/dynamic';
+import { default as NextDynamic } from 'next/dynamic';
 
-// Force dynamic rendering
-export const dynamicParams = 'force-dynamic';
+// Force dynamic rendering using the Next.js config option
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Use dynamic import with SSR disabled for the client component that uses Relay
-const RecipesContent = dynamic(
+const RecipesContent = NextDynamic(
   () => import('./RecipesContent'),
   { ssr: false }
 );
