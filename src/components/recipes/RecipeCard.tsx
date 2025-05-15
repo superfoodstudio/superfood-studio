@@ -1,63 +1,84 @@
 'use client';
 
+import React from 'react';
+import { graphql, useFragment } from 'react-relay';
+import Link from 'next/link';
 import { View, Text, Button } from 'reshaped';
-import Image from 'next/image';
+import { RecipeCardFragment$key } from '@/__generated__/RecipeCardFragment.graphql';
+
+// Use a unique name with proper module prefix
+export const recipeCardFragment = graphql`
+  fragment RecipeCardFragment on Recipe {
+    id
+    name
+    slug
+    description
+    category
+    mediaUrl
+    uploadDate
+  }
+`;
+
+// Temporary type until Relay generates the real one
+type RecipeCardFragment = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  category: string;
+  mediaUrl: string;
+  uploadDate: string;
+};
 
 interface RecipeCardProps {
-  id: string;
-  title: string;
-  status: string;
-  mediaUrl: string;
-  uploadedAt: string;
-  onToggleStatus: (id: string) => void;
+  recipe: RecipeCardFragment$key;
 }
 
-export function RecipeCard({
-  id,
-  title,
-  status,
-  mediaUrl,
-  uploadedAt,
-  onToggleStatus,
-}: RecipeCardProps) {
+export function RecipeCard({ recipe }: RecipeCardProps) {
+  const data = useFragment(recipeCardFragment, recipe);
+  
   return (
-    <View
-      as="article"
-      direction="column"
-      gap={2}
-      backgroundColor="elevation-base"
-      padding={4}
+    <View 
+      padding={3} 
+      backgroundColor="neutral-faded"
       attributes={{
         style: {
           borderRadius: '8px',
-        },
+          border: '1px solid var(--rs-color-border-neutral-faded)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+        }
       }}
     >
-      <View position="relative" height={200}>
-        <Image
-          src={mediaUrl}
-          alt={title}
-          fill
-          style={{ objectFit: 'cover', borderRadius: '4px' }}
-        />
-      </View>
-
-      <View direction="column" gap={1}>
-        <Text variant="featured-2">{title}</Text>
-        <Text variant="body-2" color="neutral-faded">
-          uploaded: {uploadedAt}
-        </Text>
-      </View>
-
-      <View direction="row" gap={2} align="center">
-        <Text variant="body-2">recipe is {status}</Text>
-        <Button
-          variant="ghost"
-          size="small"
-          onClick={() => onToggleStatus(id)}
-        >
-          👁
-        </Button>
+      <View direction="column" gap={3}>
+        <div style={{ position: 'relative', aspectRatio: '16/9', width: '100%' }}>
+          <img
+            src={data.mediaUrl}
+            alt={data.name}
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover', 
+              borderRadius: '8px' 
+            }}
+          />
+        </div>
+        <View direction="column" gap={2}>
+          <Text variant="title-3">{data.name}</Text>
+          <Text variant="body-2" color="neutral-faded">
+            {data.category}
+          </Text>
+          <div style={{ 
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}>
+            <Text variant="body-3">{data.description}</Text>
+          </div>
+        </View>
+        <Link href={`/recipes/${data.slug}`} passHref>
+          <Button fullWidth>View Recipe</Button>
+        </Link>
       </View>
     </View>
   );

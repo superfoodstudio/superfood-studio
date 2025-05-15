@@ -3,7 +3,7 @@
     "@babel/preset-typescript"
   ],
   "plugins": [
-    "relay",
+    ["relay", {"artifactDirectory": "./src/__generated__"}],
     "@babel/plugin-syntax-import-attributes"
   ]
 } 

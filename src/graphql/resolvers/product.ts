@@ -1,11 +1,13 @@
-import { Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { GraphQLContext } from '../context';
 import Stripe from 'stripe';
+import { generateSlug } from '@/lib/utils';
 
 // Define our full Product type including Stripe fields
 interface Product {
   id: string;
   name: string;
+  slug: string;
   description: string;
   photoUrl: string;
   videoUrl: string | null;
@@ -19,6 +21,22 @@ interface Product {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// For Prisma types that are no longer exported directly
+type ProductOrderByWithRelationInput = {
+  name?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+};
+
+type ProductWhereInput = {
+  category?: string;
+  isActive?: boolean;
+  OR?: Array<{
+    name?: { contains: string; mode: 'insensitive' };
+    description?: { contains: string; mode: 'insensitive' };
+  }>;
+};
 
 // Initialize Stripe client
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -52,7 +70,17 @@ interface CreateProductInputWithStripe {
   stripePriceId?: string;
 }
 
-interface UpdateProductInputWithStripe extends Prisma.ProductUpdateInput {
+interface UpdateProductInputWithStripe {
+  name?: string;
+  description?: string;
+  photoUrl?: string;
+  videoUrl?: string | null;
+  price?: number;
+  category?: string;
+  tags?: string[];
+  inventory?: number;
+  isActive?: boolean;
+  slug?: string;
   stripeProductId?: string;
   stripePriceId?: string;
 }
@@ -62,7 +90,7 @@ export const productResolvers = {
     products: async (_parent: unknown, args: ProductFilters, { prisma }: GraphQLContext) => {
       const { category, status, search, sort } = args;
 
-      let orderBy: Prisma.ProductOrderByWithRelationInput = {};
+      let orderBy: ProductOrderByWithRelationInput = {};
       switch (sort) {
         case 'a-z':
           orderBy = { name: 'asc' };
@@ -83,7 +111,7 @@ export const productResolvers = {
           orderBy = { createdAt: 'desc' }; // newest
       }
 
-      const where: Prisma.ProductWhereInput = {
+      const where: ProductWhereInput = {
         ...(category ? { category } : {}),
         ...(status && status !== 'all'
           ? { isActive: status === 'active' }
@@ -107,6 +135,12 @@ export const productResolvers = {
     product: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
       return prisma.product.findUnique({
         where: { id },
+      });
+    },
+    
+    productBySlug: async (_parent: unknown, { slug }: { slug: string }, { prisma }: GraphQLContext) => {
+      return prisma.product.findUnique({
+        where: { slug },
       });
     },
     
@@ -168,10 +202,14 @@ export const productResolvers = {
           stripePriceId = `mock_price_${Date.now()}`;
         }
 
+        // Generate a slug from the name
+        const slug = generateSlug(input.name);
+
         // Now create the product in our database with Stripe IDs
         // Create a base product without Stripe fields first
         const productBase = {
           name: input.name,
+          slug,
           description: input.description || "",  // Ensure required fields are not undefined
           photoUrl: input.photoUrl || "",
           videoUrl: input.videoUrl,
@@ -182,19 +220,16 @@ export const productResolvers = {
           isActive: true,
         };
 
-        // Create the product first
+        // Create the product with all fields including slug
         const product = await prisma.product.create({
-          data: productBase,
-        });
-
-        // Then update it with Stripe IDs
-        return prisma.product.update({
-          where: { id: product.id },
           data: {
+            ...productBase,
             stripeProductId,
             stripePriceId,
           },
         });
+
+        return product;
       } catch (error) {
         console.error('Error creating product with Stripe:', error);
         throw new Error('Failed to create product with Stripe');
@@ -219,23 +254,28 @@ export const productResolvers = {
         // Update in Stripe if we have a Stripe product ID
         if (currentProduct.stripeProductId) {
           await stripe.products.update(currentProduct.stripeProductId, {
-            name: input.name as string || currentProduct.name,
-            description: input.description as string || currentProduct.description,
-            images: input.photoUrl ? [input.photoUrl as string] : undefined,
-            active: input.isActive !== undefined ? input.isActive as boolean : currentProduct.isActive,
+            name: input.name || currentProduct.name,
+            description: input.description || currentProduct.description,
+            images: input.photoUrl ? [input.photoUrl] : undefined,
+            active: input.isActive !== undefined ? input.isActive : currentProduct.isActive,
           });
 
           // If price is updated, create a new price in Stripe
           if (input.price !== undefined && input.price !== currentProduct.price) {
             const newPrice = await stripe.prices.create({
               product: currentProduct.stripeProductId,
-              unit_amount: Math.round((input.price as number) * 100), // Convert to cents
+              unit_amount: Math.round(input.price * 100), // Convert to cents
               currency: 'usd',
             });
 
             // Add the new price ID to the input for database update
             input.stripePriceId = newPrice.id;
           }
+        }
+
+        // If name is updated, generate a new slug
+        if (input.name && input.name !== currentProduct.name) {
+          input.slug = generateSlug(input.name);
         }
 
         // Update in our database

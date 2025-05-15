@@ -2,18 +2,15 @@
 
 import { View, Text, Button } from 'reshaped';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export function HomeContent() {
   return (
     <View as="main" direction="column">
       {/* Hero Image Section */}
       <View as="section">
-        <Image
+        <img
           src="/images/hero.jpg"
           alt="Cooking ingredients"
-          width={1200}
-          height={400}
           style={{
             width: '100%',
             height: 'auto',

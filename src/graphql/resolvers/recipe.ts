@@ -1,5 +1,6 @@
-import { Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { GraphQLContext } from '../context';
+import { generateSlug } from '@/lib/utils';
 
 interface RecipeFilters {
   category?: string;
@@ -14,12 +15,52 @@ interface PublicRecipeFilters {
   offset?: number;
 }
 
+// Define our own types for Prisma queries
+type RecipeOrderByWithRelationInput = {
+  name?: 'asc' | 'desc';
+  uploadDate?: 'asc' | 'desc';
+};
+
+type RecipeWhereInput = {
+  category?: string;
+  status?: string;
+  isPublished?: boolean;
+  OR?: Array<{
+    name?: { contains: string; mode: 'insensitive' };
+    description?: { contains: string; mode: 'insensitive' };
+  }>;
+};
+
+// Define input types explicitly
+interface RecipeCreateInput {
+  name: string;
+  slug: string;
+  description: string;
+  category: string;
+  isPublished: boolean;
+  mediaUrl: string;
+  uploadDate: Date;
+  ingredients?: string[];
+  instructions?: string[];
+}
+
+interface RecipeUpdateInput {
+  name?: string;
+  slug?: string;
+  description?: string;
+  category?: string;
+  isPublished?: boolean;
+  mediaUrl?: string;
+  ingredients?: string[];
+  instructions?: string[];
+}
+
 export const recipeResolvers = {
   Query: {
     recipes: async (_parent: unknown, args: RecipeFilters, { prisma }: GraphQLContext) => {
       const { category, status, search, sort } = args;
 
-      let orderBy: Prisma.RecipeOrderByWithRelationInput = {};
+      let orderBy: RecipeOrderByWithRelationInput = {};
       switch (sort) {
         case 'a-z':
           orderBy = { name: 'asc' };
@@ -34,7 +75,7 @@ export const recipeResolvers = {
           orderBy = { uploadDate: 'desc' };
       }
 
-      const where: Prisma.RecipeWhereInput = {
+      const where: RecipeWhereInput = {
         ...(category ? { category } : {}),
         ...(status && status !== 'all' ? { status } : {}),
         ...(search
@@ -59,11 +100,17 @@ export const recipeResolvers = {
       });
     },
     
+    recipeBySlug: async (_parent: unknown, { slug }: { slug: string }, { prisma }: GraphQLContext) => {
+      return prisma.recipe.findUnique({
+        where: { slug },
+      });
+    },
+    
     publicRecipes: async (_parent: unknown, args: PublicRecipeFilters, { prisma, user }: GraphQLContext) => {
       const { category, limit = 10, offset = 0 } = args;
       
       // For public recipes, we only show published recipes
-      const where: Prisma.RecipeWhereInput = {
+      const where: RecipeWhereInput = {
         isPublished: true,
         ...(category ? { category } : {}),
       };
@@ -80,12 +127,16 @@ export const recipeResolvers = {
   Mutation: {
     createRecipe: async (
       _parent: unknown,
-      { input }: { input: Omit<Prisma.RecipeCreateInput, 'status'> },
+      { input }: { input: Omit<RecipeCreateInput, 'slug' | 'isPublished' | 'uploadDate'> },
       { prisma }: GraphQLContext
     ) => {
+      // Generate a slug from the name
+      const slug = generateSlug(input.name);
+      
       return prisma.recipe.create({
         data: {
           ...input,
+          slug,
           isPublished: false,
           uploadDate: new Date(),
         },
@@ -94,9 +145,17 @@ export const recipeResolvers = {
 
     updateRecipe: async (
       _parent: unknown,
-      { id, input }: { id: string; input: Prisma.RecipeUpdateInput },
+      { id, input }: { id: string; input: RecipeUpdateInput },
       { prisma }: GraphQLContext
     ) => {
+      // If name is updated, generate a new slug
+      if (input.name) {
+        const recipe = await prisma.recipe.findUnique({ where: { id } });
+        if (recipe && recipe.name !== input.name) {
+          input.slug = generateSlug(input.name);
+        }
+      }
+      
       return prisma.recipe.update({
         where: { id },
         data: input,
