@@ -6,7 +6,7 @@ import { Navigation } from '@/components/layout/Navigation';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
-// Import RelayProvider with SSR disabled
+// Completely disable SSR for RelayProvider to prevent build errors
 const RelayProvider = dynamic(
   () => import('@/components/providers/RelayProvider').then(mod => mod.RelayProvider),
   { ssr: false }

@@ -1,21 +1,20 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { createRelayEnvironment } from '@/lib/relay/environment';
 
 export function RelayProvider({ children }: { children: React.ReactNode }) {
-  // Create the environment (this will be a no-op on the server)
-  const environment = useMemo(() => {
-    // Only create a real environment in the browser
-    if (typeof window === 'undefined') {
-      return null;
-    }
-    return createRelayEnvironment();
-  }, []);
+  // Only create the environment on the client side
+  if (typeof window === 'undefined') {
+    return <>{children}</>;
+  }
 
-  // In server environment, just return children without the RelayEnvironmentProvider
-  if (typeof window === 'undefined' || !environment) {
+  // Safe to use createRelayEnvironment on the client
+  const environment = createRelayEnvironment();
+  
+  // Make sure we have an environment before using the provider
+  if (!environment) {
     return <>{children}</>;
   }
 

@@ -13,6 +13,17 @@ const nextConfig = {
       'ipfs.io'
     ],
   },
+  // Disable output file tracing to avoid micromatch stack overflow
+  experimental: {
+    outputFileTracing: false
+  },
+  // Exclude relay deps from the server bundle
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...config.externals, 'react-relay', 'relay-runtime'];
+    }
+    return config;
+  }
 };
 
 module.exports = nextConfig; 

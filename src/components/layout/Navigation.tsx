@@ -60,7 +60,7 @@ export function Navigation() {
   // Fetch user role
   useEffect(() => {
     if (authenticated) {
-      async function fetchUserRole() {
+      const fetchUserRole = async () => {
         try {
           const response = await fetch('/api/user/role');
           if (response.ok) {
@@ -70,7 +70,7 @@ export function Navigation() {
         } catch (error) {
           console.error('Error fetching user role:', error);
         }
-      }
+      };
 
       fetchUserRole();
     }
