@@ -44,13 +44,15 @@ export async function middleware(request: NextRequest) {
     }
   }
   
-  // Premium content protection
-  if (request.nextUrl.pathname.startsWith('/recipes/premium')) {
+  // Subscriber content protection (Recipes & Shop)
+  if (request.nextUrl.pathname.startsWith('/recipes') || 
+      request.nextUrl.pathname.startsWith('/shop')) {
     try {
       const authToken = request.cookies.get('privy-token')?.value;
       
       if (!authToken) {
-        return NextResponse.redirect(new URL('/login?redirect=/recipes/premium', request.url));
+        // Redirect to login without query parameters
+        return NextResponse.redirect(new URL('/', request.url));
       }
       
       const privy = new PrivyClient(
@@ -62,7 +64,7 @@ export async function middleware(request: NextRequest) {
       const userDetails = await privy.getUser(verifiedUser.userId);
       
       if (!userDetails.email?.address) {
-        return NextResponse.redirect(new URL('/login?redirect=/recipes/premium', request.url));
+        return NextResponse.redirect(new URL('/', request.url));
       }
       
       // Check if user has an active subscription
@@ -72,13 +74,13 @@ export async function middleware(request: NextRequest) {
       });
       
       if (!user || !user.subscription || user.subscription.status !== 'ACTIVE') {
-        return NextResponse.redirect(new URL('/subscription?redirect=/recipes/premium', request.url));
+        return NextResponse.redirect(new URL('/subscription', request.url));
       }
       
       return NextResponse.next();
     } catch (error) {
-      console.error('Premium content middleware error:', error);
-      return NextResponse.redirect(new URL('/login?redirect=/recipes/premium', request.url));
+      console.error('Subscriber content middleware error:', error);
+      return NextResponse.redirect(new URL('/', request.url));
     }
   }
   
@@ -88,6 +90,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
-    '/recipes/premium/:path*'
+    '/recipes/:path*',
+    '/shop/:path*'
   ],
 }; 
