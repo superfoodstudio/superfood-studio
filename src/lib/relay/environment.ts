@@ -8,25 +8,31 @@ import {
   Variables
 } from 'relay-runtime';
 
+// Create a singleton instance to avoid recreating the environment
+let relayEnvironment: Environment | undefined;
+
 const fetchFn: FetchFunction = async (
   request: RequestParameters, 
   variables: Variables
 ) => {
-  const url = typeof window !== 'undefined' 
-    ? `${window.location.origin}/api/graphql` 
-    : 'http://localhost:3000/api/graphql';
+  // Ensure we're in browser environment
+  if (typeof window === 'undefined') {
+    return { data: null, extensions: {} };
+  }
+
+  const url = `${window.location.origin}/api/graphql`;
     
   try {
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: request.text,
-      variables,
-    }),
-  });
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: request.text,
+        variables,
+      }),
+    });
 
     const json = await resp.json();
     
@@ -40,13 +46,31 @@ const fetchFn: FetchFunction = async (
     return {
       data: null,
       errors: [{ message: 'Network error occurred' }],
+      extensions: {},
     };
   }
 };
 
 export const createRelayEnvironment = () => {
-  return new Environment({
+  // Only create the environment once in the browser
+  if (typeof window === 'undefined') {
+    // Server-side, return a minimal environment
+    return new Environment({
+      network: Network.create(() => Promise.resolve({ data: null, extensions: {} })),
+      store: new Store(new RecordSource()),
+    });
+  }
+  
+  // Return the singleton instance if it exists
+  if (relayEnvironment) {
+    return relayEnvironment;
+  }
+  
+  // Create the environment if it doesn't exist
+  relayEnvironment = new Environment({
     network: Network.create(fetchFn),
     store: new Store(new RecordSource()),
   });
+  
+  return relayEnvironment;
 }; 

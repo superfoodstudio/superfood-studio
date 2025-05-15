@@ -63,7 +63,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
           />
         </div>
         <View direction="column" gap={2}>
-          <Text variant="title-3">{data.name}</Text>
+          <Text variant="title-3" attributes={{ style: { fontFamily: 'var(--font-playfair)' } }}>{data.name}</Text>
           <Text variant="body-2" color="neutral-faded">
             {data.category}
           </Text>

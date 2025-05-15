@@ -1,12 +1,13 @@
 'use client';
 
 import { Suspense } from 'react';
-import { View, Text } from 'reshaped';
+import { View, Text, Grid } from 'reshaped';
 import { usePreloadedQuery, PreloadedQuery, useQueryLoader } from 'react-relay';
 import { RecipeListQuery } from '@/graphql/queries/RecipeQueries';
 import { RecipeCard } from '@/components/recipes/RecipeCard';
 import { useEffect } from 'react';
 import { AppContainer } from '@/components/layout/AppContainer';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 
 export default function RecipesPage() {
   const [queryRef, loadQuery] = useQueryLoader(RecipeListQuery);
@@ -25,11 +26,21 @@ export default function RecipesPage() {
           </Text>
         </View>
         
-        <Suspense fallback={<Text align="center">Loading recipes...</Text>}>
+        <Suspense fallback={<RecipeListSkeleton />}>
           {queryRef && <RecipeList queryRef={queryRef} />}
         </Suspense>
       </View>
     </AppContainer>
+  );
+}
+
+function RecipeListSkeleton() {
+  return (
+    <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <SkeletonCard key={index} />
+      ))}
+    </Grid>
   );
 }
 
@@ -41,25 +52,12 @@ function RecipeList({ queryRef }: RecipeListProps) {
   const data = usePreloadedQuery(RecipeListQuery, queryRef);
   
   return (
-    <View direction="row" gap={4} wrap>
+    <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
       {data.publicRecipes.map((recipe: any) => (
-        <View 
-          key={recipe.id} 
-          attributes={{
-            style: {
-              width: '100%',
-              '@media (min-width: 576px)': {
-                width: 'calc(50% - 16px)'
-              },
-              '@media (min-width: 768px)': {
-                width: 'calc(33.333% - 16px)'
-              }
-            } as any
-          }}
-        >
+        <View key={recipe.id}>
           <RecipeCard recipe={recipe} />
         </View>
       ))}
-    </View>
+    </Grid>
   );
 } 
