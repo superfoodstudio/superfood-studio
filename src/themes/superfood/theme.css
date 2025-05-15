@@ -1,6 +1,6 @@
 			[data-rs-theme="superfood"] {
-					--rs-font-family-title: var(--font-playfair, 'Playfair Display', serif);
---rs-font-family-body: var(--font-inter, 'Inter', sans-serif);
+					--rs-font-family-title: var(--font-big-caslon, 'Big Caslon', serif);
+--rs-font-family-body: var(--font-lato, 'Lato', sans-serif);
 --rs-font-weight-regular: 400;
 --rs-font-weight-medium: 500;
 --rs-font-weight-semibold: 600;

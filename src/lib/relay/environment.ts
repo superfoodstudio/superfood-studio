@@ -17,7 +17,8 @@ const fetchFn: FetchFunction = async (
 ) => {
   // Ensure we're in browser environment
   if (typeof window === 'undefined') {
-    return { data: null, extensions: {} };
+    console.warn('Relay fetch attempted during server render - returning empty data');
+    return { data: {}, errors: [], extensions: {} };
   }
 
   const url = `${window.location.origin}/api/graphql`;
@@ -26,6 +27,7 @@ const fetchFn: FetchFunction = async (
     const resp = await fetch(url, {
       method: 'POST',
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -33,6 +35,10 @@ const fetchFn: FetchFunction = async (
         variables,
       }),
     });
+
+    if (!resp.ok) {
+      throw new Error(`Network error, status: ${resp.status}`);
+    }
 
     const json = await resp.json();
     
@@ -43,22 +49,24 @@ const fetchFn: FetchFunction = async (
     return json;
   } catch (error) {
     console.error('Network error:', error);
+    
+    // Return a structured error response that Relay can handle
     return {
-      data: null,
-      errors: [{ message: 'Network error occurred' }],
+      data: {},
+      errors: [{ 
+        message: error instanceof Error ? error.message : 'Network error occurred',
+        locations: [],
+        path: []
+      }],
       extensions: {},
     };
   }
 };
 
 export const createRelayEnvironment = () => {
-  // Only create the environment once in the browser
+  // Ensure we're in the browser
   if (typeof window === 'undefined') {
-    // Server-side, return a minimal environment
-    return new Environment({
-      network: Network.create(() => Promise.resolve({ data: null, extensions: {} })),
-      store: new Store(new RecordSource()),
-    });
+    return null;
   }
   
   // Return the singleton instance if it exists
@@ -70,6 +78,7 @@ export const createRelayEnvironment = () => {
   relayEnvironment = new Environment({
     network: Network.create(fetchFn),
     store: new Store(new RecordSource()),
+    isServer: false,
   });
   
   return relayEnvironment;
