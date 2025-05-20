@@ -1,71 +1,18 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { View, Grid, Text } from 'reshaped';
-import { useQueryLoader, usePreloadedQuery } from 'react-relay';
-import { RecipeListQuery } from '@/graphql/queries/RecipeQueries';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
-import dynamic from 'next/dynamic';
 
-// Dynamically import RecipeCard with SSR disabled
-const RecipeCard = dynamic(
-  () => import('@/components/recipes/RecipeCard').then(mod => mod.RecipeCard),
-  { ssr: false }
-);
+// Force error if this file is loaded on the server
+if (typeof window === 'undefined') {
+  throw new Error('RecipesContent should only be loaded on the client');
+}
 
-// Create a safe non-typed version to avoid TypeScript errors
-const RecipeList = ({ queryRef }: { queryRef: any }) => {
-  try {
-    // Attempt to load data but handle any errors
-    const data: any = usePreloadedQuery(RecipeListQuery, queryRef);
-    
-    if (!data || !data.publicRecipes || data.publicRecipes.length === 0) {
-      return (
-        <Grid columns={{ s: 1 }} gap={4}>
-          <Text variant="body-1">No recipes found</Text>
-        </Grid>
-      );
-    }
-    
-    return (
-      <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
-        {/* Add a key to force re-rendering if needed */}
-        {Array.isArray(data.publicRecipes) && data.publicRecipes.map((recipe: any, index: number) => (
-          <div key={recipe?.id || index}>
-            <RecipeCard recipe={recipe} />
-          </div>
-        ))}
-      </Grid>
-    );
-  } catch (error) {
-    console.error("Error rendering recipe list:", error);
-    return <Text variant="body-1">Error loading recipes</Text>;
-  }
-};
-
-export default function RecipesContent() {
-  const [queryRef, loadQuery] = useQueryLoader(RecipeListQuery);
-
-  useEffect(() => {
-    try {
-      loadQuery({ 
-        category: null,
-        status: "published",
-        search: null,
-        sort: "newest"
-      });
-    } catch (error) {
-      console.error("Error loading recipes:", error);
-    }
-  }, [loadQuery]);
-
-  return (
-    <View padding={4}>
-      <Suspense fallback={<RecipeListSkeleton />}>
-        {queryRef && <RecipeList queryRef={queryRef} />}
-      </Suspense>
-    </View>
-  );
+// Create placeholder components that will be rendered initially
+// These will be replaced with actual data-loaded components once the client code runs
+function RecipeList() {
+  return <RecipeListSkeleton />;
 }
 
 function RecipeListSkeleton() {
@@ -75,5 +22,41 @@ function RecipeListSkeleton() {
         <SkeletonCard key={index} />
       ))}
     </Grid>
+  );
+}
+
+// The main component that will be rendered on the client
+export default function RecipesContent() {
+  const [isClientLoaded, setIsClientLoaded] = useState(false);
+  const [Component, setComponent] = useState<React.ComponentType>(() => RecipeListSkeleton);
+
+  // Only load Relay on the client after mounting
+  useEffect(() => {
+    // This code runs only on the client side
+    const loadClientComponents = async () => {
+      try {
+        // Load the real Recipes component that uses Relay
+        const RealRecipesComponent = await import('./RealRecipesComponent').then(mod => mod.default);
+        setComponent(() => RealRecipesComponent);
+      } catch (error) {
+        console.error('Failed to load recipes component:', error);
+        // If loading fails, show an error message
+        setComponent(() => () => (
+          <Text variant="body-1" color="critical">Failed to load recipes. Please try again later.</Text>
+        ));
+      } finally {
+        setIsClientLoaded(true);
+      }
+    };
+
+    loadClientComponents();
+  }, []);
+
+  return (
+    <View padding={4}>
+      <Suspense fallback={<RecipeListSkeleton />}>
+        <Component />
+      </Suspense>
+    </View>
   );
 } 

@@ -24,17 +24,17 @@ const fetchFn: FetchFunction = async (
   const url = `${window.location.origin}/api/graphql`;
     
   try {
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: {
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: request.text,
-        variables,
-      }),
-    });
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: request.text,
+      variables,
+    }),
+  });
 
     if (!resp.ok) {
       throw new Error(`Network error, status: ${resp.status}`);
@@ -77,10 +77,10 @@ export const createRelayEnvironment = () => {
   try {
     // Create the environment if it doesn't exist
     relayEnvironment = new Environment({
-      network: Network.create(fetchFn),
-      store: new Store(new RecordSource()),
+    network: Network.create(fetchFn),
+    store: new Store(new RecordSource()),
       isServer: false,
-    });
+  });
     
     return relayEnvironment;
   } catch (error) {

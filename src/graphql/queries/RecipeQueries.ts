@@ -1,7 +1,8 @@
 import { graphql } from 'relay-runtime';
 
-// Define the fragment directly to avoid circular dependencies
-export const RecipeCardFragment = graphql`
+// Don't import the fragment directly
+// Define the fragment string directly here to avoid importing from RecipeCard
+const RecipeCardFragment = `
   fragment RecipeCardFragment on Recipe {
     id
     name

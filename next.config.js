@@ -13,8 +13,9 @@ const nextConfig = {
       'ipfs.io'
     ],
   },
-  // Fix for Vercel deployment - use standalone but keep file tracing
+  // Disable output file tracing to avoid micromatch stack overflow
   output: 'standalone',
+  outputFileTracing: false,
   // Exclude relay deps from the server bundle
   webpack: (config, { isServer }) => {
     if (isServer) {
