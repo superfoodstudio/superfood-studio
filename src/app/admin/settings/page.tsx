@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { View, Button, Text } from 'reshaped';
+import { View, Button, Text, TextArea } from 'reshaped';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { FormField } from '@/components/admin/FormField';
 import { FormError } from '@/components/admin/FormError';
@@ -14,6 +14,7 @@ import type { SiteSettingsQueriesUpdateMutation } from '@/__generated__/SiteSett
 
 interface SiteSettingsFormInputs {
   homepageVideoUrl: string;
+  weeklyGroceryList: string;
 }
 
 function SiteSettingsContent() {
@@ -31,7 +32,8 @@ function SiteSettingsContent() {
   // React Hook Form
   const { handleSubmit, setValue, watch, formState: { errors } } = useForm<SiteSettingsFormInputs>({
     defaultValues: {
-      homepageVideoUrl: data.siteSettings?.homepageVideoUrl || ''
+      homepageVideoUrl: data.siteSettings?.homepageVideoUrl || '',
+      weeklyGroceryList: data.siteSettings?.weeklyGroceryList || ''
     }
   });
   
@@ -45,6 +47,7 @@ function SiteSettingsContent() {
       variables: {
         input: {
           homepageVideoUrl: formData.homepageVideoUrl || null,
+          weeklyGroceryList: formData.weeklyGroceryList || null,
         },
       },
       onCompleted: () => {
@@ -74,6 +77,16 @@ function SiteSettingsContent() {
           <VideoUpload
             value={formValues.homepageVideoUrl}
             onChange={(url) => setValue('homepageVideoUrl', url)}
+            disabled={saving}
+          />
+        </FormField>
+        
+        <FormField label="Weekly Grocery List" error={errors.weeklyGroceryList?.message}>
+          <TextArea 
+            name="weeklyGroceryList"
+            value={formValues.weeklyGroceryList}
+            onChange={({ value }) => setValue('weeklyGroceryList', value)}
+            placeholder="Enter the weekly grocery list content here..."
             disabled={saving}
           />
         </FormField>

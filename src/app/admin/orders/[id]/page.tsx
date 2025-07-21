@@ -166,6 +166,23 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
           </View>
         </Card>
         
+        {order.shippingAddress && (
+          <Card padding={6} attributes={{ style: { gridColumn: "1 / -1" } }}>
+            <View direction="column" gap={4}>
+              <Text variant="title-3">Shipping Address</Text>
+              <Divider />
+              
+              <View direction="column" gap={2}>
+                <Text weight="medium">{order.shippingAddress.street}</Text>
+                <Text>
+                  {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+                </Text>
+                <Text>{order.shippingAddress.country}</Text>
+              </View>
+            </View>
+          </Card>
+        )}
+        
         <Card padding={6} attributes={{ style: { gridColumn: "1 / -1" } }}>
           <View direction="column" gap={4}>
             <Text variant="title-3">Order Items</Text>

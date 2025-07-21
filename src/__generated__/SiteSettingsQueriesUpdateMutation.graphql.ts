@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<167c084259d2d31eaae37eeb11c6dcd9>>
+ * @generated SignedSource<<3df814c95f46fcf956d8a4810b72d6ea>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { ConcreteRequest, Mutation } from 'relay-runtime';
 export type UpdateSiteSettingsInput = {
   homepageVideoUrl?: string | null;
+  weeklyGroceryList?: string | null;
 };
 export type SiteSettingsQueriesUpdateMutation$variables = {
   input: UpdateSiteSettingsInput;
@@ -21,6 +22,7 @@ export type SiteSettingsQueriesUpdateMutation$data = {
     readonly homepageVideoUrl: string | null;
     readonly id: string;
     readonly updatedAt: any;
+    readonly weeklyGroceryList: string | null;
   };
 };
 export type SiteSettingsQueriesUpdateMutation = {
@@ -69,6 +71,13 @@ v1 = [
         "alias": null,
         "args": null,
         "kind": "ScalarField",
+        "name": "weeklyGroceryList",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
         "name": "createdAt",
         "storageKey": null
       },
@@ -101,16 +110,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "0f7d2d08d1aaf64bc0d293b9efaaf6c5",
+    "cacheID": "013357c4e7c998559208a4fd86a0008d",
     "id": null,
     "metadata": {},
     "name": "SiteSettingsQueriesUpdateMutation",
     "operationKind": "mutation",
-    "text": "mutation SiteSettingsQueriesUpdateMutation(\n  $input: UpdateSiteSettingsInput!\n) {\n  updateSiteSettings(input: $input) {\n    id\n    homepageVideoUrl\n    createdAt\n    updatedAt\n  }\n}\n"
+    "text": "mutation SiteSettingsQueriesUpdateMutation(\n  $input: UpdateSiteSettingsInput!\n) {\n  updateSiteSettings(input: $input) {\n    id\n    homepageVideoUrl\n    weeklyGroceryList\n    createdAt\n    updatedAt\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "b3e641b9acd2775dc3db6b5de72e47be";
+(node as any).hash = "b2203e0f48dfabe820335ec3a9e6bb73";
 
 export default node;

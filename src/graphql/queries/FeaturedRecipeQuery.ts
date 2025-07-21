@@ -9,6 +9,7 @@ export const FeaturedRecipeQuery = graphql`
       description
       category
       mediaUrl
+      previewImageUrl
       uploadDate
     }
   }

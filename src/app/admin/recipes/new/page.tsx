@@ -128,12 +128,13 @@ export default function NewRecipePage() {
             />
           </FormField>
           
-          <FormField label="Description" required error={errors.description?.message}>
+          <FormField label="Description" error={errors.description?.message}>
             <TextArea 
               name="description"
               value={formValues.description || ''}
               onChange={({ value }) => setValue('description', value)}
               placeholder="Describe your recipe..."
+              disabled={saving}
             />
           </FormField>
           

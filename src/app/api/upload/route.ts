@@ -9,8 +9,8 @@ const pinata = new pinataSDK(
   process.env.PINATA_SECRET_API_KEY
 );
 
-// Maximum file size in bytes (5MB)
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
+// Maximum file size in bytes (500MB)
+const MAX_FILE_SIZE = 500 * 1024 * 1024;
 
 // Allowed file types
 const ALLOWED_FILE_TYPES = [
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: 'File too large (max 50MB)' },
+        { error: 'File too large (max 500MB)' },
         { status: 400 }
       );
     }

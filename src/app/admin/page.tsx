@@ -140,6 +140,50 @@ function AdminDashboardContent() {
               </Button>
             </Link>
 
+            <Link href="/admin/comments">
+              <Button
+                variant="outline"
+                size="medium"
+                attributes={{
+                  style: {
+                    width: "180px",
+                    height: "45px",
+                    border: "1px solid #6b4c7a",
+                    backgroundColor: "#ffffff",
+                    color: "#6b4c7a",
+                    fontSize: "11px",
+                    fontWeight: "500",
+                    letterSpacing: "0.5px",
+                    borderRadius: "2px",
+                  },
+                }}
+              >
+                MANAGE COMMENTS
+              </Button>
+            </Link>
+
+            <Link href="/admin/settings">
+              <Button
+                variant="outline"
+                size="medium"
+                attributes={{
+                  style: {
+                    width: "180px",
+                    height: "45px",
+                    border: "1px solid #6b4c7a",
+                    backgroundColor: "#ffffff",
+                    color: "#6b4c7a",
+                    fontSize: "11px",
+                    fontWeight: "500",
+                    letterSpacing: "0.5px",
+                    borderRadius: "2px",
+                  },
+                }}
+              >
+                SITE SETTINGS
+              </Button>
+            </Link>
+
             <Button
               variant="outline"
               size="medium"

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2e3c8babde34402bfddbf0c1bddd1c9a>>
+ * @generated SignedSource<<b1d3a11e715c1137be57d7494fd17a6a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -32,6 +32,13 @@ export type AdminOrderQueries_AdminOrderQuery$data = {
       readonly productId: string;
       readonly quantity: number;
     }>;
+    readonly shippingAddress: {
+      readonly city: string;
+      readonly country: string;
+      readonly state: string;
+      readonly street: string;
+      readonly zipCode: string;
+    } | null;
     readonly status: string;
     readonly stripeSessionId: string | null;
     readonly total: number;
@@ -128,6 +135,52 @@ v3 = [
         "args": null,
         "kind": "ScalarField",
         "name": "stripeSessionId",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Address",
+        "kind": "LinkedField",
+        "name": "shippingAddress",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "street",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "city",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "state",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "zipCode",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "country",
+            "storageKey": null
+          }
+        ],
         "storageKey": null
       },
       {
@@ -267,16 +320,16 @@ return {
     "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "fd12aae0da7dff1365e772f5922d4213",
+    "cacheID": "58db0dc77351cfeeb15eb77dde01f3d0",
     "id": null,
     "metadata": {},
     "name": "AdminOrderQueries_AdminOrderQuery",
     "operationKind": "query",
-    "text": "query AdminOrderQueries_AdminOrderQuery(\n  $orderId: String!\n) {\n  adminOrder(orderId: $orderId) {\n    id\n    userId\n    total\n    status\n    createdAt\n    updatedAt\n    stripeSessionId\n    user {\n      id\n      email\n      firstName\n      lastName\n    }\n    items {\n      id\n      productId\n      quantity\n      price\n      product {\n        id\n        name\n        slug\n        description\n        photoUrl\n        price\n        category\n        tags\n      }\n    }\n  }\n}\n"
+    "text": "query AdminOrderQueries_AdminOrderQuery(\n  $orderId: String!\n) {\n  adminOrder(orderId: $orderId) {\n    id\n    userId\n    total\n    status\n    createdAt\n    updatedAt\n    stripeSessionId\n    shippingAddress {\n      street\n      city\n      state\n      zipCode\n      country\n    }\n    user {\n      id\n      email\n      firstName\n      lastName\n    }\n    items {\n      id\n      productId\n      quantity\n      price\n      product {\n        id\n        name\n        slug\n        description\n        photoUrl\n        price\n        category\n        tags\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "fdb6541cb0b5a18f2f9936b60e87e7c9";
+(node as any).hash = "9a8921053c3fb168c9e18c5357c7ccda";
 
 export default node;

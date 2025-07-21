@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<202705da8cd6969da171f4fcb64aff01>>
+ * @generated SignedSource<<ee68ac5afa7ec7db3283016d4f2d6fd4>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,6 +16,7 @@ export type SiteSettingsQueriesQuery$data = {
     readonly homepageVideoUrl: string | null;
     readonly id: string;
     readonly updatedAt: any;
+    readonly weeklyGroceryList: string | null;
   } | null;
 };
 export type SiteSettingsQueriesQuery = {
@@ -45,6 +46,13 @@ var v0 = [
         "args": null,
         "kind": "ScalarField",
         "name": "homepageVideoUrl",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "weeklyGroceryList",
         "storageKey": null
       },
       {
@@ -83,16 +91,16 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "02dbc68ea3b62b3b719ece09d61635f4",
+    "cacheID": "9c3709b5c8b9f9e8a4236aad437be10b",
     "id": null,
     "metadata": {},
     "name": "SiteSettingsQueriesQuery",
     "operationKind": "query",
-    "text": "query SiteSettingsQueriesQuery {\n  siteSettings {\n    id\n    homepageVideoUrl\n    createdAt\n    updatedAt\n  }\n}\n"
+    "text": "query SiteSettingsQueriesQuery {\n  siteSettings {\n    id\n    homepageVideoUrl\n    weeklyGroceryList\n    createdAt\n    updatedAt\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "448d6ba30fbe9d6cee2643a2a3a48cfa";
+(node as any).hash = "40983712bd2b4d2d710d4c5feb5a2c11";
 
 export default node;

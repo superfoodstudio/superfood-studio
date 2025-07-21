@@ -75,10 +75,23 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
     return;
   }
   
-  // Update order status to PROCESSING
+  // Extract shipping address from Stripe session (cast to any to access shipping_details)
+  const sessionWithShipping = session as any;
+  const shippingAddress = sessionWithShipping.shipping_details?.address ? {
+    street: sessionWithShipping.shipping_details.address.line1 || '',
+    city: sessionWithShipping.shipping_details.address.city || '',
+    state: sessionWithShipping.shipping_details.address.state || '',
+    zipCode: sessionWithShipping.shipping_details.address.postal_code || '',
+    country: sessionWithShipping.shipping_details.address.country || '',
+  } : undefined;
+  
+  // Update order status to PROCESSING and save shipping address
   await prisma.order.update({
     where: { id: orderId },
-    data: { status: 'PROCESSING' },
+    data: { 
+      status: 'PROCESSING',
+      shippingAddress: shippingAddress || undefined,
+    },
   });
   
   // Reduce product inventory for each item in the order

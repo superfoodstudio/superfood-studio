@@ -134,15 +134,27 @@ export default function CheckoutPage() {
         productName: item.product.name,
         productPhoto: item.product.photoUrl
       }));
+
+      // Prepare shipping address
+      const shippingAddress = {
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        country: formData.country
+      };
       
-      // Create payment intent
+      // Create payment intent with shipping address
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ cartItems }),
+        body: JSON.stringify({ 
+          cartItems,
+          shippingAddress
+        }),
       });
 
       if (!response.ok) {

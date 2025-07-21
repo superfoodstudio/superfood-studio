@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<096fb75a95cf722826208e810e1cd8aa>>
+ * @generated SignedSource<<4c1529bcd34a8f8741cdcb46fbcd0dd5>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,6 +17,7 @@ export type FeaturedRecipeQueryQuery$data = {
     readonly id: string;
     readonly mediaUrl: string;
     readonly name: string;
+    readonly previewImageUrl: string | null;
     readonly slug: string;
     readonly uploadDate: any;
   }>;
@@ -93,6 +94,13 @@ var v0 = [
         "alias": null,
         "args": null,
         "kind": "ScalarField",
+        "name": "previewImageUrl",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
         "name": "uploadDate",
         "storageKey": null
       }
@@ -118,16 +126,16 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "db09d86d8d903982b72f7d8b00f3a616",
+    "cacheID": "982e7af92a55490cb4fb76ddb3cbc5b1",
     "id": null,
     "metadata": {},
     "name": "FeaturedRecipeQueryQuery",
     "operationKind": "query",
-    "text": "query FeaturedRecipeQueryQuery {\n  publicRecipes(limit: 1, offset: 0) {\n    id\n    name\n    slug\n    description\n    category\n    mediaUrl\n    uploadDate\n  }\n}\n"
+    "text": "query FeaturedRecipeQueryQuery {\n  publicRecipes(limit: 1, offset: 0) {\n    id\n    name\n    slug\n    description\n    category\n    mediaUrl\n    previewImageUrl\n    uploadDate\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "09d99d57c93251a50b2b67d822edd522";
+(node as any).hash = "ea126e0910c558ce88d570f62b9fb9c4";
 
 export default node;

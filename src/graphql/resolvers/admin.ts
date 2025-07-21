@@ -148,6 +148,7 @@ export const adminResolvers = {
           createdAt: order.createdAt.toISOString(),
           updatedAt: order.updatedAt.toISOString(),
           stripeSessionId: order.stripeSessionId,
+          shippingAddress: order.shippingAddress,
           user: order.user,
           items: order.items
             .filter(item => item.product !== null) // Filter out items with deleted products
@@ -274,6 +275,7 @@ export const adminResolvers = {
             total: order.total,
             status: order.status,
             date: order.createdAt.toISOString(),
+            shippingAddress: order.shippingAddress,
             items: order.items.map(item => ({
               id: item.id,
               productName: item.product.name,

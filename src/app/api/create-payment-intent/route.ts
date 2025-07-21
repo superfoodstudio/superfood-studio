@@ -17,6 +17,13 @@ interface CartItem {
 
 interface CreatePaymentIntentBody {
   cartItems: CartItem[];
+  shippingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -56,7 +63,7 @@ export async function POST(req: NextRequest) {
     
     // Parse request body
     const body: CreatePaymentIntentBody = await req.json();
-    const { cartItems } = body;
+    const { cartItems, shippingAddress } = body;
     
     // Authentication is required for checkout
     if (!userId) {
@@ -116,6 +123,7 @@ export async function POST(req: NextRequest) {
         userId: userId!,
         total,
         status: 'PENDING',
+        shippingAddress: shippingAddress || undefined,
         items: {
           create: cartItems.map(item => ({
             productId: item.productId,

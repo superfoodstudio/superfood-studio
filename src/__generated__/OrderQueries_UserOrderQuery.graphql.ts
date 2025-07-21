@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c6eb4ed9212bf10c4d5cf6d05d600fa9>>
+ * @generated SignedSource<<967563b68b6d305259e0d6461a6f893e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -32,6 +32,13 @@ export type OrderQueries_UserOrderQuery$data = {
       readonly productId: string;
       readonly quantity: number;
     }>;
+    readonly shippingAddress: {
+      readonly city: string;
+      readonly country: string;
+      readonly state: string;
+      readonly street: string;
+      readonly zipCode: string;
+    } | null;
     readonly status: string;
     readonly stripeSessionId: string | null;
     readonly total: number;
@@ -116,32 +123,78 @@ v8 = {
 v9 = {
   "alias": null,
   "args": null,
-  "kind": "ScalarField",
-  "name": "email",
+  "concreteType": "Address",
+  "kind": "LinkedField",
+  "name": "shippingAddress",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "street",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "city",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "state",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "zipCode",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "country",
+      "storageKey": null
+    }
+  ],
   "storageKey": null
 },
 v10 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "firstName",
+  "name": "email",
   "storageKey": null
 },
 v11 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "lastName",
+  "name": "firstName",
   "storageKey": null
 },
 v12 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "price",
+  "name": "lastName",
   "storageKey": null
 },
 v13 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "price",
+  "storageKey": null
+},
+v14 = {
   "alias": null,
   "args": null,
   "concreteType": "OrderItem",
@@ -164,7 +217,7 @@ v13 = {
       "name": "quantity",
       "storageKey": null
     },
-    (v12/*: any*/),
+    (v13/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -202,7 +255,7 @@ v13 = {
           "name": "photoUrl",
           "storageKey": null
         },
-        (v12/*: any*/),
+        (v13/*: any*/),
         {
           "alias": null,
           "args": null,
@@ -245,6 +298,7 @@ return {
           (v6/*: any*/),
           (v7/*: any*/),
           (v8/*: any*/),
+          (v9/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -253,13 +307,13 @@ return {
             "name": "user",
             "plural": false,
             "selections": [
-              (v9/*: any*/),
               (v10/*: any*/),
-              (v11/*: any*/)
+              (v11/*: any*/),
+              (v12/*: any*/)
             ],
             "storageKey": null
           },
-          (v13/*: any*/)
+          (v14/*: any*/)
         ],
         "storageKey": null
       }
@@ -288,6 +342,7 @@ return {
           (v6/*: any*/),
           (v7/*: any*/),
           (v8/*: any*/),
+          (v9/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -296,30 +351,30 @@ return {
             "name": "user",
             "plural": false,
             "selections": [
-              (v9/*: any*/),
               (v10/*: any*/),
               (v11/*: any*/),
+              (v12/*: any*/),
               (v2/*: any*/)
             ],
             "storageKey": null
           },
-          (v13/*: any*/)
+          (v14/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "9a78e2130c9375f09c667d48369d3280",
+    "cacheID": "b9f299060c60ef5367fe4d9b8b37e5b2",
     "id": null,
     "metadata": {},
     "name": "OrderQueries_UserOrderQuery",
     "operationKind": "query",
-    "text": "query OrderQueries_UserOrderQuery(\n  $orderId: String!\n) {\n  userOrder(orderId: $orderId) {\n    id\n    userId\n    total\n    status\n    createdAt\n    updatedAt\n    stripeSessionId\n    user {\n      email\n      firstName\n      lastName\n      id\n    }\n    items {\n      id\n      productId\n      quantity\n      price\n      product {\n        id\n        name\n        slug\n        description\n        photoUrl\n        price\n        category\n        tags\n      }\n    }\n  }\n}\n"
+    "text": "query OrderQueries_UserOrderQuery(\n  $orderId: String!\n) {\n  userOrder(orderId: $orderId) {\n    id\n    userId\n    total\n    status\n    createdAt\n    updatedAt\n    stripeSessionId\n    shippingAddress {\n      street\n      city\n      state\n      zipCode\n      country\n    }\n    user {\n      email\n      firstName\n      lastName\n      id\n    }\n    items {\n      id\n      productId\n      quantity\n      price\n      product {\n        id\n        name\n        slug\n        description\n        photoUrl\n        price\n        category\n        tags\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "143498b4534dcdb2d79652f9dcd06ea4";
+(node as any).hash = "3df04fcf0f7663e2968fa943b4c7c50f";
 
 export default node;

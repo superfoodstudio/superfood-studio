@@ -54,7 +54,7 @@ function FeaturedRecipeContent() {
           }}
         >
           <img
-            src={recipe.mediaUrl}
+            src={recipe.previewImageUrl || recipe.mediaUrl}
             alt={recipe.name}
             style={{
               width: '100%',

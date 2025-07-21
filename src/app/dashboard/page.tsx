@@ -7,6 +7,7 @@ import { View, Text, Button, Card } from 'reshaped';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { Calendar, ShoppingBag, Receipt } from 'phosphor-react';
 import { FeaturedRecipe } from '@/components/recipes/FeaturedRecipe';
+import { WeeklyGroceryList } from '@/components/dashboard/WeeklyGroceryList';
 
 function DashboardContent() {
   const router = useRouter();
@@ -118,24 +119,27 @@ function DashboardContent() {
             Manage your superfood journey with personalized recommendations, track your orders, and explore premium recipes curated just for you.
           </Text>
           
-          <Button
-            variant="solid"
-            size="large"
-            onClick={() => router.push('/dashboard/membership')}
-            attributes={{
-              style: {
-                marginTop: '16px',
-                backgroundColor: '#6b4c7a',
-                borderRadius: '25px',
-                padding: '12px 32px',
-                fontSize: '12px',
-                fontWeight: '600',
-                letterSpacing: '0.5px'
-              }
-            }}
-          >
-            MANAGE MEMBERSHIP
-          </Button>
+          <View direction="row" gap={3} attributes={{ style: { marginTop: '16px' } }}>
+            <Button
+              variant="solid"
+              size="large"
+              onClick={() => router.push('/dashboard/membership')}
+              attributes={{
+                style: {
+                  backgroundColor: '#6b4c7a',
+                  borderRadius: '25px',
+                  padding: '12px 32px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  letterSpacing: '0.5px'
+                }
+              }}
+            >
+              MANAGE MEMBERSHIP
+            </Button>
+            
+            <WeeklyGroceryList />
+          </View>
         </View>
 
         {/* Featured Recipe */}

@@ -10,6 +10,13 @@ export const UserOrderQuery = graphql`
       createdAt
       updatedAt
       stripeSessionId
+      shippingAddress {
+        street
+        city
+        state
+        zipCode
+        country
+      }
       user {
         email
         firstName

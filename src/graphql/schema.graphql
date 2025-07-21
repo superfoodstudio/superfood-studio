@@ -47,6 +47,7 @@ type CommentConnection {
 type SiteSettings {
   id: ID!
   homepageVideoUrl: String
+  weeklyGroceryList: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -147,6 +148,7 @@ input CreateCommentInput {
 # Site Settings inputs
 input UpdateSiteSettingsInput {
   homepageVideoUrl: String
+  weeklyGroceryList: String
 }
 
 # PageInfo for cursor-based pagination
@@ -212,6 +214,14 @@ input UpdateSubscriptionInput {
 }
 
 # User/Order schema
+type Address {
+  street: String!
+  city: String!
+  state: String!
+  zipCode: String!
+  country: String!
+}
+
 type User {
   id: ID!
   email: String!
@@ -237,6 +247,7 @@ type Order {
   createdAt: DateTime!
   updatedAt: DateTime!
   stripeSessionId: String
+  shippingAddress: Address
   user: User
   items: [OrderItem!]!
 }
@@ -265,6 +276,7 @@ type AdminOrder {
   status: String!
   date: String!
   itemCount: Int
+  shippingAddress: Address
   items: [AdminOrderItem!]
 }
 

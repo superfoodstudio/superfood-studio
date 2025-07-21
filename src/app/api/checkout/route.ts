@@ -142,6 +142,7 @@ export async function POST(req: NextRequest) {
         userId: userId!, // We know the user is authenticated at this point
         total,
         status: 'PENDING',
+        shippingAddress: shippingAddress || undefined, // Include shipping address if provided
         items: {
           create: cartWithProducts.items.map(item => ({
             productId: item.productId,

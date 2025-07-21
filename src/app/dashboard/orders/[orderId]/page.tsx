@@ -274,6 +274,69 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
             </View>
           </View>
 
+          {/* Shipping Address */}
+          {order.shippingAddress && (
+            <View 
+              direction="column" 
+              gap={4}
+              attributes={{ 
+                style: { 
+                  marginBottom: '30px',
+                  padding: '20px',
+                  backgroundColor: '#faf9f7',
+                  border: '1px solid #e0ddd8',
+                  borderRadius: '2px'
+                } 
+              }}
+            >
+              <Text 
+                attributes={{ 
+                  style: { 
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: '#4a4a4a',
+                    marginBottom: '15px'
+                  } 
+                }}
+              >
+                Shipping Address
+              </Text>
+              <View direction="column" gap={1}>
+                <Text 
+                  attributes={{ 
+                    style: { 
+                      fontSize: '12px',
+                      color: '#4a4a4a',
+                      fontWeight: '500'
+                    } 
+                  }}
+                >
+                  {order.shippingAddress.street}
+                </Text>
+                <Text 
+                  attributes={{ 
+                    style: { 
+                      fontSize: '12px',
+                      color: '#8a8a8a'
+                    } 
+                  }}
+                >
+                  {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+                </Text>
+                <Text 
+                  attributes={{ 
+                    style: { 
+                      fontSize: '12px',
+                      color: '#8a8a8a'
+                    } 
+                  }}
+                >
+                  {order.shippingAddress.country}
+                </Text>
+              </View>
+            </View>
+          )}
+
           {/* Items */}
           <Text 
             attributes={{ 
