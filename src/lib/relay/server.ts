@@ -2,9 +2,7 @@ import { graphql } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { recipeResolvers } from '@/graphql/resolvers/recipe';
-import { productResolvers } from '@/graphql/resolvers/product';
-import { cartResolvers } from '@/graphql/resolvers/cart';
+import { resolvers } from '@/graphql/resolvers';
 import { createContext } from '@/graphql/context';
 import { NextRequest } from 'next/server';
 
@@ -14,7 +12,7 @@ const unifiedSchema = readFileSync(join(process.cwd(), 'src/graphql/schema.graph
 // Create schema
 const schema = makeExecutableSchema({
   typeDefs: [unifiedSchema],
-  resolvers: [recipeResolvers, productResolvers, cartResolvers],
+  resolvers,
 });
 
 export async function executeQuery(

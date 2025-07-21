@@ -1,175 +1,89 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { View, Text, Card, Button, Grid, Divider } from 'reshaped';
+import { useLazyLoadQuery } from 'react-relay';
+import { AdminOrderQuery } from './AdminOrderQueries';
+import type { AdminOrderQueries_AdminOrderQuery } from '@/__generated__/AdminOrderQueries_AdminOrderQuery.graphql';
 
-// Mock order details for demonstration
-const MOCK_ORDER_ITEMS = [
-  {
-    id: 'item_1',
-    name: 'Superfood Smoothie Mix',
-    quantity: 2,
-    price: 19.99,
-    photoUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=800'
-  },
-  {
-    id: 'item_2',
-    name: 'Organic Chia Seeds',
-    quantity: 1,
-    price: 12.99,
-    photoUrl: 'https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?q=80&w=800'
-  },
-  {
-    id: 'item_3',
-    name: 'Wellness Tea Collection',
-    quantity: 1,
-    price: 24.95,
-    photoUrl: 'https://images.unsplash.com/photo-1563911892437-1feda0179e1b?q=80&w=800'
-  }
-];
-
-const MOCK_ORDER_MAP = {
-  'ord_123456': {
-    id: 'ord_123456',
-    customerName: 'John Smith',
-    customerEmail: 'john@example.com',
-    total: 125.99,
-    status: 'PENDING',
-    date: '2023-09-15T12:30:00Z',
-    items: MOCK_ORDER_ITEMS.slice(0, 3),
-    shippingAddress: {
-      street: '123 Main St',
-      city: 'New York',
-      state: 'NY',
-      zipCode: '10001',
-      country: 'US'
-    }
-  },
-  'ord_123457': {
-    id: 'ord_123457',
-    customerName: 'Sarah Johnson',
-    customerEmail: 'sarah@example.com',
-    total: 75.50,
-    status: 'PROCESSING',
-    date: '2023-09-14T10:15:00Z',
-    items: MOCK_ORDER_ITEMS.slice(0, 2),
-    shippingAddress: {
-      street: '456 Oak Ave',
-      city: 'Los Angeles',
-      state: 'CA',
-      zipCode: '90001',
-      country: 'US'
-    }
-  },
-  'ord_123458': {
-    id: 'ord_123458',
-    customerName: 'Michael Brown',
-    customerEmail: 'michael@example.com',
-    total: 210.25,
-    status: 'DELIVERED',
-    date: '2023-09-12T14:45:00Z',
-    items: MOCK_ORDER_ITEMS,
-    shippingAddress: {
-      street: '789 Pine St',
-      state: 'TX',
-      city: 'Austin',
-      zipCode: '73301',
-      country: 'US'
-    }
-  },
-  'ord_123459': {
-    id: 'ord_123459',
-    customerName: 'Emma Davis',
-    customerEmail: 'emma@example.com',
-    total: 45.99,
-    status: 'CANCELED',
-    date: '2023-09-10T09:20:00Z',
-    items: MOCK_ORDER_ITEMS.slice(0, 1),
-    shippingAddress: {
-      street: '321 Elm St',
-      city: 'Chicago',
-      state: 'IL',
-      zipCode: '60007',
-      country: 'US'
-    }
-  }
-};
-
-// Helper function to format date
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-export default function OrderDetailPage() {
-  const router = useRouter();
-  const params = useParams();
-  const orderId = params?.id as string;
+function AdminOrderContent({ orderId }: { orderId: string }) {
+  const data = useLazyLoadQuery<AdminOrderQueries_AdminOrderQuery>(
+    AdminOrderQuery,
+    { orderId }
+  );
   
-  const [order, setOrder] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [newStatus, setNewStatus] = useState<string>('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  useEffect(() => {
-    async function fetchOrderDetails() {
-      setIsLoading(true);
-      
-      try {
-        // In a real implementation, this would be a GraphQL query
-        // For now, we'll simulate a delay and use the mock data
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const orderDetails = MOCK_ORDER_MAP[orderId as keyof typeof MOCK_ORDER_MAP];
-        setOrder(orderDetails || null);
-        
-        if (orderDetails) {
-          setNewStatus(orderDetails.status);
-        }
-      } catch (error) {
-        console.error('Error fetching order details:', error);
-      } finally {
-        setIsLoading(false);
-      }
+  const order = data.adminOrder;
+
+  // Set initial status when order loads
+  React.useEffect(() => {
+    if (order) {
+      setNewStatus(order.status);
     }
-    
-    if (orderId) {
-      fetchOrderDetails();
-    }
-  }, [orderId]);
+  }, [order]);
+
+  // Helper function to format date
+  function formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price);
+  };
 
   async function handleUpdateStatus() {
     if (!order || newStatus === order.status) return;
     
+    setIsUpdating(true);
     try {
-      // In a real implementation, this would be a GraphQL mutation
-      // For now, we'll just simulate a delay and update the local state
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setOrder({
-        ...order,
-        status: newStatus
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+            mutation UpdateOrderStatus($orderId: ID!, $status: String!) {
+              updateOrderStatus(orderId: $orderId, status: $status) {
+                id
+                status
+              }
+            }
+          `,
+          variables: {
+            orderId: order.id,
+            status: newStatus,
+          },
+        }),
       });
-      
-      alert(`Order status updated to ${newStatus}`);
+
+      const result = await response.json();
+
+      if (result.errors) {
+        throw new Error(result.errors[0].message || 'Error updating order status');
+      }
+
+      // Refresh the page to show updated status
+      window.location.reload();
     } catch (error) {
       console.error('Error updating order status:', error);
       alert('Failed to update order status');
+    } finally {
+      setIsUpdating(false);
     }
-  }
-
-  if (isLoading) {
-    return (
-      <View direction="column" align="center" justify="center" height="300px">
-        <Text>Loading order details...</Text>
-      </View>
-    );
   }
 
   if (!order) {
@@ -184,12 +98,16 @@ export default function OrderDetailPage() {
     );
   }
 
+  const customerName = order.user 
+    ? `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() || order.user.email
+    : 'Unknown Customer';
+
   return (
     <View direction="column" gap={6} padding={8}>
       <View direction="row" justify="space-between" align="center">
         <View direction="column" gap={1}>
-          <Text variant="title-2">Order #{order.id}</Text>
-          <Text>{formatDate(order.date)}</Text>
+          <Text variant="title-2">Order #{order.id.slice(-8).toUpperCase()}</Text>
+          <Text>{formatDate(order.createdAt)}</Text>
         </View>
         
         <Link href="/admin/orders" passHref>
@@ -206,11 +124,15 @@ export default function OrderDetailPage() {
             <View direction="column" gap={2}>
               <View direction="row" justify="space-between">
                 <Text>Name:</Text>
-                <Text weight="medium">{order.customerName}</Text>
+                <Text weight="medium">{customerName}</Text>
               </View>
               <View direction="row" justify="space-between">
                 <Text>Email:</Text>
-                <Text weight="medium">{order.customerEmail}</Text>
+                <Text weight="medium">{order.user?.email || 'N/A'}</Text>
+              </View>
+              <View direction="row" justify="space-between">
+                <Text>User ID:</Text>
+                <Text weight="medium">{order.userId}</Text>
               </View>
             </View>
           </View>
@@ -218,13 +140,28 @@ export default function OrderDetailPage() {
         
         <Card padding={6}>
           <View direction="column" gap={4}>
-            <Text variant="title-3">Shipping Address</Text>
+            <Text variant="title-3">Order Information</Text>
             <Divider />
             
             <View direction="column" gap={2}>
-              <Text>{order.shippingAddress.street}</Text>
-              <Text>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</Text>
-              <Text>{order.shippingAddress.country}</Text>
+              <View direction="row" justify="space-between">
+                <Text>Order ID:</Text>
+                <Text weight="medium">{order.id}</Text>
+              </View>
+              <View direction="row" justify="space-between">
+                <Text>Created:</Text>
+                <Text weight="medium">{formatDate(order.createdAt)}</Text>
+              </View>
+              <View direction="row" justify="space-between">
+                <Text>Updated:</Text>
+                <Text weight="medium">{formatDate(order.updatedAt)}</Text>
+              </View>
+              {order.stripeSessionId && (
+                <View direction="row" justify="space-between">
+                  <Text>Stripe Session:</Text>
+                  <Text weight="medium">{order.stripeSessionId.slice(-8)}</Text>
+                </View>
+              )}
             </View>
           </View>
         </Card>
@@ -234,41 +171,61 @@ export default function OrderDetailPage() {
             <Text variant="title-3">Order Items</Text>
             <Divider />
             
-            {order.items.map((item: any) => (
+            {order.items.map((item, index) => (
               <View 
                 key={item.id} 
                 direction="row" 
                 align="center" 
                 gap={4} 
-                attributes={{ style: { borderBottom: '1px solid #eaeaea', paddingBottom: '16px' } }}
+                attributes={{ 
+                  style: { 
+                    borderBottom: index < order.items.length - 1 ? '1px solid #eaeaea' : 'none', 
+                    paddingBottom: '16px',
+                    marginBottom: index < order.items.length - 1 ? '16px' : '0'
+                  } 
+                }}
               >
-                <img 
-                  src={item.photoUrl} 
-                  alt={item.name} 
-                  width={60}
-                  height={60}
-                  style={{ objectFit: 'cover', borderRadius: '4px' }} 
-                />
-                <View direction="column" gap={1} attributes={{ style: { flex: 1 } }}>
-                  <Text weight="medium">{item.name}</Text>
-                  <Text>{item.quantity} × ${item.price.toFixed(2)}</Text>
+                <View
+                  attributes={{
+                    style: {
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                      flexShrink: 0
+                    }
+                  }}
+                >
+                  <img 
+                    src={item.product.photoUrl} 
+                    alt={item.product.name} 
+                    width={60}
+                    height={60}
+                    style={{ objectFit: 'cover', width: '100%', height: '100%' }} 
+                  />
                 </View>
-                <Text weight="medium">${(item.quantity * item.price).toFixed(2)}</Text>
+                <View direction="column" gap={1} attributes={{ style: { flex: 1 } }}>
+                  <Text weight="medium">{item.product.name}</Text>
+                  <Text variant="caption-1" color="neutral-faded">{item.product.category}</Text>
+                  <Text>{item.quantity} × {formatPrice(item.price)}</Text>
+                </View>
+                <Text weight="medium">{formatPrice(item.quantity * item.price)}</Text>
               </View>
             ))}
             
-            <View direction="column" gap={2} attributes={{ style: { marginLeft: 'auto', minWidth: '150px' } }}>
-              <View direction="row" justify="space-between">
+            <View direction="column" gap={2} align="end" attributes={{ style: { marginTop: '20px' } }}>
+              <View direction="row" justify="space-between" attributes={{ style: { minWidth: '200px' } }}>
                 <Text>Subtotal:</Text>
-                <Text>${order.total.toFixed(2)}</Text>
+                <Text>{formatPrice(order.total)}</Text>
               </View>
-              <View direction="row" justify="space-between">
+              <View direction="row" justify="space-between" attributes={{ style: { minWidth: '200px' } }}>
                 <Text>Shipping:</Text>
                 <Text>$0.00</Text>
               </View>
-              <View direction="row" justify="space-between">
+              <Divider attributes={{ style: { width: '200px' } }} />
+              <View direction="row" justify="space-between" attributes={{ style: { minWidth: '200px' } }}>
                 <Text weight="medium">Total:</Text>
-                <Text weight="medium">${order.total.toFixed(2)}</Text>
+                <Text weight="medium">{formatPrice(order.total)}</Text>
               </View>
             </View>
           </View>
@@ -282,7 +239,7 @@ export default function OrderDetailPage() {
             <View direction="row" justify="space-between" align="center">
               <View direction="column" gap={2}>
                 <Text>Current Status:</Text>
-                <Text 
+                <View
                   attributes={{
                     style: {
                       padding: '6px 12px',
@@ -301,8 +258,8 @@ export default function OrderDetailPage() {
                     }
                   }}
                 >
-                  {order.status}
-                </Text>
+                  <Text>{order.status}</Text>
+                </View>
               </View>
               
               <View direction="row" gap={2} align="center">
@@ -323,10 +280,10 @@ export default function OrderDetailPage() {
                 </select>
                 
                 <Button 
-                  disabled={newStatus === order.status}
+                  disabled={newStatus === order.status || isUpdating}
                   onClick={handleUpdateStatus}
                 >
-                  Update Status
+                  {isUpdating ? 'Updating...' : 'Update Status'}
                 </Button>
               </View>
             </View>
@@ -335,4 +292,34 @@ export default function OrderDetailPage() {
       </Grid>
     </View>
   );
-} 
+}
+
+function LoadingFallback() {
+  return (
+    <View direction="column" align="center" justify="center" height="300px">
+      <Text>Loading order details...</Text>
+    </View>
+  );
+}
+
+export default function AdminOrderDetailPage() {
+  const params = useParams();
+  const orderId = params?.id as string;
+
+  if (!orderId) {
+    return (
+      <View direction="column" align="center" justify="center" height="300px" gap={4}>
+        <Text variant="title-3">Invalid Order ID</Text>
+        <Link href="/admin/orders" passHref>
+          <Button>Back to Orders</Button>
+        </Link>
+      </View>
+    );
+  }
+
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <AdminOrderContent orderId={orderId} />
+    </Suspense>
+  );
+}

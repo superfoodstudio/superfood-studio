@@ -101,10 +101,32 @@ export async function middleware(request: NextRequest) {
       const roleData = await roleResponse.json();
       console.log('Subscriber content: User role =', roleData.role);
       
-      // Allow access based on role
-      if (roleData.role === 'SUBSCRIBER' || roleData.role === 'ADMIN') {
-        console.log('Access granted to subscriber content');
+      // Admin always has access
+      if (roleData.role === 'ADMIN') {
+        console.log('Access granted to admin');
         return NextResponse.next();
+      }
+      
+      // For subscribers, check active subscription status
+      if (roleData.role === 'SUBSCRIBER') {
+        try {
+          const subscriptionResponse = await fetch(`${request.nextUrl.origin}/api/subscription`, {
+            headers: {
+              'Authorization': `Bearer ${authToken}`
+            }
+          });
+          
+          const subscriptionData = await subscriptionResponse.json();
+          console.log('Subscription data:', subscriptionData);
+          
+          // Check if subscription exists and is active
+          if (subscriptionData.subscription && subscriptionData.subscription.status === 'ACTIVE') {
+            console.log('Access granted to active subscriber');
+            return NextResponse.next();
+          }
+        } catch (subscriptionError) {
+          console.error('Error checking subscription:', subscriptionError);
+        }
       }
       
       console.log('Access denied - redirecting to subscription page');

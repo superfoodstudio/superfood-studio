@@ -3,14 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
-import { useLazyLoadQuery } from 'react-relay';
-import { CartQuery } from '@/graphql/queries/CartQueries';
+import { useCart } from '@/hooks/useCart';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { View, Text, Button, Divider } from 'reshaped';
+import { StripeProvider } from '@/components/providers/StripeProvider';
+import { PaymentForm } from '@/components/checkout/PaymentForm';
 
 export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -22,7 +25,8 @@ export default function CheckoutPage() {
     country: 'US',
   });
   const router = useRouter();
-  const { ready, authenticated, user } = usePrivy();
+  const { ready, authenticated, user, getAccessToken } = usePrivy();
+  const { cart } = useCart();
 
   // Set isReady to true when component mounts
   useEffect(() => {
@@ -44,63 +48,61 @@ export default function CheckoutPage() {
     }
   }, [ready, authenticated, router]);
 
+  // Check if cart is empty and redirect
+  useEffect(() => {
+    if (ready && cart && cart.items.length === 0) {
+      router.push('/cart');
+    }
+  }, [ready, cart, router]);
+
+  // Handle loading and authentication states after all hooks
   if (!isReady) {
     return <AppContainer><Text align="center">Loading checkout...</Text></AppContainer>;
   }
 
-  // Don't try to fetch cart if not authenticated
   if (!authenticated) {
     return null;
   }
 
-  // This is a client component, so we can use hooks conditionally after the initial checks
+  // Cart summary component
   const CartSummary = () => {
-    try {
-      const data: any = useLazyLoadQuery(CartQuery, {});
-      const cart = data.cart;
-      
-      if (!cart || cart.items.length === 0) {
-        router.push('/cart');
-        return null;
-      }
-      
-      // Format currency
-      const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD'
-        }).format(price);
-      };
-      
+    if (!cart || cart.items.length === 0) {
       return (
         <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-          <Text variant="title-3">Order Summary</Text>
-          <Divider />
-          
-          {cart.items.map((item: any) => (
-            <View key={item.id} direction="row" justify="space-between" padding={1}>
-              <Text>
-                {item.product.name} ({item.quantity})
-              </Text>
-              <Text>{formatPrice(item.price * item.quantity)}</Text>
-            </View>
-          ))}
-          
-          <Divider />
-          <View direction="row" justify="space-between">
-            <Text variant="title-4">Total</Text>
-            <Text variant="title-4">{formatPrice(cart.total)}</Text>
-          </View>
-        </View>
-      );
-    } catch (error) {
-      console.error('Error loading cart:', error);
-      return (
-        <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-          <Text color="critical">Error loading cart</Text>
+          <Text color="critical">Cart is empty</Text>
         </View>
       );
     }
+    
+    // Format currency
+    const formatPrice = (price: number) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(price);
+    };
+    
+    return (
+      <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+        <Text variant="title-3">Order Summary</Text>
+        <Divider />
+        
+        {cart.items.map((item: any) => (
+          <View key={item.id} direction="row" justify="space-between" padding={1}>
+            <Text>
+              {item.product.name} ({item.quantity})
+            </Text>
+            <Text>{formatPrice(item.price * item.quantity)}</Text>
+          </View>
+        ))}
+        
+        <Divider />
+        <View direction="row" justify="space-between">
+          <Text variant="title-4">Total</Text>
+          <Text variant="title-4">{formatPrice(cart.total)}</Text>
+        </View>
+      </View>
+    );
   };
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -111,62 +113,82 @@ export default function CheckoutPage() {
     });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function createPaymentIntent() {
     setIsLoading(true);
+    setError(null);
 
     try {
-      // Send checkout data to API endpoint
-      const response = await fetch('/api/checkout', {
+      // Check if cart has items
+      if (!cart || cart.items.length === 0) {
+        throw new Error('Cart is empty');
+      }
+
+      // Get auth token for API request
+      const token = await getAccessToken();
+      
+      // Convert cart items to the format expected by API
+      const cartItems = cart.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+        productName: item.product.name,
+        productPhoto: item.product.photoUrl
+      }));
+      
+      // Create payment intent
+      const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          shippingAddress: {
-            street: formData.street,
-            city: formData.city,
-            state: formData.state,
-            zipCode: formData.zipCode,
-            country: formData.country,
-          },
-          // Include billing address if different
-        }),
+        body: JSON.stringify({ cartItems }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
+        throw new Error(errorData.error || 'Failed to create payment intent');
       }
 
       const data = await response.json();
+      setClientSecret(data.clientSecret);
       
-      // Redirect to Stripe Checkout
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
     } catch (error) {
-      console.error('Checkout error:', error);
-      alert('There was an error processing your payment. Please try again.');
+      console.error('Payment intent creation error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to initialize payment');
+    } finally {
       setIsLoading(false);
     }
   }
 
+  const handlePaymentSuccess = (paymentIntentId: string) => {
+    // Navigate to success page with payment intent ID
+    router.push(`/checkout/success?payment_intent=${paymentIntentId}`);
+  };
+
+  const handlePaymentError = (errorMessage: string) => {
+    setError(errorMessage);
+  };
+
   return (
-    <AppContainer>
-      <View direction="column" gap={4} padding={4}>
-        <Text variant="title-1" align="center">Checkout</Text>
-        
-        <View direction="row" gap={6} attributes={{ style: { flexWrap: 'wrap' } }}>
-          {/* Shipping Information */}
-          <View direction="column" gap={4} attributes={{ style: { flex: 1 } }}>
-            <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-              <Text variant="title-3">Shipping Information</Text>
-              <Divider />
-              
-              <form onSubmit={handleSubmit}>
+    <StripeProvider>
+      <AppContainer>
+        <View direction="column" gap={4} padding={4}>
+          <Text variant="title-1" align="center">Checkout</Text>
+          
+          {error && (
+            <View direction="column" align="center" padding={4} backgroundColor="critical-faded">
+              <Text color="critical">{error}</Text>
+            </View>
+          )}
+          
+          <View direction="row" gap={6} attributes={{ style: { flexWrap: 'wrap' } }}>
+            {/* Shipping Information */}
+            <View direction="column" gap={4} attributes={{ style: { flex: 1 } }}>
+              <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+                <Text variant="title-3">Shipping Information</Text>
+                <Divider />
+                
                 <View direction="column" gap={3}>
                   <View direction="row" gap={2}>
                     <View direction="column" gap={1} grow>
@@ -269,41 +291,48 @@ export default function CheckoutPage() {
                       </select>
                     </View>
                   </View>
-                  
-                  <View direction="column" gap={2} padding={2}>
-                    <Text>Payment Method</Text>
-                    <Text variant="body-2" color="neutral-faded">
-                      You will be redirected to our secure payment provider to complete your purchase.
-                    </Text>
-                  </View>
-                  
-                  <View direction="row" gap={2}>
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push('/cart')}
-                    >
-                      Return to Cart
-                    </Button>
+                </View>
+              </View>
+
+              {/* Payment Form */}
+              <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+                {!clientSecret ? (
+                  <View direction="column" gap={3}>
                     <Button
                       variant="solid"
-                      type="submit"
+                      onClick={createPaymentIntent}
                       disabled={isLoading}
                       fullWidth
                     >
-                      {isLoading ? 'Processing...' : 'Complete Purchase'}
+                      {isLoading ? 'Preparing Payment...' : 'Continue to Payment'}
                     </Button>
                   </View>
-                </View>
-              </form>
+                ) : (
+                  <PaymentForm
+                    clientSecret={clientSecret}
+                    onSuccess={handlePaymentSuccess}
+                    onError={handlePaymentError}
+                  />
+                )}
+              </View>
+
+              <View direction="row" gap={2}>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/cart')}
+                >
+                  Return to Cart
+                </Button>
+              </View>
+            </View>
+            
+            {/* Order Summary */}
+            <View width={{ s: '100%', m: '300px' }}>
+              <CartSummary />
             </View>
           </View>
-          
-          {/* Order Summary */}
-          <View width={{ s: '100%', m: '300px' }}>
-            <CartSummary />
-          </View>
         </View>
-      </View>
-    </AppContainer>
+      </AppContainer>
+    </StripeProvider>
   );
-} 
+}

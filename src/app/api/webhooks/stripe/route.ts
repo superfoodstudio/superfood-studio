@@ -30,6 +30,14 @@ export async function POST(req: NextRequest) {
   
   try {
     switch (event.type) {
+      case 'payment_intent.succeeded':
+        await handlePaymentIntentSucceeded(event);
+        break;
+        
+      case 'payment_intent.payment_failed':
+        await handlePaymentIntentFailed(event);
+        break;
+        
       case 'checkout.session.completed':
         await handleCheckoutSessionCompleted(event);
         break;
@@ -104,6 +112,63 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
   }
   
   // TODO: Send order confirmation email to customer
+}
+
+async function handlePaymentIntentSucceeded(event: Stripe.Event) {
+  const paymentIntent = event.data.object as Stripe.PaymentIntent;
+  
+  // Find order by payment intent ID
+  const order = await prisma.order.findFirst({
+    where: { stripeSessionId: paymentIntent.id },
+    include: { items: true },
+  });
+  
+  if (!order) {
+    console.error('Order not found for payment intent:', paymentIntent.id);
+    return;
+  }
+  
+  // Update order status to DELIVERED
+  await prisma.order.update({
+    where: { id: order.id },
+    data: { 
+      status: 'DELIVERED',
+      updatedAt: new Date(),
+    },
+  });
+  
+  // Reduce product inventory for each item in the order
+  for (const item of order.items) {
+    await prisma.product.update({
+      where: { id: item.productId },
+      data: {
+        inventory: {
+          decrement: item.quantity,
+        },
+      },
+    });
+  }
+  
+  console.log('Order completed for payment intent:', paymentIntent.id);
+  // TODO: Send order confirmation email to customer
+}
+
+async function handlePaymentIntentFailed(event: Stripe.Event) {
+  const paymentIntent = event.data.object as Stripe.PaymentIntent;
+  
+  // Update order status to CANCELED
+  await prisma.order.updateMany({
+    where: {
+      stripeSessionId: paymentIntent.id,
+    },
+    data: {
+      status: 'CANCELED',
+      updatedAt: new Date(),
+    },
+  });
+  
+  console.log('Order marked as failed for payment intent:', paymentIntent.id);
+  // TODO: Send payment failed email to customer
 }
 
 async function handleSubscriptionEvent(event: Stripe.Event) {

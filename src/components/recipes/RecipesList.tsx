@@ -10,7 +10,12 @@ const recipesListQuery = graphql`
   query RecipesListQuery($category: String) {
     publicRecipes(category: $category) {
       id
-      ...RecipeCardFragment
+      name
+      slug
+      description
+      category
+      mediaUrl
+      uploadDate
     }
   }
 `;
@@ -41,9 +46,9 @@ function RecipesListContent({ category }: RecipesListProps) {
         gap={3}
         wrap
       >
-        {data.publicRecipes.map((recipe, index) => (
+        {data.publicRecipes.map((recipe) => (
           <div 
-            key={index} 
+            key={recipe.id} 
             style={{ 
               flex: '1 1 auto', 
               minWidth: '300px', 

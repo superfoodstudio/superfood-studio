@@ -10,6 +10,7 @@ const RecipeCardFragment = `
     description
     category
     mediaUrl
+    previewImageUrl
     uploadDate
   }
 `;
@@ -17,7 +18,14 @@ const RecipeCardFragment = `
 export const RecipeListQuery = graphql`
   query RecipeQueriesRecipeListQuery($category: String, $limit: Int, $offset: Int) {
     publicRecipes(category: $category, limit: $limit, offset: $offset) {
-      ...RecipeCardFragment
+      id
+      name
+      slug
+      description
+      category
+      mediaUrl
+      previewImageUrl
+      uploadDate
     }
   }
 `;

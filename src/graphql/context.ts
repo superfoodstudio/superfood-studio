@@ -17,8 +17,13 @@ export interface GraphQLContext {
 export async function createContext({ req }: { req: any }): Promise<GraphQLContext> {
   let user: UserContext = { isAuthenticated: false };
 
+  console.log('Creating GraphQL context...');
+  console.log('Request cookies:', Object.keys(req.cookies || {}));
+  console.log('Request headers:', Object.keys(req.headers || {}));
+
   try {
     const authToken = req.cookies?.['privy-token'] || req.headers?.authorization?.replace('Bearer ', '');
+    console.log('Auth token found:', !!authToken, authToken ? `${authToken.substring(0, 20)}...` : 'none');
     
     if (authToken) {
       const privy = new PrivyClient(

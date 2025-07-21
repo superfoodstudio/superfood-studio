@@ -79,8 +79,8 @@ function SubscriptionContent() {
       // For now, simulate a delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Redirect to success page (in real app, we'd redirect to Stripe)
-      router.push('/profile?tab=subscription&success=true');
+      // Redirect to dashboard membership page (in real app, we'd redirect to Stripe)
+      router.push('/dashboard/membership?success=true');
     } catch (error) {
       console.error('Subscription error:', error);
       alert('There was an error processing your subscription. Please try again.');

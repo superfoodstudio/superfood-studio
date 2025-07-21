@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<10003f6c7ea4acf1e0501652b14b7e19>>
+ * @generated SignedSource<<f5784e26755008b8bb87c209ab4c2f82>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,6 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
-import { FragmentRefs } from "relay-runtime";
 export type RecipeQueriesRecipeListQuery$variables = {
   category?: string | null;
   limit?: number | null;
@@ -17,7 +16,14 @@ export type RecipeQueriesRecipeListQuery$variables = {
 };
 export type RecipeQueriesRecipeListQuery$data = {
   readonly publicRecipes: ReadonlyArray<{
-    readonly " $fragmentSpreads": FragmentRefs<"RecipeCardFragment">;
+    readonly category: string;
+    readonly description: string;
+    readonly id: string;
+    readonly mediaUrl: string;
+    readonly name: string;
+    readonly previewImageUrl: string | null;
+    readonly slug: string;
+    readonly uploadDate: any;
   }>;
 };
 export type RecipeQueriesRecipeListQuery = {
@@ -45,19 +51,87 @@ var v0 = [
 ],
 v1 = [
   {
-    "kind": "Variable",
-    "name": "category",
-    "variableName": "category"
-  },
-  {
-    "kind": "Variable",
-    "name": "limit",
-    "variableName": "limit"
-  },
-  {
-    "kind": "Variable",
-    "name": "offset",
-    "variableName": "offset"
+    "alias": null,
+    "args": [
+      {
+        "kind": "Variable",
+        "name": "category",
+        "variableName": "category"
+      },
+      {
+        "kind": "Variable",
+        "name": "limit",
+        "variableName": "limit"
+      },
+      {
+        "kind": "Variable",
+        "name": "offset",
+        "variableName": "offset"
+      }
+    ],
+    "concreteType": "Recipe",
+    "kind": "LinkedField",
+    "name": "publicRecipes",
+    "plural": true,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "id",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "name",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "slug",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "description",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "category",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "mediaUrl",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "previewImageUrl",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "uploadDate",
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
   }
 ];
 return {
@@ -66,24 +140,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RecipeQueriesRecipeListQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": "Recipe",
-        "kind": "LinkedField",
-        "name": "publicRecipes",
-        "plural": true,
-        "selections": [
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "RecipeCardFragment"
-          }
-        ],
-        "storageKey": null
-      }
-    ],
+    "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -92,80 +149,19 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "RecipeQueriesRecipeListQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": "Recipe",
-        "kind": "LinkedField",
-        "name": "publicRecipes",
-        "plural": true,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "slug",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "description",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "category",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "mediaUrl",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "uploadDate",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
+    "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "00203d4af03ce1f8b186cbda72e3c585",
+    "cacheID": "eecf5ab493922153aa21a65fa65d6765",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeListQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeListQuery(\n  $category: String\n  $limit: Int\n  $offset: Int\n) {\n  publicRecipes(category: $category, limit: $limit, offset: $offset) {\n    ...RecipeCardFragment\n    id\n  }\n}\n\nfragment RecipeCardFragment on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  mediaUrl\n  uploadDate\n}\n"
+    "text": "query RecipeQueriesRecipeListQuery(\n  $category: String\n  $limit: Int\n  $offset: Int\n) {\n  publicRecipes(category: $category, limit: $limit, offset: $offset) {\n    id\n    name\n    slug\n    description\n    category\n    mediaUrl\n    previewImageUrl\n    uploadDate\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "95037b31fcd60cb3c02ee2d8d0238130";
+(node as any).hash = "697813b019cf97e9898b9ed0a05ee3a3";
 
 export default node;

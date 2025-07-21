@@ -4,12 +4,6 @@ import React from 'react';
 import { graphql, useFragment } from 'react-relay';
 import Link from 'next/link';
 import { View, Text, Button } from 'reshaped';
-import { RecipeCardFragment$key } from '@/__generated__/RecipeCardFragment.graphql';
-
-// Prevent server-side execution
-if (typeof window === 'undefined') {
-  throw new Error('RecipeCard can only be used on the client side');
-}
 
 // Use a unique name with proper module prefix
 export const recipeCardFragment = graphql`
@@ -20,27 +14,29 @@ export const recipeCardFragment = graphql`
     description
     category
     mediaUrl
+    previewImageUrl
     uploadDate
   }
 `;
 
-// Temporary type until Relay generates the real one
-type RecipeCardFragment = {
+// Type for direct recipe data (without fragment ref)
+type RecipeData = {
   id: string;
   name: string;
   slug: string;
   description: string;
   category: string;
   mediaUrl: string;
+  previewImageUrl?: string | null;
   uploadDate: string;
 };
 
 interface RecipeCardProps {
-  recipe: RecipeCardFragment$key;
+  recipe: RecipeData;
 }
 
 export function RecipeCard({ recipe }: RecipeCardProps) {
-  const data = useFragment(recipeCardFragment, recipe);
+  const data = recipe;
   
   return (
     <View 
@@ -56,16 +52,46 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
     >
       <View direction="column" gap={3}>
         <div style={{ position: 'relative', aspectRatio: '16/9', width: '100%' }}>
-          <img
-            src={data.mediaUrl}
-            alt={data.name}
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'cover', 
-              borderRadius: '8px' 
-            }}
-          />
+          {data.previewImageUrl ? (
+            <img
+              src={data.previewImageUrl}
+              alt={data.name}
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover', 
+                borderRadius: '8px' 
+              }}
+              onError={(e) => {
+                // Fallback to solid color if preview image fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                if (target.parentElement) {
+                  target.parentElement.style.backgroundColor = '#6b4c7a';
+                  target.parentElement.style.display = 'flex';
+                  target.parentElement.style.alignItems = 'center';
+                  target.parentElement.style.justifyContent = 'center';
+                  target.parentElement.innerHTML = `
+                    <span style="color: white; font-size: 24px;">🎬</span>
+                  `;
+                }
+              }}
+            />
+          ) : (
+            <div
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                backgroundColor: '#6b4c7a',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <span style={{ color: 'white', fontSize: '24px' }}>🎬</span>
+            </div>
+          )}
         </div>
         <View direction="column" gap={2}>
           <Text variant="title-3" attributes={{ style: { fontFamily: 'var(--font-playfair)' } }}>{data.name}</Text>

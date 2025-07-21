@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bc156221790bf56c5c6ce705e0a67cb6>>
+ * @generated SignedSource<<adba271c364eaed94f63a9744ac900a0>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,6 +16,7 @@ export type RecipeCardFragment$data = {
   readonly id: string;
   readonly mediaUrl: string;
   readonly name: string;
+  readonly previewImageUrl: string | null;
   readonly slug: string;
   readonly uploadDate: any;
   readonly " $fragmentType": "RecipeCardFragment";
@@ -77,6 +78,13 @@ const node: ReaderFragment = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
+      "name": "previewImageUrl",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
       "name": "uploadDate",
       "storageKey": null
     }
@@ -85,6 +93,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "6f19203e3af7716af1d822a4cb645a7b";
+(node as any).hash = "734aca77086d06da1b7ba7cc2be506d5";
 
 export default node;

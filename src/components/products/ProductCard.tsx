@@ -1,12 +1,12 @@
 'use client';
 
 import { View, Text, Card, Button } from 'reshaped';
-import { useFragment, useMutation } from 'react-relay';
+import { useFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import Link from 'next/link';
 import { ShoppingCartSimple } from 'phosphor-react';
 import { useState } from 'react';
-import { AddToCartMutation } from '@/graphql/queries/CartQueries';
+import { useCart } from '@/hooks/useCart';
 
 // Define the fragment directly in this file
 export const ProductCardFragment = graphql`
@@ -30,9 +30,7 @@ type Props = {
 export function ProductCard({ product }: Props) {
   const data = useFragment(ProductCardFragment, product);
   const [isAdding, setIsAdding] = useState(false);
-  
-  // Add to cart mutation
-  const [addToCart] = useMutation(AddToCartMutation);
+  const { addToCart } = useCart();
   
   // Format price to show 2 decimal places
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -41,40 +39,32 @@ export function ProductCard({ product }: Props) {
   }).format(data.price);
   
   // Handle add to cart without navigating
-  const handleAddToCart = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+  const handleAddToCart = (e: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement>) => {
     e.preventDefault(); // Prevent navigation to product page
     e.stopPropagation();
     
-    if (isAdding || data.inventory <= 0) return;
+    console.log('Add to cart clicked for:', data.name);
+    
+    if (isAdding || data.inventory <= 0) {
+      console.log('Cart action blocked - isAdding:', isAdding, 'inventory:', data.inventory);
+      return;
+    }
     
     setIsAdding(true);
     
-    // Add item to cart using mutation
-    addToCart({
-      variables: {
-        input: {
-          productId: data.id,
-          quantity: 1
-        }
-      },
-      onCompleted: () => {
-        setIsAdding(false);
-        // Optionally update local cart count in localStorage
-        const currentCount = localStorage.getItem('cartItemCount');
-        if (currentCount) {
-          localStorage.setItem('cartItemCount', (parseInt(currentCount, 10) + 1).toString());
-        } else {
-          localStorage.setItem('cartItemCount', '1');
-        }
-        
-        // Dispatch event to notify Navigation component about cart updates
-        window.dispatchEvent(new Event('cartUpdated'));
-      },
-      onError: (error) => {
-        console.error('Error adding to cart:', error);
-        setIsAdding(false);
-      }
-    });
+    try {
+      // Add item to cart using new cart hook
+      console.log('Adding to cart:', data.id, data.name, data.price);
+      addToCart(data.id, 1, data.price, {
+        name: data.name,
+        photoUrl: data.photoUrl
+      });
+      console.log('Successfully called addToCart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -130,24 +120,23 @@ export function ProductCard({ product }: Props) {
               ))}
             </View>
             
-            <div onClick={handleAddToCart}>
-              <Button 
-                variant="solid" 
-                size="small"
-                fullWidth
-                disabled={isAdding || data.inventory <= 0}
-                attributes={{
-                  style: {
-                    marginTop: '8px'
-                  }
-                }}
-              >
-                <View direction="row" gap={1} align="center">
-                  <ShoppingCartSimple size={16} />
-                  <Text>{isAdding ? 'Adding...' : 'Add to Cart'}</Text>
-                </View>
-              </Button>
-            </div>
+            <Button 
+              variant="solid" 
+              size="small"
+              fullWidth
+              disabled={isAdding || data.inventory <= 0}
+              onClick={handleAddToCart}
+              attributes={{
+                style: {
+                  marginTop: '8px'
+                }
+              }}
+            >
+              <View direction="row" gap={1} align="center">
+                <ShoppingCartSimple size={16} />
+                <Text>{isAdding ? 'Adding...' : 'Add to Cart'}</Text>
+              </View>
+            </Button>
           </View>
         </View>
       </Card>

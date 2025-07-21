@@ -1,12 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { View, Text, Button } from 'reshaped';
+import { View, TextArea, TextField, NumberField, Switch } from 'reshaped';
 import { useParams, useRouter } from 'next/navigation';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { FormField } from '@/components/admin/FormField';
+import { FormError } from '@/components/admin/FormError';
+import { AdminFormActions } from '@/components/admin/AdminFormActions';
+import { usePrivy } from '@privy-io/react-auth';
 
 export default function EditProductPage() {
   const params = useParams();
   const router = useRouter();
+  const { getAccessToken } = usePrivy();
+  
   const isNew = params?.id === 'new';
   const productId = isNew ? null : params?.id as string;
 
@@ -14,6 +21,7 @@ export default function EditProductPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   
   // Form state
   const [name, setName] = useState('');
@@ -97,6 +105,37 @@ export default function EditProductPage() {
 
     fetchProduct();
   }, [isNew, productId]);
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      setUploading(true);
+      const token = await getAccessToken();
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('contentType', 'product');
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setPhotoUrl(data.url);
+    } catch (error) {
+      console.error('Upload error:', error);
+      setError(error instanceof Error ? error.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,7 +242,9 @@ export default function EditProductPage() {
         body: JSON.stringify({
           query: `
             mutation DeleteProduct($id: ID!) {
-              deleteProduct(id: $id)
+              deleteProduct(id: $id) {
+                success
+              }
             }
           `,
           variables: {
@@ -216,10 +257,11 @@ export default function EditProductPage() {
 
       if (result.errors) {
         throw new Error(result.errors[0].message || 'Error deleting product');
+        setDeleting(false);
+      } else {
+        // Navigate back to products list on success
+        router.push('/admin/products');
       }
-
-      // Navigate back to products list on success
-      router.push('/admin/products');
     } catch (err) {
       console.error('Error deleting product:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -227,212 +269,151 @@ export default function EditProductPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <AdminLayout title="Loading Product...">
+        <View padding={4}>Loading product data...</View>
+      </AdminLayout>
+    );
+  }
+
   return (
-    <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
-      <View direction="column" gap={6} padding={8}>
-        <View direction="row" justify="space-between" align="center">
-          <Text variant="title-2">{isNew ? 'Create New Product' : 'Edit Product'}</Text>
-          <View direction="row" gap={2}>
-            <Button variant="outline" onClick={() => router.push('/admin/products')}>
-              Cancel
-            </Button>
-            {!isNew && (
-              <Button variant="outline" color="critical" onClick={handleDelete} disabled={deleting}>
-                {deleting ? 'Deleting...' : 'Delete'}
-              </Button>
-            )}
-          </View>
-        </View>
+    <AdminLayout 
+      title={isNew ? 'Create New Product' : 'Edit Product'} 
+      backUrl="/admin/products"
+    >
+      <View 
+        direction="column" 
+        gap={6} 
+        width="100%"
+        attributes={{
+          onSubmit: handleSubmit
+        }}
+      >
+        <FormError error={error} />
+        
+        <View gap={4} maxWidth="800px" width="100%">
+          <FormField label="Product Name" required>
+            <TextField
+              name="name"
+              value={name}
+              onChange={({ value }) => setName(value)}
+              placeholder="Product name"
+            />
+          </FormField>
+          
+          <FormField label="Category" required>
+            <TextField
+              name="category"
+              value={category}
+              onChange={({ value }) => setCategory(value)}
+              placeholder="e.g. superfoods, wellness, teas"
+            />
+          </FormField>
 
-        {error && (
-          <div style={{ backgroundColor: '#ffebee', padding: '16px', borderRadius: '4px' }}>
-            <Text>
-              <span style={{ color: '#c62828' }}>{error}</span>
-            </Text>
-          </div>
-        )}
+          <FormField label="Description" required>
+            <TextArea
+              name="description"
+              value={description}
+              onChange={({ value }) => setDescription(value)}
+              placeholder="Product description"
+            />
+          </FormField>
+          
+          <FormField label="Price (USD)" required>
+            <NumberField
+              name="price"
+              value={price}
+              onChange={({ value }) => setPrice(value)}
+              placeholder="0.00"
+              min={0}
+              step={0.01}
+              increaseAriaLabel="Increase price"
+              decreaseAriaLabel="Decrease price"
+            />
+          </FormField>
+          
+          <FormField label="Inventory" required>
+            <NumberField
+              name="inventory"
+              value={inventory}
+              onChange={({ value }) => setInventory(value)}
+              placeholder="0"
+              min={0}
+              step={1}
+              increaseAriaLabel="Increase inventory"
+              decreaseAriaLabel="Decrease inventory"
+            />
+          </FormField>
+          
+          <FormField label="Tags (comma separated)">
+            <TextField
+              name="tags"
+              value={tags}
+              onChange={({ value }) => setTags(value)}
+              placeholder="organic, vegan, gluten-free"
+            />
+          </FormField>
 
-        {loading ? (
-          <View padding={4}>
-            <Text>Loading product...</Text>
-          </View>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <View direction="column" gap={4}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
+          <FormField label="Product Image" required>
+            <View direction="column" gap={2}>
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploading || saving}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      await handleFileUpload(file);
+                    } catch (error) {
+                      console.error('Failed to upload image:', error);
+                    }
+                  }
+                }}
+              />
+              {photoUrl && (
+                <img 
+                  src={photoUrl}
+                  alt="Product preview" 
+                  style={{ maxWidth: '300px', height: 'auto' }} 
                 />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Category *
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
-                >
-                  <option value="">Select category</option>
-                  <option value="APPAREL">Apparel</option>
-                  <option value="WELLNESS">Wellness</option>
-                  <option value="ACCESSORIES">Accessories</option>
-                  <option value="FOOD">Food</option>
-                  <option value="OTHER">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Description
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Photo URL *
-                </label>
-                <input
-                  type="text"
-                  value={photoUrl}
-                  onChange={(e) => setPhotoUrl(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Video URL (optional)
-                </label>
-                <input
-                  type="text"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
-                />
-              </div>
-
-              <View direction="row" gap={4}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                    Price (USD) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={price}
-                    onChange={(e) => setPrice(parseFloat(e.target.value))}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                    Inventory *
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={inventory}
-                    onChange={(e) => setInventory(parseInt(e.target.value))}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd'
-                    }}
-                  />
-                </div>
-              </View>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Tags (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="e.g. organic, vegan, natural"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '4px',
-                    border: '1px solid #ddd'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
-                    style={{ marginRight: '8px' }}
-                  />
-                  Product is active (visible in store)
-                </label>
-              </div>
-
-              <View direction="row" justify="end" padding={4}>
-                <Button type="submit" disabled={saving}>
-                  {saving ? 'Saving...' : isNew ? 'Create Product' : 'Update Product'}
-                </Button>
-              </View>
+              )}
             </View>
-          </form>
-        )}
+          </FormField>
+          
+          <FormField label="Product Video URL (optional)">
+            <TextField
+              name="videoUrl"
+              value={videoUrl}
+              onChange={({ value }) => setVideoUrl(value)}
+              placeholder="https://example.com/video.mp4"
+            />
+          </FormField>
+          
+          {!isNew && (
+            <FormField label="Active Status">
+              <Switch 
+                name="isActive"
+                checked={isActive} 
+                onChange={({ checked }) => setIsActive(checked)}
+              >
+                {isActive ? 'Active' : 'Inactive'}
+              </Switch>
+            </FormField>
+          )}
+        </View>
+        
+        <AdminFormActions 
+          isNew={isNew}
+          isSaving={saving}
+          isDeleting={deleting}
+          onSave={() => handleSubmit({} as React.FormEvent)}
+          onCancel={() => router.push('/admin/products')}
+          onDelete={!isNew ? handleDelete : undefined}
+          disabled={!name || !category || !description || !photoUrl || price <= 0}
+        />
       </View>
-    </div>
+    </AdminLayout>
   );
 } 

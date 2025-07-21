@@ -14,6 +14,8 @@ import type {
 import { useEffect } from 'react';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { useParams, useRouter } from 'next/navigation';
+import { MediaDisplay } from '@/components/recipes/MediaDisplay';
+import { RecipeComments } from '@/components/recipes/RecipeComments';
 
 // LazyLoad component that will only fetch data when it's needed
 function RecipeDetailLazy({ slug }: { slug: string }) {
@@ -96,27 +98,15 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
       </Button>
       
       <View direction="column" gap={6}>
-        {/* Recipe Image */}
-        <View 
-          attributes={{
-            style: {
-              position: 'relative',
-              width: '100%',
-              height: '400px'
-            }
+        {/* Recipe Media */}
+        <MediaDisplay
+          mediaUrl={recipe.mediaUrl}
+          altText={recipe.name}
+          style={{
+            width: '100%',
+            height: '400px'
           }}
-        >
-          <img
-            src={recipe.mediaUrl}
-            alt={recipe.name}
-            style={{ 
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover', 
-              borderRadius: '8px' 
-            }}
-          />
-        </View>
+        />
         
         {/* Recipe Header */}
         <View direction="column" gap={2}>
@@ -197,6 +187,11 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
             ))}
           </View>
         </View>
+
+        <Divider />
+
+        {/* Comments Section */}
+        <RecipeComments recipeId={recipe.id} />
       </View>
     </View>
   );

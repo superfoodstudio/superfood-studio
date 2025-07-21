@@ -1,22 +1,24 @@
+
 			[data-rs-theme="superfood"] {
 					--rs-font-family-title: var(--font-big-caslon, 'Big Caslon', serif);
 --rs-font-family-body: var(--font-lato, 'Lato', sans-serif);
+--rs-font-family-button: var(--font-carrois-gothic, 'Carrois Gothic SC', sans-serif);
 --rs-font-weight-regular: 400;
 --rs-font-weight-medium: 500;
 --rs-font-weight-semibold: 600;
 --rs-font-weight-bold: 700;
 --rs-font-weight-extrabold: 800;
 --rs-font-weight-black: 900;
---rs-font-size-title-1: 3rem;
---rs-line-height-title-1: 3.5rem;
+--rs-font-size-title-1: 6rem;
+--rs-line-height-title-1: 6.25rem;
 --rs-font-family-title-1: var(--rs-font-family-title);
---rs-font-weight-title-1: var(--rs-font-weight-bold);
---rs-letter-spacing-title-1: -1px;
---rs-font-size-title-2: 2.25rem;
---rs-line-height-title-2: 2.75rem;
+--rs-font-weight-title-1: var(--rs-font-weight-extrabold);
+--rs-letter-spacing-title-1: normal;
+--rs-font-size-title-2: 5rem;
+--rs-line-height-title-2: 5.25rem;
 --rs-font-family-title-2: var(--rs-font-family-title);
---rs-font-weight-title-2: var(--rs-font-weight-bold);
---rs-letter-spacing-title-2: -1px;
+--rs-font-weight-title-2: var(--rs-font-weight-extrabold);
+--rs-letter-spacing-title-2: normal;
 --rs-font-size-title-3: 4rem;
 --rs-line-height-title-3: 4.25rem;
 --rs-font-family-title-3: var(--rs-font-family-title);
@@ -49,10 +51,9 @@
 --rs-line-height-featured-3: 1.75rem;
 --rs-font-family-featured-3: var(--rs-font-family-body);
 --rs-letter-spacing-featured-3: normal;
---rs-font-size-body-1: 1rem;
---rs-line-height-body-1: 1.5rem;
+--rs-font-size-body-1: 1.125rem;
+--rs-line-height-body-1: 1.75rem;
 --rs-font-family-body-1: var(--rs-font-family-body);
---rs-font-weight-body-1: var(--rs-font-weight-regular);
 --rs-letter-spacing-body-1: normal;
 --rs-font-size-body-2: 1rem;
 --rs-line-height-body-2: 1.5rem;
@@ -87,6 +88,7 @@
 --rs-color-brand: #5a58f2;
 --rs-color-white: #ffffff;
 --rs-color-black: #000000;
+--rs-color-border-button-outline: #2A0028;
 --rs-color-on-background-primary: #ffffff;
 --rs-color-on-background-critical: #ffffff;
 --rs-color-on-background-warning: #000000;
@@ -109,11 +111,11 @@
 			}
 		
 			[data-rs-theme="superfood"][data-rs-color-mode="light"] {
-					--rs-color-background-primary: #2E1A47;
+					--rs-color-background-primary: #5a58f2;
 --rs-color-background-primary-faded: #ecebfe;
 --rs-color-border-primary: #3b38ed;
 --rs-color-border-primary-faded: #dedcfb;
---rs-color-foreground-primary: #2E1A47;
+--rs-color-foreground-primary: #4f4cf0;
 --rs-color-background-critical: #e22c2c;
 --rs-color-background-critical-faded: #fdeded;
 --rs-color-border-critical: #bf2424;
@@ -133,7 +135,7 @@
 --rs-color-background-neutral-faded: #f3f3f5;
 --rs-color-border-neutral: #0000001f;
 --rs-color-border-neutral-faded: #00000014;
---rs-color-foreground-neutral: #1F2937;
+--rs-color-foreground-neutral: #14181f;
 --rs-color-foreground-neutral-faded: #5b667e;
 --rs-color-background-disabled: #eceef2;
 --rs-color-background-disabled-faded: #f5f6f9;
@@ -142,9 +144,9 @@
 --rs-color-background-elevation-base: #FDF6E3;
 --rs-color-background-elevation-raised: #ffffff;
 --rs-color-background-elevation-overlay: #ffffff;
---rs-color-background-page: #FFFFFF;
+--rs-color-background-page: #ffffff;
 --rs-color-background-page-faded: #f9f9fb;
---rs-color-rgb-background-primary: 46, 26, 71;
+--rs-color-rgb-background-primary: 90, 88, 242;
 --rs-color-rgb-background-primary-faded: 236, 235, 254;
 --rs-color-rgb-background-critical: 226, 44, 44;
 --rs-color-rgb-background-critical-faded: 253, 237, 237;
@@ -165,11 +167,11 @@
 			}
 		
 			[data-rs-theme="superfood"][data-rs-color-mode="dark"] {
-					--rs-color-background-primary: #8B5CF6;
+					--rs-color-background-primary: #524fea;
 --rs-color-background-primary-faded: #252544;
 --rs-color-border-primary: #8c8bf3;
 --rs-color-border-primary-faded: #323164;
---rs-color-foreground-primary: #8B5CF6;
+--rs-color-foreground-primary: #8b8af7;
 --rs-color-background-critical: #d02626;
 --rs-color-background-critical-faded: #3e1f1f;
 --rs-color-border-critical: #f46969;
@@ -189,18 +191,18 @@
 --rs-color-background-neutral-faded: #222835;
 --rs-color-border-neutral: #ffffff24;
 --rs-color-border-neutral-faded: #ffffff14;
---rs-color-foreground-neutral: #FDF6E3;
+--rs-color-foreground-neutral: #eff1f5;
 --rs-color-foreground-neutral-faded: #c0c6d6;
 --rs-color-background-disabled: #1e212a;
 --rs-color-background-disabled-faded: #171921;
 --rs-color-border-disabled: #262a34;
 --rs-color-foreground-disabled: #434959;
---rs-color-background-elevation-base: #374151;
+--rs-color-background-elevation-base: #15171e;
 --rs-color-background-elevation-raised: #191b23;
 --rs-color-background-elevation-overlay: #1c1f28;
---rs-color-background-page: #1F2937;
+--rs-color-background-page: #0f1116;
 --rs-color-background-page-faded: #111319;
---rs-color-rgb-background-primary: 139, 92, 246;
+--rs-color-rgb-background-primary: 82, 79, 234;
 --rs-color-rgb-background-primary-faded: 37, 37, 68;
 --rs-color-rgb-background-critical: 208, 38, 38;
 --rs-color-rgb-background-critical-faded: 62, 31, 31;
@@ -213,10 +215,20 @@
 --rs-color-rgb-background-neutral-faded: 34, 40, 53;
 --rs-color-rgb-background-disabled: 30, 33, 42;
 --rs-color-rgb-background-disabled-faded: 23, 25, 33;
---rs-color-rgb-background-elevation-base: 55, 65, 81;
+--rs-color-rgb-background-elevation-base: 21, 23, 30;
 --rs-color-rgb-background-elevation-raised: 25, 27, 35;
 --rs-color-rgb-background-elevation-overlay: 28, 31, 40;
---rs-color-rgb-background-page: 31, 41, 55;
+--rs-color-rgb-background-page: 15, 17, 22;
 --rs-color-rgb-background-page-faded: 17, 19, 25;
 			}
 		
+		/* Custom button styling */
+		[data-rs-theme="superfood"] [data-rs-button] {
+			font-family: var(--rs-font-family-button) !important;
+		}
+
+		/* Custom outline button border color */
+		[data-rs-theme="superfood"] [data-rs-button][data-rs-variant="outline"] {
+			border-color: var(--rs-color-border-button-outline);
+			color: var(--rs-color-border-button-outline);
+		}

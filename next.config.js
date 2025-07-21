@@ -9,7 +9,6 @@ const nextConfig = {
     domains: [
       'images.unsplash.com',
       'gateway.pinata.cloud',
-      'superfoodstudio.mypinata.cloud',
       'ipfs.io'
     ],
   },

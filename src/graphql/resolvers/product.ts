@@ -16,6 +16,7 @@ interface Product {
   tags: string[];
   inventory: number;
   isActive: boolean;
+  isArchived: boolean;
   stripeProductId?: string;
   stripePriceId?: string;
   createdAt: Date;
@@ -32,6 +33,7 @@ type ProductOrderByWithRelationInput = {
 type ProductWhereInput = {
   category?: string;
   isActive?: boolean;
+  isArchived?: boolean;
   OR?: Array<{
     name?: { contains: string; mode: 'insensitive' };
     description?: { contains: string; mode: 'insensitive' };
@@ -112,6 +114,7 @@ export const productResolvers = {
       }
 
       const where: ProductWhereInput = {
+        isArchived: false, // Always filter out archived products
         ...(category ? { category } : {}),
         ...(status && status !== 'all'
           ? { isActive: status === 'active' }
@@ -151,12 +154,106 @@ export const productResolvers = {
         where: { 
           category,
           isActive: true,
+          isArchived: false,
           inventory: { gt: 0 }
         },
         orderBy: { createdAt: 'desc' },
         take: limit,
         skip: offset
       });
+    },
+
+    // Products connection for infinite scrolling
+    productsConnection: async (
+      _parent: unknown, 
+      { first = 10, after, category, status, search, sort }: { 
+        first?: number; 
+        after?: string; 
+        category?: string; 
+        status?: string; 
+        search?: string; 
+        sort?: string; 
+      }, 
+      { prisma }: GraphQLContext
+    ) => {
+      try {
+        let orderBy: ProductOrderByWithRelationInput = {};
+        switch (sort) {
+          case 'a-z':
+            orderBy = { name: 'asc' };
+            break;
+          case 'z-a':
+            orderBy = { name: 'desc' };
+            break;
+          case 'price-low-high':
+            orderBy = { price: 'asc' };
+            break;
+          case 'price-high-low':
+            orderBy = { price: 'desc' };
+            break;
+          case 'oldest':
+            orderBy = { createdAt: 'asc' };
+            break;
+          default:
+            orderBy = { createdAt: 'desc' }; // newest
+        }
+
+        const where: any = {
+          isArchived: false, // Always filter out archived products
+          ...(category ? { category } : {}),
+          ...(status && status !== 'all'
+            ? { isActive: status === 'active' }
+            : {}),
+          ...(search
+            ? {
+                OR: [
+                  { name: { contains: search, mode: 'insensitive' } },
+                  { description: { contains: search, mode: 'insensitive' } },
+                ],
+              }
+            : {}),
+        };
+        
+        // Add cursor-based pagination
+        if (after) {
+          where.id = { lt: after }; // Use 'lt' for descending order (newest first)
+        }
+
+        const products = await prisma.product.findMany({
+          where,
+          take: first + 1, // Take one extra to check if there are more
+          orderBy,
+        });
+
+        const hasNextPage = products.length > first;
+        const nodes = hasNextPage ? products.slice(0, -1) : products;
+
+        const edges = nodes.map((product) => ({
+          cursor: product.id,
+          node: product
+        }));
+
+        return {
+          edges,
+          pageInfo: {
+            hasNextPage,
+            hasPreviousPage: !!after,
+            startCursor: edges.length > 0 ? edges[0].cursor : null,
+            endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null
+          }
+        };
+      } catch (error) {
+        console.error('Error fetching products connection:', error);
+        return {
+          edges: [],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: false,
+            startCursor: null,
+            endCursor: null
+          }
+        };
+      }
     },
   },
 
@@ -308,14 +405,18 @@ export const productResolvers = {
           });
         }
 
-        // Delete from our database
-        await prisma.product.delete({
+        // Soft delete: mark as archived instead of deleting
+        await prisma.product.update({
           where: { id },
+          data: {
+            isArchived: true,
+            isActive: false, // Also mark as inactive
+          },
         });
 
         return { success: true };
       } catch (error) {
-        console.error('Error deleting product:', error);
+        console.error('Error archiving product:', error);
         return { success: false };
       }
     },

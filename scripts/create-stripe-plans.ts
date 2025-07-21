@@ -1,11 +1,11 @@
-import Stripe from 'stripe';
-import dotenv from 'dotenv';
+const Stripe = require('stripe');
+const dotenv = require('dotenv');
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-08-16' as Stripe.LatestApiVersion,
+  apiVersion: '2023-08-16' as any,
 });
 
 interface PlanConfig {
@@ -22,7 +22,7 @@ const plans: PlanConfig[] = [
   {
     name: 'Monthly Subscription',
     description: 'Access to all premium recipes and content. Billed monthly.',
-    amount: 1499, // $14.99
+    amount: 1000, // $10.00
     interval: 'month',
     metadata: {
       planId: 'MONTHLY',
@@ -30,8 +30,8 @@ const plans: PlanConfig[] = [
   },
   {
     name: 'Yearly Subscription',
-    description: 'Access to all premium recipes and content. Billed yearly. Save over 15%!',
-    amount: 14990, // $149.90 (equivalent to $12.49/month)
+    description: 'Access to all premium recipes and content. Billed yearly. Save over 20%!',
+    amount: 9500, // $95.00 (equivalent to $7.92/month)
     interval: 'year',
     metadata: {
       planId: 'YEARLY',

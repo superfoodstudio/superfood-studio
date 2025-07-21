@@ -4,14 +4,12 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { ReshapedProvider } from '@/components/providers/ReshapedProvider';
 import { Navigation } from '@/components/layout/Navigation';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
 // Import the RelayProvider with SSR disabled completely
 const ClientOnly = dynamic(
   () => import('@/components/providers/ClientOnly').then(mod => mod.ClientOnly),
   { 
-    ssr: false,
-    loading: () => <div>Loading application...</div>
+    ssr: false
   }
 );
 
@@ -31,13 +29,11 @@ export function RootLayoutClient({ children }: { children: React.ReactNode }) {
       }}
     >
       <ReshapedProvider>
-        <Suspense fallback={<div>Loading...</div>}>
+        {/* Use a client-only wrapper for everything to prevent hydration mismatch */}
+        <ClientOnly>
           <Navigation />
-          {/* Use a client-only wrapper instead of directly embedding RelayProvider */}
-          <ClientOnly>
-            {children}
-          </ClientOnly>
-        </Suspense>
+          {children}
+        </ClientOnly>
       </ReshapedProvider>
     </PrivyProvider>
   );

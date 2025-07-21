@@ -122,6 +122,95 @@ export const recipeResolvers = {
         skip: offset,
       });
     },
+
+    // Recipes connection for infinite scrolling
+    recipesConnection: async (
+      _parent: unknown, 
+      { first = 10, after, category, status, search, sort }: { 
+        first?: number; 
+        after?: string; 
+        category?: string; 
+        status?: string; 
+        search?: string; 
+        sort?: string; 
+      }, 
+      { prisma }: GraphQLContext
+    ) => {
+      try {
+        let orderBy: RecipeOrderByWithRelationInput = {};
+        switch (sort) {
+          case 'a-z':
+            orderBy = { name: 'asc' };
+            break;
+          case 'z-a':
+            orderBy = { name: 'desc' };
+            break;
+          case 'oldest':
+            orderBy = { uploadDate: 'asc' };
+            break;
+          default:
+            orderBy = { uploadDate: 'desc' }; // newest
+        }
+
+        const where: any = {
+          ...(category ? { category } : {}),
+          ...(status && status !== 'all'
+            ? { isPublished: status === 'live' }
+            : {}),
+          ...(search
+            ? {
+                OR: [
+                  { name: { contains: search, mode: 'insensitive' } },
+                  { description: { contains: search, mode: 'insensitive' } },
+                ],
+              }
+            : {}),
+        };
+        
+        // Add cursor-based pagination
+        if (after) {
+          where.id = { lt: after }; // Use 'lt' for descending order (newest first)
+        }
+
+        const recipes = await prisma.recipe.findMany({
+          where,
+          take: first + 1, // Take one extra to check if there are more
+          orderBy,
+          include: {
+            comments: true
+          }
+        });
+
+        const hasNextPage = recipes.length > first;
+        const nodes = hasNextPage ? recipes.slice(0, -1) : recipes;
+
+        const edges = nodes.map((recipe) => ({
+          cursor: recipe.id,
+          node: recipe
+        }));
+
+        return {
+          edges,
+          pageInfo: {
+            hasNextPage,
+            hasPreviousPage: !!after,
+            startCursor: edges.length > 0 ? edges[0].cursor : null,
+            endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null
+          }
+        };
+      } catch (error) {
+        console.error('Error fetching recipes connection:', error);
+        return {
+          edges: [],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: false,
+            startCursor: null,
+            endCursor: null
+          }
+        };
+      }
+    },
   },
 
   Mutation: {

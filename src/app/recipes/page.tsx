@@ -1,15 +1,8 @@
+'use client';
+
 import { View, Text } from 'reshaped';
 import { AppContainer } from '@/components/layout/AppContainer';
-import dynamicImport from 'next/dynamic';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-// Use dynamic import with SSR disabled for the client component that uses Relay
-const RecipesContent = dynamicImport(
-  () => import('./RecipesContent'),
-  { ssr: false }
-);
+import { RecipesContentSimple } from './RecipesContentSimple';
 
 export default function RecipesPage() {
   return (
@@ -22,8 +15,7 @@ export default function RecipesPage() {
           </Text>
         </View>
         
-        {/* Load the Relay content dynamically client-side only */}
-        <RecipesContent />
+        <RecipesContentSimple />
       </View>
     </AppContainer>
   );

@@ -1,9 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { View, Text, Button } from 'reshaped';
+import { View, TextArea, TextField, Switch } from 'reshaped';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { FormField } from '@/components/admin/FormField';
+import { FormError } from '@/components/admin/FormError';
+import { AdminFormActions } from '@/components/admin/AdminFormActions';
+import { VideoUpload } from '@/components/admin/VideoUpload';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 interface Recipe {
   id: string;
@@ -14,6 +20,8 @@ interface Recipe {
   description?: string;
   ingredients?: string[];
   instructions?: string[];
+  mediaUrl?: string;
+  previewImageUrl?: string;
 }
 
 interface RecipeFormInputs {
@@ -23,6 +31,8 @@ interface RecipeFormInputs {
   ingredients: string;
   instructions: string;
   isPublished: boolean;
+  mediaUrl: string;
+  previewImageUrl: string;
 }
 
 export default function EditRecipePage() {
@@ -37,7 +47,8 @@ export default function EditRecipePage() {
   const [error, setError] = useState<string | null>(null);
   
   // React Hook Form
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<RecipeFormInputs>();
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<RecipeFormInputs>();
+  const formValues = watch();
   
   useEffect(() => {
     async function fetchRecipe() {
@@ -59,6 +70,8 @@ export default function EditRecipePage() {
                   description
                   ingredients
                   instructions
+                  mediaUrl
+                  previewImageUrl
                 }
               }
             `,
@@ -67,7 +80,6 @@ export default function EditRecipePage() {
         });
         
         const result = await response.json();
-        console.log("Recipe fetch result:", result);
         
         if (result.data && result.data.recipe) {
           const recipeData = result.data.recipe;
@@ -80,6 +92,8 @@ export default function EditRecipePage() {
           setValue('ingredients', recipeData.ingredients ? recipeData.ingredients.join('\n') : '');
           setValue('instructions', recipeData.instructions ? recipeData.instructions.join('\n') : '');
           setValue('isPublished', recipeData.isPublished || false);
+          setValue('mediaUrl', recipeData.mediaUrl || '');
+          setValue('previewImageUrl', recipeData.previewImageUrl || '');
           
         } else if (result.errors) {
           setError(`GraphQL error: ${result.errors[0]?.message || 'Unknown error'}`);
@@ -125,6 +139,8 @@ export default function EditRecipePage() {
               category: data.category,
               isPublished: data.isPublished,
               description: data.description,
+              mediaUrl: data.mediaUrl,
+              previewImageUrl: data.previewImageUrl,
               // Convert newline-separated strings to arrays for ingredients and instructions
               ingredients: data.ingredients.split('\n').filter(Boolean),
               instructions: data.instructions.split('\n').filter(Boolean),
@@ -137,6 +153,7 @@ export default function EditRecipePage() {
       
       if (result.errors) {
         setError(`Failed to update: ${result.errors[0]?.message || 'Unknown error'}`);
+        return; // Stay on form when there's an error
       } else {
         router.push('/admin/recipes');
       }
@@ -178,200 +195,132 @@ export default function EditRecipePage() {
       
       if (result.errors) {
         setError(`Failed to delete: ${result.errors[0]?.message || 'Unknown error'}`);
+        setDeleting(false);
       } else {
         router.push('/admin/recipes');
       }
     } catch (e) {
       console.error("Failed to delete recipe:", e);
       setError("Failed to delete. See console for details.");
-    } finally {
       setDeleting(false);
     }
   };
 
   if (loading) {
     return (
-      <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
-        <View direction="column" gap={6} padding={8}>
-          <Text variant="title-2">Loading recipe...</Text>
-        </View>
-      </div>
+      <AdminLayout title="Loading Recipe...">
+        <View padding={4}>Loading recipe data...</View>
+      </AdminLayout>
     );
   }
 
-  if (error) {
+  if (!recipe && !loading) {
     return (
-      <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
-        <View direction="column" gap={6} padding={8}>
-          <Text variant="title-2">Error</Text>
-          <div style={{ backgroundColor: '#ffebee', padding: '16px', borderRadius: '4px' }}>
-            <Text>
-              <span style={{ color: '#c62828' }}>{error}</span>
-            </Text>
-          </div>
-          <Button onClick={() => router.push('/admin/recipes')}>Back to Recipes</Button>
-        </View>
-      </div>
-    );
-  }
-
-  if (!recipe) {
-    return (
-      <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
-        <View direction="column" gap={6} padding={8}>
-          <Text variant="title-2">Recipe not found</Text>
-          <Button onClick={() => router.push('/admin/recipes')}>Back to Recipes</Button>
-        </View>
-      </div>
+      <AdminLayout title="Recipe Not Found" backUrl="/admin/recipes">
+        <View padding={4}>The requested recipe was not found.</View>
+      </AdminLayout>
     );
   }
 
   return (
-    <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
-      <View direction="column" gap={6} padding={8}>
-        <View direction="row" justify="space-between" align="center">
-          <Text variant="title-2">Edit Recipe</Text>
-          <View direction="row" gap={2}>
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/admin/recipes')}
+    <AdminLayout 
+      title="Edit Recipe" 
+      backUrl="/admin/recipes"
+    >
+      <View 
+        as="form" 
+        gap={6} 
+        width="100%" 
+        attributes={{ 
+          onSubmit: handleSubmit(onSubmit) 
+        }}
+      >
+        <FormError error={error} />
+        
+        <View gap={4} maxWidth="800px" width="100%">
+          <FormField label="Recipe Name" required error={errors.name?.message}>
+            <TextField 
+              name="name"
+              value={formValues.name || ''}
+              onChange={({ value }) => setValue('name', value)}
+              placeholder="Enter recipe name"
+            />
+          </FormField>
+          
+          <FormField label="Category" required error={errors.category?.message}>
+            <TextField 
+              name="category"
+              value={formValues.category || ''}
+              onChange={({ value }) => setValue('category', value)}
+              placeholder="e.g. smoothie, dessert, main"
+            />
+          </FormField>
+          
+          <FormField label="Description" required error={errors.description?.message}>
+            <TextArea 
+              name="description"
+              value={formValues.description || ''}
+              onChange={({ value }) => setValue('description', value)}
+              placeholder="Describe your recipe..."
+            />
+          </FormField>
+          
+          <FormField label="Video/Audio Content" required error={errors.mediaUrl?.message}>
+            <VideoUpload
+              value={formValues.mediaUrl}
+              onChange={(url) => setValue('mediaUrl', url)}
+              disabled={saving}
+            />
+          </FormField>
+          
+          <FormField label="Preview Image (for recipe cards)" error={errors.previewImageUrl?.message}>
+            <ImageUpload
+              value={formValues.previewImageUrl}
+              onChange={(url) => setValue('previewImageUrl', url)}
+              disabled={saving}
+              label="Upload Preview Image"
+            />
+          </FormField>
+          
+          <FormField label="Ingredients" required error={errors.ingredients?.message}>
+            <TextArea 
+              name="ingredients"
+              value={formValues.ingredients || ''}
+              onChange={({ value }) => setValue('ingredients', value)}
+              placeholder="Enter one ingredient per line"
+            />
+          </FormField>
+          
+          <FormField label="Instructions" required error={errors.instructions?.message}>
+            <TextArea 
+              name="instructions"
+              value={formValues.instructions || ''}
+              onChange={({ value }) => setValue('instructions', value)}
+              placeholder="Enter one instruction step per line"
+            />
+          </FormField>
+          
+          <FormField label="Published">
+            <Switch 
+              name="isPublished"
+              checked={formValues.isPublished} 
+              onChange={(e) => setValue('isPublished', e.checked)}
             >
-              Cancel
-            </Button>
-            <Button 
-              variant="solid" 
-              color="critical" 
-              disabled={deleting} 
-              onClick={handleDelete}
-            >
-              {deleting ? 'Deleting...' : 'Delete Recipe'}
-            </Button>
-          </View>
+              {formValues.isPublished ? 'Published' : 'Draft'}
+            </Switch>
+          </FormField>
         </View>
         
-        {error && (
-          <div style={{ backgroundColor: '#ffebee', padding: '16px', borderRadius: '4px' }}>
-            <Text>
-              <span style={{ color: '#c62828' }}>{error}</span>
-            </Text>
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <View direction="column" gap={6}>
-            <div>
-              <label className="form-label">Recipe Name</label>
-              <input 
-                {...register('name', { required: true })}
-                className="form-input"
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  marginTop: '8px'
-                }}
-              />
-              {errors.name && <p className="error-text">Name is required</p>}
-            </div>
-            
-            <div>
-              <label className="form-label">Category</label>
-              <select 
-                {...register('category')}
-                className="form-select"
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  marginTop: '8px'
-                }}
-              >
-                <option value="breakfast">Breakfast</option>
-                <option value="lunch">Lunch</option>
-                <option value="dinner">Dinner</option>
-                <option value="dessert">Dessert</option>
-                <option value="snack">Snack</option>
-                <option value="drink">Drink</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="form-label">Description</label>
-              <textarea 
-                {...register('description')}
-                className="form-textarea"
-                rows={3}
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  marginTop: '8px'
-                }}
-              />
-            </div>
-            
-            <div>
-              <label className="form-label">Ingredients (one per line)</label>
-              <textarea 
-                {...register('ingredients')}
-                className="form-textarea"
-                rows={5}
-                placeholder="Enter ingredients, one per line"
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  marginTop: '8px'
-                }}
-              />
-            </div>
-            
-            <div>
-              <label className="form-label">Instructions (one per line)</label>
-              <textarea 
-                {...register('instructions')}
-                className="form-textarea"
-                rows={5}
-                placeholder="Enter instructions, one per line"
-                style={{ 
-                  width: '100%', 
-                  padding: '10px', 
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  marginTop: '8px'
-                }}
-              />
-            </div>
-            
-            <div>
-              <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                <input 
-                  type="checkbox" 
-                  {...register('isPublished')} 
-                  style={{ marginRight: '8px' }}
-                />
-                <span>Published</span>
-              </label>
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </View>
-        </form>
+        <AdminFormActions 
+          isNew={false}
+          isSaving={saving}
+          isDeleting={deleting}
+          onSave={() => handleSubmit(onSubmit)()}
+          onCancel={() => router.push('/admin/recipes')}
+          onDelete={handleDelete}
+          disabled={Object.keys(errors).length > 0}
+        />
       </View>
-    </div>
+    </AdminLayout>
   );
 } 

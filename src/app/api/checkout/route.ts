@@ -10,8 +10,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const CURRENCY = 'usd';
 const WEBSITE_URL = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000';
 
+interface CartItem {
+  productId: string;
+  quantity: number;
+  price: number;
+  productName?: string;
+  productPhoto?: string;
+}
+
 interface CheckoutBody {
-  cartId: string;
+  cartItems: CartItem[];
   shippingAddress?: {
     street: string;
     city: string;
@@ -65,44 +73,51 @@ export async function POST(req: NextRequest) {
     
     // Parse request body
     const body: CheckoutBody = await req.json();
-    const { cartId, shippingAddress, billingAddress } = body;
+    const { cartItems, shippingAddress, billingAddress } = body;
     
-    if (!cartId) {
+    // Authentication is required for checkout
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Cart ID is required' },
+        { error: 'Authentication required for checkout' },
+        { status: 401 }
+      );
+    }
+    
+    // Validate cart items
+    if (!cartItems || cartItems.length === 0) {
+      return NextResponse.json(
+        { error: 'Cart is empty' },
         { status: 400 }
       );
     }
     
-    // Fetch cart with items
-    const cart = await prisma.cart.findUnique({
-      where: { id: cartId },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
+    // Fetch products to validate and get current data
+    const productIds = cartItems.map(item => item.productId);
+    const products = await prisma.product.findMany({
+      where: { 
+        id: { in: productIds },
+        isArchived: false // Only fetch non-archived products
+      }
     });
     
-    if (!cart || cart.items.length === 0) {
-      return NextResponse.json(
-        { error: 'Cart not found or is empty' },
-        { status: 400 }
-      );
-    }
-    
-    // Verify cart ownership if authenticated
-    if (userId && cart.userId && cart.userId !== userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized access to cart' },
-        { status: 403 }
-      );
-    }
+    // Create cart-like structure for compatibility
+    const cartWithProducts = {
+      items: cartItems.map(cartItem => {
+        const product = products.find(p => p.id === cartItem.productId);
+        if (!product) {
+          throw new Error(`Product ${cartItem.productId} not found or archived`);
+        }
+        return {
+          productId: cartItem.productId,
+          quantity: cartItem.quantity,
+          price: cartItem.price,
+          product: product
+        };
+      })
+    };
     
     // Check inventory availability
-    for (const item of cart.items) {
+    for (const item of cartWithProducts.items) {
       if (item.quantity > item.product.inventory) {
         return NextResponse.json(
           { 
@@ -117,7 +132,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Calculate total
-    const total = cart.items.reduce((sum, item) => {
+    const total = cartWithProducts.items.reduce((sum, item) => {
       return sum + (item.price * item.quantity);
     }, 0);
     
@@ -128,7 +143,7 @@ export async function POST(req: NextRequest) {
         total,
         status: 'PENDING',
         items: {
-          create: cart.items.map(item => ({
+          create: cartWithProducts.items.map(item => ({
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
@@ -138,7 +153,7 @@ export async function POST(req: NextRequest) {
     });
     
     // Create line items for Stripe
-    const lineItems = cart.items.map(item => {
+    const lineItems = cartWithProducts.items.map(item => {
       return {
         price_data: {
           currency: CURRENCY,
@@ -162,7 +177,6 @@ export async function POST(req: NextRequest) {
       cancel_url: `${WEBSITE_URL}/checkout/cancel?order_id=${order.id}`,
       metadata: {
         orderId: order.id,
-        cartId: cart.id,
       },
       shipping_address_collection: {
         allowed_countries: ['US', 'CA', 'MX'], // Add countries you want to support

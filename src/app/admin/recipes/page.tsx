@@ -1,67 +1,139 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { View, Text, Table, Button } from 'reshaped';
+import { useState, useEffect, Suspense, useRef } from 'react';
+import { View, Text, Table, Button, Card } from 'reshaped';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { usePrivy } from '@privy-io/react-auth';
+import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
+import { graphql } from 'relay-runtime';
 
-// Define the expected shape of a recipe item based on the query
-interface RecipeItem {
-  readonly id: string;
-  readonly name: string;
-  readonly category: string;
-  readonly isPublished: boolean;
-  readonly uploadDate: string | number | Date;
+// Format date for display
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
-export default function AdminRecipesPage() {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [recipes, setRecipes] = useState<RecipeItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Fetch data directly from the GraphQL endpoint
-  useEffect(() => {
-    async function fetchRecipes() {
-      try {
-        const response = await fetch('/api/graphql', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            query: `
-              query {
-                recipes {
-                  id
-                  name
-                  category
-                  isPublished
-                  uploadDate
-                }
-              }
-            `,
-          }),
-        });
-        
-        const result = await response.json();
-        console.log("GraphQL query result:", result);
-        
-        if (result.data && result.data.recipes) {
-          setRecipes(result.data.recipes);
-        } else if (result.errors) {
-          setError(`GraphQL error: ${result.errors[0]?.message || 'Unknown error'}`);
+// Define the query that includes the fragment
+const AdminRecipesPageQuery = graphql`
+  query pageRecipesPageQuery($first: Int!, $after: String, $category: String, $status: String, $search: String, $sort: String) {
+    ...pageRecipesPaginationFragment
+  }
+`;
+
+// Define the pagination fragment
+const AdminRecipesPaginationFragment = graphql`
+  fragment pageRecipesPaginationFragment on Query
+  @refetchable(queryName: "AdminRecipesPaginationQuery") {
+    recipesConnection(
+      first: $first
+      after: $after
+      category: $category
+      status: $status
+      search: $search
+      sort: $sort
+    ) @connection(key: "AdminRecipesList_recipesConnection") {
+      edges {
+        cursor
+        node {
+          id
+          name
+          slug
+          description
+          category
+          isPublished
+          mediaUrl
+          previewImageUrl
+          uploadDate
+          createdAt
+          updatedAt
+          ingredients
+          instructions
+          comments {
+            id
+          }
         }
-      } catch (e) {
-        console.error("Failed to fetch recipes:", e);
-        setError("Failed to load recipes. See console for details.");
-      } finally {
-        setLoading(false);
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
       }
     }
-    
-    fetchRecipes();
-  }, []);
+  }
+`;
+
+import type { pageRecipesPageQuery } from '@/__generated__/pageRecipesPageQuery.graphql';
+import type { pageRecipesPaginationFragment$key } from '@/__generated__/pageRecipesPaginationFragment.graphql';
+
+function AdminRecipesContent() {
+  const router = useRouter();
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const [searchFilter, setSearchFilter] = useState<string>('');
+  const [sortFilter, setSortFilter] = useState<string>('newest');
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  
+  const queryData = useLazyLoadQuery<pageRecipesPageQuery>(
+    AdminRecipesPageQuery,
+    {
+      first: 20,
+      after: null,
+      category: categoryFilter || null,
+      status: statusFilter === 'all' ? null : statusFilter,
+      search: searchFilter || null,
+      sort: sortFilter,
+    }
+  );
+
+  const {
+    data,
+    loadNext,
+    hasNext,
+    isLoadingNext,
+  } = usePaginationFragment<pageRecipesPageQuery, pageRecipesPaginationFragment$key>(
+    AdminRecipesPaginationFragment, 
+    queryData
+  );
+
+  const recipes = data.recipesConnection?.edges?.map(edge => edge.node) || [];
+  
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasNext || isLoadingNext) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasNext && !isLoadingNext) {
+          loadNext(20);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [hasNext, isLoadingNext, loadNext]);
+
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(status);
+  };
+
+  const handleCategoryFilter = (category: string) => {
+    setCategoryFilter(category);
+  };
+
+  const handleSearchFilter = (search: string) => {
+    setSearchFilter(search);
+  };
+
+  const handleSortFilter = (sort: string) => {
+    setSortFilter(sort);
+  };
 
   // Handler for navigating to the edit page
   const handleEditClick = (id: string) => {
@@ -69,55 +141,134 @@ export default function AdminRecipesPage() {
   };
 
   return (
-    <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
-      <View direction="column" gap={6} padding={8}>
-        <View direction="row" justify="space-between" align="center">
-          <Text variant="title-2">Manage Recipes</Text>
-          <Link href="/admin/recipes/new" passHref>
-            <Button>Create New Recipe</Button>
-          </Link>
-        </View>
-        
-        {error && (
-          <div style={{ backgroundColor: '#ffebee', padding: '16px', borderRadius: '4px' }}>
-            <Text>
-              <span style={{ color: '#c62828' }}>{error}</span>
-            </Text>
-          </div>
-        )}
+    <View direction="column" gap={6}>
+      <View direction="row" justify="space-between" align="center">
+        <Text variant="title-2">Manage Recipes</Text>
+        <Link href="/admin/recipes/new" passHref>
+          <Button>Create New Recipe</Button>
+        </Link>
+      </View>
 
-        {loading ? (
-          <View padding={4}>
-            <Text>Loading recipes...</Text>
-          </View>
-        ) : recipes.length === 0 && !error ? (
-          <View padding={4}>
-            <Text>No recipes found.</Text>
-          </View>
-        ) : (
+      {/* Filters */}
+      <View direction="column" gap={4}>
+        <View direction="row" gap={2} align="center" wrap>
+          <Text>Status:</Text>
+          <Button
+            variant={statusFilter === 'all' ? 'solid' : 'outline'}
+            size="small"
+            onClick={() => handleStatusFilter('all')}
+          >
+            All
+          </Button>
+          <Button
+            variant={statusFilter === 'live' ? 'solid' : 'outline'}
+            size="small"
+            onClick={() => handleStatusFilter('live')}
+          >
+            Published
+          </Button>
+          <Button
+            variant={statusFilter === 'not-live' ? 'solid' : 'outline'}
+            size="small"
+            onClick={() => handleStatusFilter('not-live')}
+          >
+            Draft
+          </Button>
+        </View>
+
+        <View direction="row" gap={2} align="center" wrap>
+          <Text>Sort:</Text>
+          <Button
+            variant={sortFilter === 'newest' ? 'solid' : 'outline'}
+            size="small"
+            onClick={() => handleSortFilter('newest')}
+          >
+            Newest
+          </Button>
+          <Button
+            variant={sortFilter === 'oldest' ? 'solid' : 'outline'}
+            size="small"
+            onClick={() => handleSortFilter('oldest')}
+          >
+            Oldest
+          </Button>
+          <Button
+            variant={sortFilter === 'a-z' ? 'solid' : 'outline'}
+            size="small"
+            onClick={() => handleSortFilter('a-z')}
+          >
+            A-Z
+          </Button>
+          <Button
+            variant={sortFilter === 'z-a' ? 'solid' : 'outline'}
+            size="small"
+            onClick={() => handleSortFilter('z-a')}
+          >
+            Z-A
+          </Button>
+        </View>
+      </View>
+
+      {/* Recipes Table */}
+      {recipes.length === 0 ? (
+        <View direction="column" align="center" justify="center" height="300px">
+          <Text>No recipes found.</Text>
+        </View>
+      ) : (
+        <>
           <Table>
             <Table.Head>
               <Table.Row>
                 <Table.Heading>Name</Table.Heading>
                 <Table.Heading>Category</Table.Heading>
                 <Table.Heading>Published</Table.Heading>
+                <Table.Heading>Comments</Table.Heading>
                 <Table.Heading>Upload Date</Table.Heading>
                 <Table.Heading>Actions</Table.Heading>
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {recipes.map((item) => (
-                <Table.Row key={item.id}>
-                  <Table.Cell>{item.name}</Table.Cell>
-                  <Table.Cell>{item.category}</Table.Cell>
-                  <Table.Cell>{item.isPublished ? 'Yes' : 'No'}</Table.Cell>
-                  <Table.Cell>{new Date(item.uploadDate).toLocaleDateString()}</Table.Cell>
+              {recipes.map((recipe) => (
+                <Table.Row key={recipe.id}>
+                  <Table.Cell>
+                    <View direction="column" gap={1}>
+                      <Text weight="medium">{recipe.name}</Text>
+                      {recipe.description && (
+                        <Text variant="caption-1" color="neutral-faded">
+                          {recipe.description.length > 50 
+                            ? `${recipe.description.substring(0, 50)}...`
+                            : recipe.description}
+                        </Text>
+                      )}
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>{recipe.category}</Table.Cell>
+                  <Table.Cell>
+                    <span 
+                      style={{ 
+                        color: recipe.isPublished ? '#2e7d32' : '#c62828',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: recipe.isPublished ? '#e8f5e9' : '#ffebee',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {recipe.isPublished ? 'Published' : 'Draft'}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1">{recipe.comments?.length || 0} comments</Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1">{formatDate(recipe.uploadDate)}</Text>
+                  </Table.Cell>
                   <Table.Cell>
                     <View direction="row" gap={2}>
                       <Button 
                         variant="outline" 
                         size="small" 
-                        onClick={() => handleEditClick(item.id)}
+                        onClick={() => handleEditClick(recipe.id)}
                       >
                         Edit
                       </Button>
@@ -127,7 +278,67 @@ export default function AdminRecipesPage() {
               ))}
             </Table.Body>
           </Table>
-        )}
+          
+          {/* Infinite scroll trigger */}
+          {hasNext && (
+            <div 
+              ref={loadMoreRef}
+              style={{ height: '10px', visibility: 'hidden' }}
+            />
+          )}
+          
+          {/* Loading indicator */}
+          {isLoadingNext && (
+            <View direction="column" align="center" padding={4}>
+              <Text variant="caption-1" color="neutral-faded">
+                Loading more recipes...
+              </Text>
+            </View>
+          )}
+        </>
+      )}
+    </View>
+  );
+}
+
+function AdminRecipesLoading() {
+  return (
+    <View direction="column" gap={4}>
+      <Text variant="title-2">Manage Recipes</Text>
+      <View padding={4}>
+        <Text>Loading recipes...</Text>
+      </View>
+    </View>
+  );
+}
+
+export default function AdminRecipesPage() {
+  const router = useRouter();
+  const { ready, authenticated } = usePrivy();
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (ready && !authenticated) {
+      router.push('/');
+    }
+  }, [ready, authenticated, router]);
+
+  if (!ready || !authenticated) {
+    return (
+      <View direction="column" align="center" justify="center" height="300px">
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
+      <View direction="column" gap={6} padding={8}>
+        <Card padding={6}>
+          <Suspense fallback={<AdminRecipesLoading />}>
+            <AdminRecipesContent />
+          </Suspense>
+        </Card>
       </View>
     </div>
   );
