@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/relay/server';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
+  console.log('GraphQL POST request received');
   try {
     const { query, variables } = await request.json();
 
