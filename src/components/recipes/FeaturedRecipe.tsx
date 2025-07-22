@@ -15,6 +15,7 @@ function FeaturedRecipeContent() {
     {}
   );
   
+  // Get the latest recipe (first in the list)
   const recipe = data.publicRecipes?.[0];
   
   if (!recipe) {
@@ -43,7 +44,7 @@ function FeaturedRecipeContent() {
       }}
       onClick={() => router.push(`/recipes/${recipe.slug}`)}
     >
-      <View direction="row" height="200px">
+      <View direction="row" height="300px">
         {/* Recipe Image */}
         <View
           attributes={{
