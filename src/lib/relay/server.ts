@@ -1,20 +1,516 @@
 import { graphql } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+// No longer need fs imports since we're using inline schema
 import { resolvers } from '@/graphql/resolvers';
 import { createContext } from '@/graphql/context';
 import { NextRequest } from 'next/server';
 
-// Read schema files
-let unifiedSchema: string;
-try {
-  unifiedSchema = readFileSync(join(process.cwd(), 'src/graphql/schema.graphql'), 'utf-8');
-  console.log('GraphQL schema loaded successfully');
-} catch (error) {
-  console.error('Failed to read GraphQL schema:', error);
-  throw error;
+// Inline GraphQL schema to avoid file system issues in serverless environments
+const unifiedSchema = `
+# Import all schema files
+# This is the main schema file used by the Relay compiler
+
+# Recipe schema
+scalar DateTime
+
+type Recipe {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String!
+  category: String!
+  isPublished: Boolean!
+  mediaUrl: String!
+  previewImageUrl: String
+  uploadDate: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  ingredients: [String!]
+  instructions: [String!]
+  comments: [Comment!]!
+  ratings: [RecipeRating!]!
+  averageRating: Float
+  totalRatings: Int!
 }
+
+type Comment {
+  id: ID!
+  content: String!
+  author: String!
+  email: String
+  recipe: Recipe!
+  recipeId: String!
+  isHidden: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Comment connection for pagination
+type CommentEdge {
+  cursor: String!
+  node: Comment!
+}
+
+type CommentConnection {
+  edges: [CommentEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SiteSettings {
+  id: ID!
+  homepageVideoUrl: String
+  weeklyGroceryList: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Connection pattern for cursor-based pagination
+type RecipeEdge {
+  cursor: String!
+  node: Recipe!
+}
+
+type RecipeConnection {
+  edges: [RecipeEdge!]!
+  pageInfo: PageInfo!
+}
+
+input CreateRecipeInput {
+  name: String!
+  description: String!
+  category: String!
+  mediaUrl: String!
+  previewImageUrl: String
+  ingredients: [String!]
+  instructions: [String!]
+}
+
+input UpdateRecipeInput {
+  name: String
+  description: String
+  category: String
+  mediaUrl: String
+  previewImageUrl: String
+  isPublished: Boolean
+  ingredients: [String!]
+  instructions: [String!]
+}
+
+# Product schema
+type Product {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String!
+  photoUrl: String!
+  videoUrl: String
+  price: Float!
+  category: String!
+  tags: [String!]!
+  inventory: Int!
+  isActive: Boolean!
+  stripeProductId: String
+  stripePriceId: String
+  ratings: [ProductRating!]!
+  averageRating: Float
+  totalRatings: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Connection pattern for cursor-based pagination
+type ProductEdge {
+  cursor: String!
+  node: Product!
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+}
+
+input CreateProductInput {
+  name: String!
+  description: String!
+  photoUrl: String!
+  videoUrl: String
+  price: Float!
+  category: String!
+  tags: [String!]!
+  inventory: Int
+}
+
+input UpdateProductInput {
+  name: String
+  description: String
+  photoUrl: String
+  videoUrl: String
+  price: Float
+  category: String
+  tags: [String!]
+  inventory: Int
+  isActive: Boolean
+}
+
+# Comment inputs
+input CreateCommentInput {
+  content: String!
+  author: String!
+  email: String
+  recipeId: ID!
+}
+
+# Site Settings inputs
+input UpdateSiteSettingsInput {
+  homepageVideoUrl: String
+  weeklyGroceryList: String
+}
+
+# PageInfo for cursor-based pagination
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+# Cart schema
+type CartItem {
+  id: ID!
+  product: Product!
+  quantity: Int!
+  price: Float!
+}
+
+type Cart {
+  id: ID!
+  items: [CartItem!]!
+  total: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input AddToCartInput {
+  productId: ID!
+  quantity: Int!
+}
+
+# Subscription schema
+type UserSubscription {
+  id: ID!
+  status: String!
+  plan: String!
+  currentPeriodStart: String!
+  currentPeriodEnd: String!
+  cancelAtPeriodEnd: Boolean!
+  stripeSubscriptionId: String!
+}
+
+type SetupIntent {
+  clientSecret: String!
+}
+
+type PaymentMethod {
+  id: ID!
+  brand: String!
+  last4: String!
+  expMonth: Int!
+  expYear: Int!
+  isDefault: Boolean!
+}
+
+input CreateSubscriptionInput {
+  priceId: String!
+  paymentMethodId: String!
+}
+
+input UpdateSubscriptionInput {
+  priceId: String!
+}
+
+# User/Order schema
+type Address {
+  street: String!
+  city: String!
+  state: String!
+  zipCode: String!
+  country: String!
+}
+
+type User {
+  id: ID!
+  email: String!
+  firstName: String
+  lastName: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type OrderItem {
+  id: ID!
+  productId: ID!
+  quantity: Int!
+  price: Float!
+  product: Product!
+}
+
+type Order {
+  id: ID!
+  userId: ID!
+  total: Float!
+  status: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  stripeSessionId: String
+  shippingAddress: Address
+  user: User
+  items: [OrderItem!]!
+}
+
+# Admin schema
+type AdminMetrics {
+  totalOrders: Int!
+  totalRevenue: Float!
+  activeSubscriptions: Int!
+  pendingOrders: Int!
+}
+
+type AdminOrderItem {
+  id: ID!
+  productName: String!
+  quantity: Int!
+  price: Float!
+  photoUrl: String
+}
+
+type AdminOrder {
+  id: ID!
+  customerName: String!
+  customerEmail: String!
+  total: Float!
+  status: String!
+  date: String!
+  itemCount: Int
+  shippingAddress: Address
+  items: [AdminOrderItem!]
+}
+
+# Admin Order Connection for pagination
+type AdminOrderEdge {
+  cursor: String!
+  node: AdminOrder!
+}
+
+type AdminOrderConnection {
+  edges: [AdminOrderEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Query {
+  # Recipe queries
+  recipes(
+    category: String
+    status: String
+    search: String
+    sort: String
+  ): [Recipe!]!
+  recipe(id: ID!): Recipe
+  recipeBySlug(slug: String!): Recipe
+  
+  # Recipe connection (paginated)
+  recipesConnection(
+    first: Int
+    after: String
+    category: String
+    status: String
+    search: String
+    sort: String
+  ): RecipeConnection!
+  
+  # Public Recipe queries
+  publicRecipes(
+    category: String
+    limit: Int
+    offset: Int
+  ): [Recipe!]!
+  
+  # Public Recipe connection (paginated)
+  publicRecipesConnection(
+    first: Int
+    after: String
+    category: String
+  ): RecipeConnection!
+
+  # Product queries
+  products(
+    category: String
+    status: String
+    search: String
+    sort: String
+  ): [Product!]!
+  product(id: ID!): Product
+  productBySlug(slug: String!): Product
+  
+  # Product connection (paginated)
+  productsConnection(
+    first: Int
+    after: String
+    category: String
+    status: String
+    search: String
+    sort: String
+  ): ProductConnection!
+  
+  # Public Product queries
+  productsByCategory(
+    category: String!
+    limit: Int
+    offset: Int
+  ): [Product!]!
+  
+  # Public Product connection (paginated)
+  productsByCategoryConnection(
+    first: Int
+    after: String
+    category: String!
+  ): ProductConnection!
+  
+  # Cart queries
+  cart: Cart
+  
+  # User/Order queries
+  currentUser: User
+  userOrders: [Order!]!
+  userOrder(orderId: String!): Order
+  orderByPaymentIntent(paymentIntentId: String!): Order
+  
+  # Subscription queries
+  userSubscription: UserSubscription
+  createSetupIntent: SetupIntent!
+  userPaymentMethods: [PaymentMethod!]!
+  
+  # Admin queries
+  adminMetrics: AdminMetrics!
+  recentOrders(limit: Int): [AdminOrder!]!
+  adminOrders(limit: Int, offset: Int): [AdminOrder!]!
+  adminOrdersConnection(
+    first: Int
+    after: String
+    status: String
+  ): AdminOrderConnection!
+  adminOrder(orderId: String!): Order
+  
+  # Comment queries
+  recipeComments(recipeId: ID!): [Comment!]!
+  recipeCommentsConnection(
+    recipeId: ID!
+    first: Int
+    after: String
+  ): CommentConnection!
+  
+  # Site Settings queries
+  siteSettings: SiteSettings
+}
+
+type Mutation {
+  # Recipe mutations
+  createRecipe(input: CreateRecipeInput!): Recipe!
+  updateRecipe(id: ID!, input: UpdateRecipeInput!): Recipe!
+  deleteRecipe(id: ID!): DeleteRecipeResponse!
+  toggleRecipeStatus(id: ID!): Recipe!
+
+  # Product mutations
+  createProduct(input: CreateProductInput!): Product!
+  updateProduct(id: ID!, input: UpdateProductInput!): Product!
+  deleteProduct(id: ID!): DeleteProductResponse!
+  toggleProductStatus(id: ID!): Product!
+  
+  # Cart mutations
+  addToCart(input: AddToCartInput!): Cart!
+  removeFromCart(cartItemId: ID!): Cart!
+  updateCartItem(cartItemId: ID!, quantity: Int!): Cart!
+  clearCart: Cart!
+  
+  # Subscription mutations
+  createSubscription(input: CreateSubscriptionInput!): UserSubscription!
+  updateSubscription(input: UpdateSubscriptionInput!): UserSubscription!
+  cancelSubscription: UserSubscription!
+  reactivateSubscription: UserSubscription!
+  
+  # Admin mutations
+  updateOrderStatus(orderId: ID!, status: String!): AdminOrder!
+  
+  # Comment mutations
+  createComment(input: CreateCommentInput!): Comment!
+  hideComment(id: ID!): Comment!
+  deleteComment(id: ID!): DeleteCommentResponse!
+  
+  # Site Settings mutations
+  updateSiteSettings(input: UpdateSiteSettingsInput!): SiteSettings!
+}
+
+type DeleteRecipeResponse {
+  success: Boolean!
+}
+
+type DeleteProductResponse {
+  success: Boolean!
+}
+
+type DeleteCommentResponse {
+  success: Boolean!
+}
+
+# Rating schema
+type RecipeRating {
+  id: ID!
+  rating: Int!
+  user: User!
+  userId: ID!
+  recipe: Recipe!
+  recipeId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductRating {
+  id: ID!
+  rating: Int!
+  user: User!
+  userId: ID!
+  product: Product!
+  productId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Rating inputs
+input RateRecipeInput {
+  recipeId: ID!
+  rating: Int!
+}
+
+input RateProductInput {
+  productId: ID!
+  rating: Int!
+}
+
+# Add rating queries to Query type
+extend type Query {
+  # Rating queries
+  userRecipeRating(recipeId: ID!): RecipeRating
+  userProductRating(productId: ID!): ProductRating
+}
+
+# Add rating mutations to Mutation type
+extend type Mutation {
+  # Rating mutations
+  rateRecipe(input: RateRecipeInput!): RecipeRating!
+  rateProduct(input: RateProductInput!): ProductRating!
+}
+`;
+
+console.log('GraphQL schema loaded successfully (inline)');
 
 // Create schema
 const schema = makeExecutableSchema({
