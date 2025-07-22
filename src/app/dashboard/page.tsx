@@ -2,143 +2,226 @@
 
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
-import { useEffect, useState } from 'react';
-import { View, Text, Button, Card } from 'reshaped';
+import { useEffect, useState, Suspense } from 'react';
+import { View, Text, Button, Card, Skeleton, Grid } from 'reshaped';
+import { useLazyLoadQuery } from 'react-relay';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { Calendar, ShoppingBag, Receipt } from 'phosphor-react';
 import { FeaturedRecipe } from '@/components/recipes/FeaturedRecipe';
 import { WeeklyGroceryList } from '@/components/dashboard/WeeklyGroceryList';
+import { CurrentUserQuery } from '@/graphql/queries/UserQueries';
+import type { UserQueriesCurrentUserQuery } from '@/__generated__/UserQueriesCurrentUserQuery.graphql';
 
 function DashboardContent() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
+  
+  const data = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
+    CurrentUserQuery,
+    {}
+  );
+  
+  const user = data.currentUser;
+  const username = user?.firstName || user?.email?.split('@')[0] || 'friend';
 
   return (
     <AppContainer>
       <View direction="column" gap={6} paddingTop={4}>
-        {/* Navigation Component - Three-button tab bar */}
-        <View direction="row" justify="center" gap={2} paddingTop={4}>
+        {/* Personalized Greeting and Account Link */}
+        <View direction="column" align="start" gap={1} paddingTop={2} paddingInline={4}>
+          <Text 
+            variant="body-1"
+            attributes={{
+              style: {
+                fontFamily: 'var(--font-big-caslon)',
+                textTransform: 'lowercase',
+                letterSpacing: '0.5px'
+              }
+            }}
+          >
+            hi {username}!
+          </Text>
           <Button
-            variant={activeTab === 'recipes' ? 'solid' : 'outline'}
+            variant="ghost"
+            size="small"
+            onClick={() => router.push('/profile')}
+            attributes={{
+              style: {
+                fontSize: '10px',
+                fontWeight: '600',
+                letterSpacing: '0.5px',
+                textDecoration: 'underline',
+                color: '#6b4c7a'
+              }
+            }}
+          >
+            MANAGE ACCOUNT
+          </Button>
+        </View>
+        {/* Navigation Component - Four-button tab bar */}
+        <View direction="row" justify="center" gap={2} paddingTop={4} paddingInline={4}>
+          <Button
+            variant="outline"
+            borderRadius="medium"
+            size="large"
             onClick={() => {
               setActiveTab('recipes');
               router.push('/recipes');
             }}
-            attributes={{
-              style: {
-                borderRadius: '20px',
-                padding: '8px 24px',
-                fontSize: '12px',
-                fontWeight: '600',
-                letterSpacing: '0.5px'
-              }
-            }}
+            attributes={{ style: { flex: 1, minWidth: '120px' } }}
           >
             RECIPES
           </Button>
           <Button
-            variant={activeTab === 'orders' ? 'solid' : 'outline'}
+            variant="outline"
+            borderRadius="medium"
+            size="large"
             onClick={() => {
               setActiveTab('orders');
               router.push('/dashboard/orders');
             }}
-            attributes={{
-              style: {
-                borderRadius: '20px',
-                padding: '8px 24px',
-                fontSize: '12px',
-                fontWeight: '600',
-                letterSpacing: '0.5px'
-              }
-            }}
+            attributes={{ style: { flex: 1, minWidth: '120px' } }}
           >
             ORDERS
           </Button>
           <Button
-            variant={activeTab === 'shop' ? 'solid' : 'outline'}
+            variant="outline"
+            borderRadius="medium"
+            size="large"
             onClick={() => {
               setActiveTab('shop');
               router.push('/shop');
             }}
-            attributes={{
-              style: {
-                borderRadius: '20px',
-                padding: '8px 24px',
-                fontSize: '12px',
-                fontWeight: '600',
-                letterSpacing: '0.5px'
-              }
-            }}
+            attributes={{ style: { flex: 1, minWidth: '120px' } }}
           >
             SHOP
           </Button>
+          <Button
+            variant="outline"
+            borderRadius="medium"
+            size="large"
+            onClick={() => {
+              setActiveTab('membership');
+              router.push('/dashboard/membership');
+            }}
+            attributes={{ style: { flex: 1, minWidth: '120px' } }}
+          >
+            MEMBERSHIP
+          </Button>
         </View>
 
-        {/* Hero Section */}
-        <View direction="column" align="center" gap={4} padding={8}>
-          <View
-            width="64px"
-            height="64px"
-            borderRadius="circular"
-            backgroundColor="primary"
+        {/* Hero Section with Coconut Image */}
+        <View 
+          direction={{ s: 'column', m: 'row' }} 
+          align="center" 
+          gap={6} 
+          padding={8}
+        >
+          {/* Coconut Image */}
+          <View 
             attributes={{
               style: {
+                width: '280px',
+                height: '280px',
+                borderRadius: '50%',
+                backgroundColor: '#F5D565',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                flexShrink: 0
               }
             }}
           >
-            <Calendar size={32} color="white" />
+            <img 
+              src="/coconut.png" 
+              alt="Coconut" 
+              style={{
+                width: '220px',
+                height: '220px',
+                objectFit: 'contain'
+              }}
+            />
           </View>
           
-          <Text 
-            variant="title-1" 
-            align="center"
-            attributes={{
-              style: {
-                fontFamily: 'var(--font-big-caslon)',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }
-            }}
+          {/* Content Section */}
+          <View 
+            direction="column" 
+            gap={4} 
+            align={{ s: 'center', m: 'start' }}
+            attributes={{ style: { flex: 1 } }}
           >
-            YOUR WEEKLY DASHBOARD
-          </Text>
-          
-          <Text 
-            align="center" 
-            color="neutral-faded"
-            attributes={{
-              style: {
-                maxWidth: '400px',
-                lineHeight: '1.6'
-              }
-            }}
-          >
-            Manage your superfood journey with personalized recommendations, track your orders, and explore premium recipes curated just for you.
-          </Text>
-          
-          <View direction="row" gap={3} attributes={{ style: { marginTop: '16px' } }}>
-            <Button
-              variant="solid"
-              size="large"
-              onClick={() => router.push('/dashboard/membership')}
+            <Text 
+              variant="body-3" 
+              align={{ s: 'center', m: 'start' }}
               attributes={{
                 style: {
-                  backgroundColor: '#6b4c7a',
-                  borderRadius: '25px',
-                  padding: '12px 32px',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  letterSpacing: '0.5px'
+                  fontFamily: '"Carrois Gothic SC"',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  fontSize: '14px',
+                  fontWeight: '600'
                 }
               }}
             >
-              MANAGE MEMBERSHIP
-            </Button>
+              THIS WEEKS RECIPES
+            </Text>
             
-            <WeeklyGroceryList />
+            <Text 
+              color="neutral-faded"
+              align={{ s: 'center', m: 'start' }}
+              attributes={{
+                style: {
+                  lineHeight: '1.6',
+                  fontSize: '16px'
+                }
+              }}
+            >
+              a curated collection of recipes and step by step tutorials
+            </Text>
+            
+            <View 
+              direction={{ s: 'column', m: 'row' }} 
+              gap={3} 
+              attributes={{ style: { marginTop: '16px', width: '100%' } }}
+            >
+              <Button
+                variant="outline"
+                size="large"
+                onClick={() => router.push('/recipes')}
+                attributes={{
+                  style: {
+                    borderRadius: '25px',
+                    padding: '12px 32px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    letterSpacing: '0.5px',
+                    border: '2px solid #6b4c7a',
+                    color: '#6b4c7a',
+                    backgroundColor: 'transparent'
+                  }
+                }}
+              >
+                SEE RECIPES
+              </Button>
+              
+              <Button
+                variant="solid"
+                size="large"
+                onClick={() => router.push('/dashboard/grocery-list')}
+                attributes={{
+                  style: {
+                    backgroundColor: '#6b4c7a',
+                    borderRadius: '25px',
+                    padding: '12px 32px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    letterSpacing: '0.5px'
+                  }
+                }}
+              >
+                GET GROCERY LIST
+              </Button>
+            </View>
           </View>
         </View>
 
@@ -315,6 +398,111 @@ function DashboardContent() {
   );
 }
 
+function DashboardSkeleton() {
+  return (
+    <AppContainer>
+      <View direction="column" gap={6} paddingTop={4}>
+        {/* Greeting Skeleton */}
+        <View direction="column" align="start" gap={1} paddingTop={2} paddingInline={4}>
+          <Skeleton height="1.25rem" width="6rem" />
+          <Skeleton height="0.875rem" width="5rem" />
+        </View>
+        
+        {/* Navigation Skeleton */}
+        <View direction="row" justify="center" gap={2} paddingTop={4} paddingInline={4}>
+          <Skeleton height="3rem" borderRadius="medium" attributes={{ style: { flex: 1, minWidth: '120px' } }} />
+          <Skeleton height="3rem" borderRadius="medium" attributes={{ style: { flex: 1, minWidth: '120px' } }} />
+          <Skeleton height="3rem" borderRadius="medium" attributes={{ style: { flex: 1, minWidth: '120px' } }} />
+          <Skeleton height="3rem" borderRadius="medium" attributes={{ style: { flex: 1, minWidth: '120px' } }} />
+        </View>
+
+        {/* Hero Section Skeleton */}
+        <View direction={{ s: 'column', m: 'row' }} align="center" gap={6} padding={8}>
+          {/* Coconut Image Skeleton */}
+          <Skeleton 
+            width="280px" 
+            height="280px" 
+            borderRadius="circular" 
+            attributes={{ style: { flexShrink: 0 } }}
+          />
+          
+          {/* Content Section Skeleton */}
+          <View 
+            direction="column" 
+            gap={4} 
+            align={{ s: 'center', m: 'start' }}
+            attributes={{ style: { flex: 1 } }}
+          >
+            <Skeleton height="1rem" width="60%" />
+            <Skeleton height="1.25rem" width="90%" />
+            <View direction={{ s: 'column', m: 'row' }} gap={3} attributes={{ style: { marginTop: '16px', width: '100%' } }}>
+              <Skeleton height="3rem" width="8rem" borderRadius="25px" />
+              <Skeleton height="3rem" width="10rem" borderRadius="25px" />
+            </View>
+          </View>
+        </View>
+
+        {/* Featured Recipe Section Skeleton */}
+        <View padding={4}>
+          <View direction="column" gap={3} paddingBottom={2}>
+            <Skeleton height="1.5rem" width="10rem" />
+            <Skeleton height="1rem" width="15rem" />
+          </View>
+          <Card padding={4}>
+            <View direction="row" gap={4} height="200px">
+              <Skeleton width="40%" height="100%" borderRadius="12px" />
+              <View direction="column" gap={3} padding={4} attributes={{ style: { flex: 1 } }}>
+                <Skeleton height="1rem" width="4rem" borderRadius="4px" />
+                <Skeleton height="1.5rem" width="80%" />
+                <Skeleton height="1rem" width="100%" />
+                <View direction="row" justify="space-between" align="center">
+                  <Skeleton height="0.75rem" width="5rem" />
+                  <Skeleton height="2rem" width="6rem" borderRadius="15px" />
+                </View>
+              </View>
+            </View>
+          </Card>
+        </View>
+
+        {/* Cards Section Skeleton */}
+        <View direction="column" gap={6} padding={4}>
+          <Card padding={6}>
+            <View direction="row" justify="space-between" align="center">
+              <View direction="column" gap={2} attributes={{ style: { flex: 1 } }}>
+                <Skeleton height="1.5rem" width="10rem" />
+                <Skeleton height="1rem" width="8rem" />
+                <Skeleton height="1rem" width="100%" />
+                <Skeleton height="2rem" width="5rem" borderRadius="15px" attributes={{ style: { marginTop: '8px' } }} />
+              </View>
+              <Skeleton width="80px" height="80px" borderRadius="circular" attributes={{ style: { flexShrink: 0 } }} />
+            </View>
+          </Card>
+          
+          <View direction="row" gap={4}>
+            <Card padding={4} attributes={{ style: { flex: 1 } }}>
+              <View direction="column" align="center" gap={3}>
+                <Skeleton width="24px" height="24px" />
+                <Skeleton height="1.25rem" width="6rem" />
+                <Skeleton height="1rem" width="80%" />
+                <Skeleton height="2rem" width="4rem" borderRadius="15px" />
+              </View>
+            </Card>
+            
+            <Card padding={4} attributes={{ style: { flex: 1 } }}>
+              <View direction="column" align="center" gap={3}>
+                <Skeleton width="24px" height="24px" />
+                <Skeleton height="1.25rem" width="7rem" />
+                <Skeleton height="1rem" width="80%" />
+                <Skeleton height="2rem" width="4rem" borderRadius="15px" />
+              </View>
+            </Card>
+          </View>
+        </View>
+      </View>
+    </AppContainer>
+  );
+}
+
 function LoadingFallback() {
   return (
     <View 
@@ -348,5 +536,9 @@ export default function DashboardPage() {
     return <LoadingFallback />;
   }
 
-  return <DashboardContent />;
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
+  );
 }

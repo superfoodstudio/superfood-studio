@@ -364,6 +364,7 @@ type Query {
   cart: Cart
   
   # User/Order queries
+  currentUser: User
   userOrders: [Order!]!
   userOrder(orderId: String!): Order
   orderByPaymentIntent(paymentIntentId: String!): Order

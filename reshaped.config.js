@@ -9,7 +9,11 @@ const config = {
       },
       color: {
         // Custom border color for outline buttons
-        borderButtonOutline: { hex: "#2A0028" }
+        borderButtonOutline: { hex: "#2A0028" },
+        // Custom background colors - swap page and elevation
+        backgroundPage: { hex: "#FDF6E3" },
+        backgroundPageFaded: { hex: "#F5EDDA" },
+        backgroundElevationBase: { hex: "#ffffff" }
       }
     }
   },
