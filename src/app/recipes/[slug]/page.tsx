@@ -17,6 +17,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { MediaDisplay } from '@/components/recipes/MediaDisplay';
 import { RecipeComments } from '@/components/recipes/RecipeComments';
 import { StarRating } from '@/components/ratings/StarRating';
+import { RecipeDetailSkeleton } from '@/components/ui/RecipeDetailSkeleton';
 
 // LazyLoad component that will only fetch data when it's needed
 function RecipeDetailLazy({ slug }: { slug: string }) {
@@ -45,7 +46,7 @@ export default function RecipeDetailPage() {
 
   return (
     <AppContainer maxWidth={1000}>
-      <Suspense fallback={<Text align="center">Loading recipe...</Text>}>
+      <Suspense fallback={<RecipeDetailSkeleton />}>
         {isReady && <RecipeDetailLazy slug={recipeSlug} />}
       </Suspense>
     </AppContainer>

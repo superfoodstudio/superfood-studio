@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { useParams, useRouter } from 'next/navigation';
 import { StarRating } from '@/components/ratings/StarRating';
+import { ProductDetailSkeleton } from '@/components/ui/ProductDetailSkeleton';
 
 // LazyLoad component that will only fetch data when it's needed
 function ProductDetailLazy({ slug }: { slug: string }) {
@@ -43,7 +44,7 @@ export default function ProductDetailPage() {
 
   return (
     <AppContainer maxWidth={1000}>
-      <Suspense fallback={<Text align="center">Loading product...</Text>}>
+      <Suspense fallback={<ProductDetailSkeleton />}>
         {isReady && <ProductDetailLazy slug={productSlug} />}
       </Suspense>
     </AppContainer>
