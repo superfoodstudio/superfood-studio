@@ -8,7 +8,7 @@ import type { SiteSettingsQueriesQuery } from '@/__generated__/SiteSettingsQueri
 
 function WeeklyGroceryListContent() {
   const groceryModal = useToggle();
-  
+
   const data = useLazyLoadQuery<SiteSettingsQueriesQuery>(
     SiteSettingsQuery,
     {},
@@ -38,8 +38,8 @@ function WeeklyGroceryListContent() {
         View Weekly Grocery List
       </Button>
 
-      <Modal 
-        active={groceryModal.active} 
+      <Modal
+        active={groceryModal.active}
         onClose={groceryModal.deactivate}
         size="medium"
       >
@@ -56,7 +56,7 @@ function WeeklyGroceryListContent() {
             >
               Weekly Grocery List
             </Text>
-            
+
             <View
               attributes={{
                 style: {
@@ -71,7 +71,7 @@ function WeeklyGroceryListContent() {
             >
               {groceryListContent}
             </View>
-            
+
             <View direction="row" justify="end" paddingTop={4}>
               <Button
                 variant="ghost"
@@ -89,10 +89,10 @@ function WeeklyGroceryListContent() {
 
 function WeeklyGroceryListLoading() {
   return (
-    <Skeleton 
-      height="2.75rem" 
-      width="12rem" 
-      borderRadius="8px"
+    <Skeleton
+      height="2.75rem"
+      width="12rem"
+      borderRadius="small"
     />
   );
 }

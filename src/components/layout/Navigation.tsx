@@ -20,13 +20,13 @@ export function Navigation() {
   const { login, logout, authenticated, ready, user, getAccessToken } = usePrivy();
   const [userRole, setUserRole] = useState<string | null>(null);
   const pathname = usePathname();
-  
+
   // Use the same localStorage hook as the cart - this will auto-sync!
   const [localCart] = useLocalStorage<LocalCartItem[]>('superfood_cart', []);
-  
+
   // Calculate cart count directly from localStorage data
   const cartItemCount = localCart.reduce((sum, item) => sum + item.quantity, 0);
-  
+
   console.log('Navigation cart data:', localCart, 'count:', cartItemCount);
 
   // Fetch user role
@@ -157,9 +157,8 @@ export function Navigation() {
           </Link>
 
           {authenticated ? (
-            <DropdownMenu 
-              position="bottom-end" 
-              width={{ s: "90vw", m: "300px" }}
+            <DropdownMenu
+              position="bottom-end"
               fallbackPositions={["bottom-start", "top-end", "top-start"]}
             >
               <DropdownMenu.Trigger>

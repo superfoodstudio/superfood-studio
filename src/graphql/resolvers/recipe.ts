@@ -262,7 +262,7 @@ export const recipeResolvers = {
       { prisma, user }: GraphQLContext
     ) => {
       const { recipeId, rating } = input;
-      if (!user) {
+      if (!user || !user.id) {
         throw new Error('Authentication required');
       }
 

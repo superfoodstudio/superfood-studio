@@ -72,8 +72,7 @@ function DashboardContent() {
           >
             <Button
               variant="outline"
-              borderRadius="medium"
-              size="large"
+                            size="large"
               onClick={() => {
                 setActiveTab('recipes');
                 router.push('/recipes');
@@ -84,8 +83,7 @@ function DashboardContent() {
             </Button>
             <Button
               variant="outline"
-              borderRadius="medium"
-              size="large"
+                            size="large"
               onClick={() => {
                 setActiveTab('orders');
                 router.push('/dashboard/orders');
@@ -96,8 +94,7 @@ function DashboardContent() {
             </Button>
             <Button
               variant="outline"
-              borderRadius="medium"
-              size="large"
+                            size="large"
               onClick={() => {
                 setActiveTab('shop');
                 router.push('/shop');
@@ -108,8 +105,7 @@ function DashboardContent() {
             </Button>
             <Button
               variant="outline"
-              borderRadius="medium"
-              size="large"
+                            size="large"
               onClick={() => {
                 setActiveTab('membership');
                 router.push('/dashboard/membership');
@@ -447,8 +443,8 @@ function DashboardSkeleton() {
             <Skeleton height="1rem" width="60%" />
             <Skeleton height="1.25rem" width="90%" />
             <View direction={{ s: 'column', m: 'row' }} gap={3} attributes={{ style: { marginTop: '16px', width: '100%' } }}>
-              <Skeleton height="3rem" width="8rem" borderRadius="25px" />
-              <Skeleton height="3rem" width="10rem" borderRadius="25px" />
+              <Skeleton height="3rem" width="8rem" borderRadius="large" />
+              <Skeleton height="3rem" width="10rem" borderRadius="large" />
             </View>
           </View>
         </View>
@@ -461,14 +457,14 @@ function DashboardSkeleton() {
           </View>
           <Card padding={4}>
             <View direction="row" gap={4} height="200px">
-              <Skeleton width="40%" height="100%" borderRadius="12px" />
+              <Skeleton width="40%" height="100%" borderRadius="large" />
               <View direction="column" gap={3} padding={4} attributes={{ style: { flex: 1 } }}>
-                <Skeleton height="1rem" width="4rem" borderRadius="4px" />
+                <Skeleton height="1rem" width="4rem" borderRadius="small" />
                 <Skeleton height="1.5rem" width="80%" />
                 <Skeleton height="1rem" width="100%" />
                 <View direction="row" justify="space-between" align="center">
                   <Skeleton height="0.75rem" width="5rem" />
-                  <Skeleton height="2rem" width="6rem" borderRadius="15px" />
+                  <Skeleton height="2rem" width="6rem" borderRadius="medium" />
                 </View>
               </View>
             </View>
@@ -483,7 +479,7 @@ function DashboardSkeleton() {
                 <Skeleton height="1.5rem" width="10rem" />
                 <Skeleton height="1rem" width="8rem" />
                 <Skeleton height="1rem" width="100%" />
-                <Skeleton height="2rem" width="5rem" borderRadius="15px" attributes={{ style: { marginTop: '8px' } }} />
+                <Skeleton height="2rem" width="5rem" borderRadius="medium" attributes={{ style: { marginTop: '8px' } }} />
               </View>
               <Skeleton width="80px" height="80px" borderRadius="circular" attributes={{ style: { flexShrink: 0 } }} />
             </View>
@@ -495,7 +491,7 @@ function DashboardSkeleton() {
                 <Skeleton width="24px" height="24px" />
                 <Skeleton height="1.25rem" width="6rem" />
                 <Skeleton height="1rem" width="80%" />
-                <Skeleton height="2rem" width="4rem" borderRadius="15px" />
+                <Skeleton height="2rem" width="4rem" borderRadius="medium" />
               </View>
             </Card>
             
@@ -504,7 +500,7 @@ function DashboardSkeleton() {
                 <Skeleton width="24px" height="24px" />
                 <Skeleton height="1.25rem" width="7rem" />
                 <Skeleton height="1rem" width="80%" />
-                <Skeleton height="2rem" width="4rem" borderRadius="15px" />
+                <Skeleton height="2rem" width="4rem" borderRadius="medium" />
               </View>
             </Card>
           </View>

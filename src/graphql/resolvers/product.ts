@@ -306,7 +306,7 @@ export const productResolvers = {
       { prisma, user }: GraphQLContext
     ) => {
       const { productId, rating } = input;
-      if (!user) {
+      if (!user || !user.id) {
         throw new Error('Authentication required');
       }
 

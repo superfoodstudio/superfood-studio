@@ -132,12 +132,12 @@ export function StarRating({
                       minWidth: 'auto',
                       height: 'auto',
                       cursor: authenticated ? 'pointer' : 'not-allowed'
-                    }
+                    },
+                    onMouseEnter: () => authenticated && setHoveredRating(star),
+                    onMouseLeave: () => setHoveredRating(0)
                   }}
                   disabled={!authenticated || isSubmitting}
                   onClick={() => handleRating(star)}
-                  onMouseEnter={() => authenticated && setHoveredRating(star)}
-                  onMouseLeave={() => setHoveredRating(0)}
                 >
                   <Star
                     size={starSize}
