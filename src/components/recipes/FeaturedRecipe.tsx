@@ -15,7 +15,7 @@ function FeaturedRecipeContent() {
     {}
   );
   
-  const recipe = data.publicRecipes[0];
+  const recipe = data.publicRecipes?.[0];
   
   if (!recipe) {
     return null;

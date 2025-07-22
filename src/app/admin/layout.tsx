@@ -26,21 +26,6 @@ export default function AdminLayout({
         </Link>
       </View>
 
-      {/* Navigation */}
-      <View direction="row" gap={2} padding={4}>
-        <Link href="/admin">
-          <Button variant="ghost">HOMEPAGE</Button>
-        </Link>
-        <Link href="/admin/recipes">
-          <Button variant="ghost">RECIPES</Button>
-        </Link>
-        <Link href="/admin/shop">
-          <Button variant="ghost">SHOP</Button>
-        </Link>
-        <Link href="/admin/analytics">
-          <Button variant="ghost">ANALYTICS</Button>
-        </Link>
-      </View>
 
       {/* Main Content */}
       <View grow padding={4}>
@@ -48,4 +33,4 @@ export default function AdminLayout({
       </View>
     </View>
   );
-} 
+}

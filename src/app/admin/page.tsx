@@ -39,7 +39,6 @@ function AdminDashboardContent() {
       padding={10}
       attributes={{
         style: {
-          backgroundColor: "#f5f3f0",
           minHeight: "100vh",
         },
       }}
@@ -183,72 +182,6 @@ function AdminDashboardContent() {
                 SITE SETTINGS
               </Button>
             </Link>
-
-            <Button
-              variant="outline"
-              size="medium"
-              disabled
-              attributes={{
-                style: {
-                  width: "180px",
-                  height: "45px",
-                  border: "1px solid #6b4c7a",
-                  backgroundColor: "#ffffff",
-                  color: "#6b4c7a",
-                  fontSize: "11px",
-                  fontWeight: "500",
-                  letterSpacing: "0.5px",
-                  borderRadius: "2px",
-                  opacity: 0.5,
-                },
-              }}
-            >
-              SUBSCRIPTIONS
-            </Button>
-
-            <Button
-              variant="outline"
-              size="medium"
-              disabled
-              attributes={{
-                style: {
-                  width: "180px",
-                  height: "45px",
-                  border: "1px solid #6b4c7a",
-                  backgroundColor: "#ffffff",
-                  color: "#6b4c7a",
-                  fontSize: "11px",
-                  fontWeight: "500",
-                  letterSpacing: "0.5px",
-                  borderRadius: "2px",
-                  opacity: 0.5,
-                },
-              }}
-            >
-              ANALYTICS
-            </Button>
-
-            <Button
-              variant="outline"
-              size="medium"
-              disabled
-              attributes={{
-                style: {
-                  width: "180px",
-                  height: "45px",
-                  border: "1px solid #6b4c7a",
-                  backgroundColor: "#ffffff",
-                  color: "#6b4c7a",
-                  fontSize: "11px",
-                  fontWeight: "500",
-                  letterSpacing: "0.5px",
-                  borderRadius: "2px",
-                  opacity: 0.5,
-                },
-              }}
-            >
-              CUSTOMERS
-            </Button>
           </Grid>
         </View>
 

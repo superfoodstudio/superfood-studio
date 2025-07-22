@@ -22,7 +22,7 @@ function DashboardContent() {
   );
   
   const user = data.currentUser;
-  const username = user?.firstName || user?.email?.split('@')[0] || 'friend';
+  const username = user?.firstName || (user?.email ? user.email.split('@')[0] : null) || 'friend';
 
   return (
     <AppContainer>
