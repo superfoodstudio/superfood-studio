@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7417fc100aed2b66804f82eff9743ef3>>
+ * @generated SignedSource<<b2589913939d6c9a94339a94240cda5f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -267,6 +267,20 @@ return {
                     "kind": "ScalarField",
                     "name": "inventory",
                     "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "averageRating",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "totalRatings",
+                    "storageKey": null
                   }
                 ],
                 "storageKey": null
@@ -281,12 +295,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b925b480776c4977ed046127b28417b2",
+    "cacheID": "14fd0dd95c52496cdd8ad6e595cc84a3",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductsByCategoryConnectionQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductsByCategoryConnectionQuery(\n  $first: Int\n  $after: String\n  $category: String!\n) {\n  productsByCategoryConnection(first: $first, after: $after, category: $category) {\n    edges {\n      cursor\n      node {\n        ...ProductCardFragment\n        id\n      }\n    }\n    pageInfo {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n}\n"
+    "text": "query ProductQueriesProductsByCategoryConnectionQuery(\n  $first: Int\n  $after: String\n  $category: String!\n) {\n  productsByCategoryConnection(first: $first, after: $after, category: $category) {\n    edges {\n      cursor\n      node {\n        ...ProductCardFragment\n        id\n      }\n    }\n    pageInfo {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n}\n"
   }
 };
 })();

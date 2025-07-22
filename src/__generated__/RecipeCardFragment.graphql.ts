@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<adba271c364eaed94f63a9744ac900a0>>
+ * @generated SignedSource<<e418c3679b14b22d84be31ca24ea6752>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type RecipeCardFragment$data = {
+  readonly averageRating: number | null;
   readonly category: string;
   readonly description: string;
   readonly id: string;
@@ -18,6 +19,7 @@ export type RecipeCardFragment$data = {
   readonly name: string;
   readonly previewImageUrl: string | null;
   readonly slug: string;
+  readonly totalRatings: number;
   readonly uploadDate: any;
   readonly " $fragmentType": "RecipeCardFragment";
 };
@@ -87,12 +89,26 @@ const node: ReaderFragment = {
       "kind": "ScalarField",
       "name": "uploadDate",
       "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "averageRating",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "totalRatings",
+      "storageKey": null
     }
   ],
   "type": "Recipe",
   "abstractKey": null
 };
 
-(node as any).hash = "734aca77086d06da1b7ba7cc2be506d5";
+(node as any).hash = "66debdc13f3d8703950707162bab62de";
 
 export default node;

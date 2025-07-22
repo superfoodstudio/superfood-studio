@@ -1,13 +1,12 @@
 'use client';
 
-import { View, Text, Button, Badge } from 'reshaped';
+import { View, Text, Button, Badge, DropdownMenu } from 'reshaped';
 import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
-import { ShoppingCart, User, List } from 'phosphor-react';
+import { ShoppingCart, User } from 'phosphor-react';
 import { usePathname } from 'next/navigation';
-import { MobileMenu } from './MobileMenu';
 
 interface LocalCartItem {
   productId: string;
@@ -20,9 +19,6 @@ interface LocalCartItem {
 export function Navigation() {
   const { login, logout, authenticated, ready, user, getAccessToken } = usePrivy();
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   
   // Use the same localStorage hook as the cart - this will auto-sync!
@@ -32,20 +28,6 @@ export function Navigation() {
   const cartItemCount = localCart.reduce((sum, item) => sum + item.quantity, 0);
   
   console.log('Navigation cart data:', localCart, 'count:', cartItemCount);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   // Fetch user role
   useEffect(() => {
@@ -104,7 +86,6 @@ export function Navigation() {
       <View
         as="header"
         direction="row"
-        justify="space-between"
         align="center"
         padding={4}
         backgroundColor="page"
@@ -117,26 +98,7 @@ export function Navigation() {
           }
         }}
       >
-        <View>
-          {/* Menu Button */}
-          <Button
-            variant="ghost"
-            size="small"
-            onClick={() => setMenuOpen(true)}
-            attributes={{
-              style: {
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }
-            }}
-          >
-            <List size={24} />
-            <Text variant="body-2">MENU</Text>
-          </Button>
-        </View>
-
-        {/* Logo - Centered */}
+        {/* Logo - Centered with absolute positioning */}
         <View
           attributes={{
             style: {
@@ -162,7 +124,8 @@ export function Navigation() {
           </Link>
         </View>
 
-        <View direction="row" align="center" gap={3}>
+        {/* Right side controls - positioned to the right */}
+        <View direction="row" align="center" gap={3} attributes={{ style: { marginLeft: 'auto' } }}>
           {/* Cart Icon with Counter */}
           <Link href="/cart">
             <div style={{ position: 'relative' }}>
@@ -194,169 +157,55 @@ export function Navigation() {
           </Link>
 
           {authenticated ? (
-            <div style={{ position: 'relative' }} ref={dropdownRef}>
-              <Button
-                variant="ghost"
-                size="small"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <div style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '50%',
-                  backgroundColor: '#2E1A47',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '14px'
-                }}>
-                  <User size={18} weight="fill" color="white" />
-                </div>
-              </Button>
-
-              {dropdownOpen && (
-                <View
-                  backgroundColor="elevation-raised"
-                  borderRadius="medium"
-                  padding={1}
-                  attributes={{
-                    style: {
-                      position: 'absolute',
-                      right: 0,
-                      top: '40px',
-                      width: '200px',
-                      border: '1px solid var(--rs-color-border-neutral)',
-                      boxShadow: 'var(--rs-shadow-overlay)',
-                      zIndex: 100,
-                    }
-                  }}
-                >
-                  <View direction="column" width="100%">
-                    {/* Dashboard Section */}
-                    <Link
-                      href="/dashboard"
-                      style={{
-                        textDecoration: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '4px',
-                      }}
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      <Text weight="medium">Dashboard</Text>
+            <DropdownMenu 
+              position="bottom-end" 
+              width={{ s: "90vw", m: "300px" }}
+              fallbackPositions={["bottom-start", "top-end", "top-start"]}
+            >
+              <DropdownMenu.Trigger>
+                {(attributes) => (
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    attributes={attributes}
+                  >
+                    <User size={24} weight="regular" />
+                  </Button>
+                )}
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content>
+                {userRole === 'ADMIN' && (
+                  <Link href="/admin" style={{ textDecoration: 'none', color: 'black' }}>
+                    <DropdownMenu.Item>Admin</DropdownMenu.Item>
+                  </Link>
+                )}
+                <Link href="/dashboard" style={{ textDecoration: 'none', color: 'black' }}>
+                  <DropdownMenu.Item>Dashboard</DropdownMenu.Item>
+                </Link>
+                <Link href="/dashboard/membership" style={{ textDecoration: 'none', color: 'black' }}>
+                  <DropdownMenu.Item>Membership</DropdownMenu.Item>
+                </Link>
+                <Link href="/dashboard/orders" style={{ textDecoration: 'none', color: 'black' }}>
+                  <DropdownMenu.Item>Order History</DropdownMenu.Item>
+                </Link>
+                {userRole === 'ADMIN' && (
+                  <>
+                    <Link href="/admin/products" style={{ textDecoration: 'none', color: 'black' }}>
+                      <DropdownMenu.Item>Manage Products</DropdownMenu.Item>
                     </Link>
-                    <Link
-                      href="/dashboard/membership"
-                      style={{
-                        textDecoration: 'none',
-                        padding: '6px 16px 6px 32px',
-                        borderRadius: '4px',
-                      }}
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      <Text variant="body-2" color="neutral-faded">Membership</Text>
+                    <Link href="/admin/recipes" style={{ textDecoration: 'none', color: 'black' }}>
+                      <DropdownMenu.Item>Manage Recipes</DropdownMenu.Item>
                     </Link>
-                    <Link
-                      href="/dashboard/orders"
-                      style={{
-                        textDecoration: 'none',
-                        padding: '6px 16px 6px 32px',
-                        borderRadius: '4px',
-                      }}
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      <Text variant="body-2" color="neutral-faded">Order History</Text>
+                    <Link href="/admin/orders" style={{ textDecoration: 'none', color: 'black' }}>
+                      <DropdownMenu.Item>Manage Orders</DropdownMenu.Item>
                     </Link>
-
-                    {userRole === 'ADMIN' && (
-                      <>
-                        <View
-                          height="1px"
-                          backgroundColor="neutral-faded"
-                          attributes={{
-                            style: {
-                              margin: '8px 16px'
-                            }
-                          }}
-                        />
-                        <Link
-                          href="/admin"
-                          style={{
-                            textDecoration: 'none',
-                            padding: '8px 16px',
-                            borderRadius: '4px',
-                          }}
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Text weight="medium">Admin</Text>
-                        </Link>
-                        <Link
-                          href="/admin/products"
-                          style={{
-                            textDecoration: 'none',
-                            padding: '6px 16px 6px 32px',
-                            borderRadius: '4px',
-                          }}
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Text variant="body-2" color="neutral-faded">Manage Products</Text>
-                        </Link>
-                        <Link
-                          href="/admin/recipes"
-                          style={{
-                            textDecoration: 'none',
-                            padding: '6px 16px 6px 32px',
-                            borderRadius: '4px',
-                          }}
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Text variant="body-2" color="neutral-faded">Manage Recipes</Text>
-                        </Link>
-                        <Link
-                          href="/admin/orders"
-                          style={{
-                            textDecoration: 'none',
-                            padding: '6px 16px 6px 32px',
-                            borderRadius: '4px',
-                          }}
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Text variant="body-2" color="neutral-faded">Manage Orders</Text>
-                        </Link>
-                      </>
-                    )}
-
-                    <View
-                      height="1px"
-                      backgroundColor="neutral-faded"
-                      attributes={{
-                        style: {
-                          margin: '4px 0'
-                        }
-                      }}
-                    />
-
-                    <Button
-                      variant="ghost"
-                      attributes={{
-                        style: {
-                          justifyContent: 'flex-start',
-                          padding: '8px 16px',
-                          width: '100%',
-                          textAlign: 'left'
-                        }
-                      }}
-                      onClick={() => {
-                        logout();
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      Sign Out
-                    </Button>
-                  </View>
-                </View>
-              )}
-            </div>
+                  </>
+                )}
+                <DropdownMenu.Item onClick={() => logout()} attributes={{ style: { color: 'black' } }}>
+                  Sign Out
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu>
           ) : (
             <Button
               variant="ghost"
@@ -369,15 +218,6 @@ export function Navigation() {
         </View>
       </View>
 
-      {/* Mobile Menu */}
-      <MobileMenu
-        isOpen={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        isAuthenticated={authenticated}
-        userRole={userRole}
-        onLogin={login}
-        onLogout={logout}
-      />
     </>
   );
 }

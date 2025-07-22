@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1021212872a4596bd288812ce9228db4>>
+ * @generated SignedSource<<9ce85c03ec9fdbb3335c45ba7e0f7e8c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -37,7 +37,14 @@ v1 = [
     "name": "slug",
     "variableName": "slug"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -79,13 +86,7 @@ return {
         "name": "productBySlug",
         "plural": false,
         "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -148,6 +149,72 @@ return {
             "kind": "ScalarField",
             "name": "inventory",
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "averageRating",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "totalRatings",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ProductRating",
+            "kind": "LinkedField",
+            "name": "ratings",
+            "plural": true,
+            "selections": [
+              (v2/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "rating",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "createdAt",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "user",
+                "plural": false,
+                "selections": [
+                  (v2/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "firstName",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "lastName",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -155,12 +222,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "86957c65c37a5ae28bffea239c1da980",
+    "cacheID": "9bdb594273deb85599f705085e30dc2b",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductDetailBySlugQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductDetailBySlugQuery(\n  $slug: String!\n) {\n  productBySlug(slug: $slug) {\n    ...ProductQueriesProductDetail_product\n    id\n  }\n}\n\nfragment ProductQueriesProductDetail_product on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  videoUrl\n  price\n  category\n  tags\n  inventory\n}\n"
+    "text": "query ProductQueriesProductDetailBySlugQuery(\n  $slug: String!\n) {\n  productBySlug(slug: $slug) {\n    ...ProductQueriesProductDetail_product\n    id\n  }\n}\n\nfragment ProductQueriesProductDetail_product on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  videoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
   }
 };
 })();

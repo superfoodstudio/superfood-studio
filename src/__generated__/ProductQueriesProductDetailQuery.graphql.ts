@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8fa597095bb4e5545112b362df71fb08>>
+ * @generated SignedSource<<6dbe4453994e7a7741629c4e6fd7589d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -37,7 +37,14 @@ v1 = [
     "name": "id",
     "variableName": "id"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -79,13 +86,7 @@ return {
         "name": "product",
         "plural": false,
         "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -148,6 +149,72 @@ return {
             "kind": "ScalarField",
             "name": "inventory",
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "averageRating",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "totalRatings",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ProductRating",
+            "kind": "LinkedField",
+            "name": "ratings",
+            "plural": true,
+            "selections": [
+              (v2/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "rating",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "createdAt",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "user",
+                "plural": false,
+                "selections": [
+                  (v2/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "firstName",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "lastName",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -155,12 +222,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "c4ce470835f50dd234fad681dd258cb0",
+    "cacheID": "d5b6996c981bead6e3909c7e0d402b2b",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductDetailQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductDetailQuery(\n  $id: ID!\n) {\n  product(id: $id) {\n    ...ProductQueriesProductDetail_product\n    id\n  }\n}\n\nfragment ProductQueriesProductDetail_product on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  videoUrl\n  price\n  category\n  tags\n  inventory\n}\n"
+    "text": "query ProductQueriesProductDetailQuery(\n  $id: ID!\n) {\n  product(id: $id) {\n    ...ProductQueriesProductDetail_product\n    id\n  }\n}\n\nfragment ProductQueriesProductDetail_product on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  videoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
   }
 };
 })();

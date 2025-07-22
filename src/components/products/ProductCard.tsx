@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ShoppingCartSimple } from 'phosphor-react';
 import { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
+import { StarRating } from '@/components/ratings/StarRating';
 
 // Define the fragment directly in this file
 export const ProductCardFragment = graphql`
@@ -20,6 +21,8 @@ export const ProductCardFragment = graphql`
     category
     tags
     inventory
+    averageRating
+    totalRatings
   }
 `;
 
@@ -103,6 +106,16 @@ export function ProductCard({ product }: Props) {
             <Text variant="title-3">{data.name}</Text>
             <Text variant="title-4">{formattedPrice}</Text>
             <Text variant="body-2" color="neutral-faded">{data.category}</Text>
+            
+            {/* Rating Display */}
+            <StarRating
+              itemId={data.id}
+              itemType="product"
+              averageRating={data.averageRating || 0}
+              totalRatings={data.totalRatings || 0}
+              size="small"
+              readonly={true}
+            />
             <View direction="row" gap={1} wrap>
               {data.tags && data.tags.map((tag: string) => (
                 <View 

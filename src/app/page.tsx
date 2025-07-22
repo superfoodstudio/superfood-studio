@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { HomeContent } from '@/components/home/HomeContent';
-import { View, Text } from 'reshaped';
+import { View, Text, Skeleton } from 'reshaped';
 
 export default function Home() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export default function Home() {
           } 
         }}
       >
-        <Text>Loading...</Text>
+        <Skeleton height="1.5rem" width="8rem" />
       </View>
     );
   }
@@ -55,7 +55,7 @@ export default function Home() {
         } 
       }}
     >
-      <Text>Redirecting to dashboard...</Text>
+      <Skeleton height="1.5rem" width="12rem" />
     </View>
   );
 }

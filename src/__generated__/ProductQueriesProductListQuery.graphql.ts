@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<97db15c76e8d6e9dbeab757a759c23ef>>
+ * @generated SignedSource<<d36d48ee407860c92b7a812dbd710404>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -163,6 +163,20 @@ return {
             "kind": "ScalarField",
             "name": "inventory",
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "averageRating",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "totalRatings",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -170,12 +184,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e5c9766c70f1bc7a341edd52563dd59d",
+    "cacheID": "b8edbb5d27fde620fcf6554f1ee3ec3c",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductListQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductListQuery(\n  $category: String!\n  $limit: Int\n  $offset: Int\n) {\n  productsByCategory(category: $category, limit: $limit, offset: $offset) {\n    ...ProductCardFragment\n    id\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n}\n"
+    "text": "query ProductQueriesProductListQuery(\n  $category: String!\n  $limit: Int\n  $offset: Int\n) {\n  productsByCategory(category: $category, limit: $limit, offset: $offset) {\n    ...ProductCardFragment\n    id\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n}\n"
   }
 };
 })();

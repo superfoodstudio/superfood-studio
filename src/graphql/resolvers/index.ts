@@ -28,4 +28,6 @@ export const resolvers = {
     ...commentResolvers.Mutation,
   },
   Comment: commentResolvers.Comment,
+  Recipe: recipeResolvers.Recipe,
+  Product: productResolvers.Product,
 }; 

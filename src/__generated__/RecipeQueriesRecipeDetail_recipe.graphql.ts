@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<febf1c98be7221dfa7299a70c3f4d4b7>>
+ * @generated SignedSource<<5973aa492016a5d6a0560bb82893e02f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type RecipeQueriesRecipeDetail_recipe$data = {
+  readonly averageRating: number | null;
   readonly category: string;
   readonly createdAt: any;
   readonly description: string;
@@ -19,7 +20,18 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
   readonly instructions: ReadonlyArray<string> | null;
   readonly mediaUrl: string;
   readonly name: string;
+  readonly ratings: ReadonlyArray<{
+    readonly createdAt: any;
+    readonly id: string;
+    readonly rating: number;
+    readonly user: {
+      readonly firstName: string | null;
+      readonly id: string;
+      readonly lastName: string | null;
+    };
+  }>;
   readonly slug: string;
+  readonly totalRatings: number;
   readonly uploadDate: any;
   readonly " $fragmentType": "RecipeQueriesRecipeDetail_recipe";
 };
@@ -28,19 +40,28 @@ export type RecipeQueriesRecipeDetail_recipe$key = {
   readonly " $fragmentSpreads": FragmentRefs<"RecipeQueriesRecipeDetail_recipe">;
 };
 
-const node: ReaderFragment = {
+const node: ReaderFragment = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "createdAt",
+  "storageKey": null
+};
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
   "name": "RecipeQueriesRecipeDetail_recipe",
   "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
+    (v0/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -97,18 +118,73 @@ const node: ReaderFragment = {
       "name": "uploadDate",
       "storageKey": null
     },
+    (v1/*: any*/),
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "createdAt",
+      "name": "averageRating",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "totalRatings",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "RecipeRating",
+      "kind": "LinkedField",
+      "name": "ratings",
+      "plural": true,
+      "selections": [
+        (v0/*: any*/),
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "rating",
+          "storageKey": null
+        },
+        (v1/*: any*/),
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "User",
+          "kind": "LinkedField",
+          "name": "user",
+          "plural": false,
+          "selections": [
+            (v0/*: any*/),
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "firstName",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "lastName",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
       "storageKey": null
     }
   ],
   "type": "Recipe",
   "abstractKey": null
 };
+})();
 
-(node as any).hash = "1dd981baace515dc8eca4679505e5d14";
+(node as any).hash = "184ad585719ae1404d5d7c7087538fd4";
 
 export default node;

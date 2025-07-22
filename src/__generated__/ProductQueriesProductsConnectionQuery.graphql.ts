@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<396f663d8ceb88e4f7ad180a29fc4aed>>
+ * @generated SignedSource<<9a3593f1925241ec2bd7ec6518608413>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -306,6 +306,20 @@ return {
                     "kind": "ScalarField",
                     "name": "inventory",
                     "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "averageRating",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "totalRatings",
+                    "storageKey": null
                   }
                 ],
                 "storageKey": null
@@ -320,12 +334,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ee9f032bbc61ca1c13f51acb7da6c7b4",
+    "cacheID": "6cb811f574fa8176068c5fd981dafca5",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductsConnectionQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductsConnectionQuery(\n  $first: Int\n  $after: String\n  $category: String\n  $status: String\n  $search: String\n  $sort: String\n) {\n  productsConnection(first: $first, after: $after, category: $category, status: $status, search: $search, sort: $sort) {\n    edges {\n      cursor\n      node {\n        ...ProductCardFragment\n        id\n      }\n    }\n    pageInfo {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n}\n"
+    "text": "query ProductQueriesProductsConnectionQuery(\n  $first: Int\n  $after: String\n  $category: String\n  $status: String\n  $search: String\n  $sort: String\n) {\n  productsConnection(first: $first, after: $after, category: $category, status: $status, search: $search, sort: $sort) {\n    edges {\n      cursor\n      node {\n        ...ProductCardFragment\n        id\n      }\n    }\n    pageInfo {\n      hasNextPage\n      hasPreviousPage\n      startCursor\n      endCursor\n    }\n  }\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n}\n"
   }
 };
 })();

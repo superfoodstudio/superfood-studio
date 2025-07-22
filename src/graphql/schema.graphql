@@ -19,6 +19,9 @@ type Recipe {
   ingredients: [String!]
   instructions: [String!]
   comments: [Comment!]!
+  ratings: [RecipeRating!]!
+  averageRating: Float
+  totalRatings: Int!
 }
 
 type Comment {
@@ -99,6 +102,9 @@ type Product {
   isActive: Boolean!
   stripeProductId: String
   stripePriceId: String
+  ratings: [ProductRating!]!
+  averageRating: Float
+  totalRatings: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -444,6 +450,54 @@ type DeleteProductResponse {
 
 type DeleteCommentResponse {
   success: Boolean!
+}
+
+# Rating schema
+type RecipeRating {
+  id: ID!
+  rating: Int!
+  user: User!
+  userId: ID!
+  recipe: Recipe!
+  recipeId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductRating {
+  id: ID!
+  rating: Int!
+  user: User!
+  userId: ID!
+  product: Product!
+  productId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Rating inputs
+input RateRecipeInput {
+  recipeId: ID!
+  rating: Int!
+}
+
+input RateProductInput {
+  productId: ID!
+  rating: Int!
+}
+
+# Add rating queries to Query type
+extend type Query {
+  # Rating queries
+  userRecipeRating(recipeId: ID!): RecipeRating
+  userProductRating(productId: ID!): ProductRating
+}
+
+# Add rating mutations to Mutation type
+extend type Mutation {
+  # Rating mutations
+  rateRecipe(input: RateRecipeInput!): RecipeRating!
+  rateProduct(input: RateProductInput!): ProductRating!
 }
 
 # Add other schemas here as your application grows 

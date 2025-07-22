@@ -58,5 +58,17 @@ export const RecipeDetailFragment = graphql`
     instructions
     uploadDate
     createdAt
+    averageRating
+    totalRatings
+    ratings {
+      id
+      rating
+      createdAt
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
   }
 `; 

@@ -59,55 +59,66 @@ function DashboardContent() {
           </Button>
         </View>
         {/* Navigation Component - Four-button tab bar */}
-        <View direction="row" justify="center" gap={2} paddingTop={4} paddingInline={4}>
-          <Button
-            variant="outline"
-            borderRadius="medium"
-            size="large"
-            onClick={() => {
-              setActiveTab('recipes');
-              router.push('/recipes');
+        <View direction="row" justify="center" paddingTop={4} paddingInline={4}>
+          <View 
+            direction="row" 
+            gap={2}
+            attributes={{ 
+              style: { 
+                maxWidth: '50vw',
+                width: '100%'
+              } 
             }}
-            attributes={{ style: { flex: 1, minWidth: '120px' } }}
           >
-            RECIPES
-          </Button>
-          <Button
-            variant="outline"
-            borderRadius="medium"
-            size="large"
-            onClick={() => {
-              setActiveTab('orders');
-              router.push('/dashboard/orders');
-            }}
-            attributes={{ style: { flex: 1, minWidth: '120px' } }}
-          >
-            ORDERS
-          </Button>
-          <Button
-            variant="outline"
-            borderRadius="medium"
-            size="large"
-            onClick={() => {
-              setActiveTab('shop');
-              router.push('/shop');
-            }}
-            attributes={{ style: { flex: 1, minWidth: '120px' } }}
-          >
-            SHOP
-          </Button>
-          <Button
-            variant="outline"
-            borderRadius="medium"
-            size="large"
-            onClick={() => {
-              setActiveTab('membership');
-              router.push('/dashboard/membership');
-            }}
-            attributes={{ style: { flex: 1, minWidth: '120px' } }}
-          >
-            MEMBERSHIP
-          </Button>
+            <Button
+              variant="outline"
+              borderRadius="medium"
+              size="large"
+              onClick={() => {
+                setActiveTab('recipes');
+                router.push('/recipes');
+              }}
+              attributes={{ style: { flex: 1, minWidth: '120px' } }}
+            >
+              RECIPES
+            </Button>
+            <Button
+              variant="outline"
+              borderRadius="medium"
+              size="large"
+              onClick={() => {
+                setActiveTab('orders');
+                router.push('/dashboard/orders');
+              }}
+              attributes={{ style: { flex: 1, minWidth: '120px' } }}
+            >
+              ORDERS
+            </Button>
+            <Button
+              variant="outline"
+              borderRadius="medium"
+              size="large"
+              onClick={() => {
+                setActiveTab('shop');
+                router.push('/shop');
+              }}
+              attributes={{ style: { flex: 1, minWidth: '120px' } }}
+            >
+              SHOP
+            </Button>
+            <Button
+              variant="outline"
+              borderRadius="medium"
+              size="large"
+              onClick={() => {
+                setActiveTab('membership');
+                router.push('/dashboard/membership');
+              }}
+              attributes={{ style: { flex: 1, minWidth: '120px' } }}
+            >
+              MEMBERSHIP
+            </Button>
+          </View>
         </View>
 
         {/* Hero Section with Coconut Image */}
@@ -504,21 +515,7 @@ function DashboardSkeleton() {
 }
 
 function LoadingFallback() {
-  return (
-    <View 
-      direction="column"
-      align="center" 
-      justify="center" 
-      height="100vh"
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0'
-        } 
-      }}
-    >
-      <Text>Loading dashboard...</Text>
-    </View>
-  );
+  return <DashboardSkeleton />;
 }
 
 export default function DashboardPage() {

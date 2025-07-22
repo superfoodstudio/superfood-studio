@@ -39,6 +39,18 @@ export const ProductDetailFragment = graphql`
     category
     tags
     inventory
+    averageRating
+    totalRatings
+    ratings {
+      id
+      rating
+      createdAt
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
   }
 `;
 

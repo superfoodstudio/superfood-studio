@@ -14,6 +14,7 @@ import type {
 import { useEffect } from 'react';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { useParams, useRouter } from 'next/navigation';
+import { StarRating } from '@/components/ratings/StarRating';
 
 // LazyLoad component that will only fetch data when it's needed
 function ProductDetailLazy({ slug }: { slug: string }) {
@@ -145,6 +146,18 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
           <Divider />
           
           <Text variant="body-1" align="start">{product.description}</Text>
+          
+          {/* Rating Section */}
+          <View direction="column" gap={2}>
+            <Text variant="title-3">Rate this product</Text>
+            <StarRating
+              itemId={product.id}
+              itemType="product"
+              averageRating={product.averageRating || 0}
+              totalRatings={product.totalRatings}
+              size="large"
+            />
+          </View>
           
           <View direction="row" gap={2} wrap>
             {product.tags.map((tag: string) => (

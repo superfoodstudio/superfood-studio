@@ -24,8 +24,16 @@ export async function GET(request: Request) {
     try {
       const user = await authService.verifyToken(token);
       
-      // Pass the request headers to check for test override
-      const role = await authService.getUserRole(user.email, request.headers);
+      // Use the role directly from the user object we just fetched
+      // Only fall back to getUserRole if user.role is not available
+      let role = user.role;
+      if (!role) {
+        role = await authService.getUserRole(user.email, request.headers);
+      }
+      
+      console.log('🔍 Final debug - User object:', user);
+      console.log('🔍 Final debug - Role being returned:', role);
+      
       return NextResponse.json({ role });
     } catch (tokenError) {
       console.error('Token verification error:', tokenError);

@@ -4,6 +4,7 @@ import React from 'react';
 import { graphql, useFragment } from 'react-relay';
 import Link from 'next/link';
 import { View, Text, Button } from 'reshaped';
+import { StarRating } from '@/components/ratings/StarRating';
 
 // Use a unique name with proper module prefix
 export const recipeCardFragment = graphql`
@@ -16,6 +17,8 @@ export const recipeCardFragment = graphql`
     mediaUrl
     previewImageUrl
     uploadDate
+    averageRating
+    totalRatings
   }
 `;
 
@@ -29,6 +32,8 @@ type RecipeData = {
   mediaUrl: string;
   previewImageUrl?: string | null;
   uploadDate: string;
+  averageRating?: number | null;
+  totalRatings?: number;
 };
 
 interface RecipeCardProps {
@@ -106,6 +111,16 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
           }}>
             <Text variant="body-3">{data.description}</Text>
           </div>
+          
+          {/* Rating Display */}
+          <StarRating
+            itemId={data.id}
+            itemType="recipe"
+            averageRating={data.averageRating || 0}
+            totalRatings={data.totalRatings || 0}
+            size="small"
+            readonly={true}
+          />
         </View>
         <Link href={`/recipes/${data.slug}`} passHref>
           <Button fullWidth>View Recipe</Button>

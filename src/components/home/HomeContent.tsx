@@ -1,6 +1,6 @@
 "use client";
 
-import { View, Text, Button } from "reshaped";
+import { View, Text, Button, Skeleton } from "reshaped";
 import Link from "next/link";
 import { Suspense } from "react";
 import { useLazyLoadQuery } from "react-relay";
@@ -46,19 +46,16 @@ function HeroVideoSection() {
 function HeroVideoLoading() {
   return (
     <View as="section">
-      <div
-        style={{
-          width: "100%",
-          height: "66vh",
-          backgroundColor: "#f5f5f5",
-          borderRadius: "24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+      <Skeleton
+        width="100%"
+        height="66vh"
+        borderRadius="large"
+        attributes={{
+          style: {
+            display: "block"
+          }
         }}
-      >
-        <Text>Loading video...</Text>
-      </div>
+      />
     </View>
   );
 }
@@ -68,7 +65,6 @@ export function HomeContent() {
     <View
       as="main"
       direction="column"
-      backgroundColor="elevation-base"
       padding={4}
       paddingTop={0}
       gap={2}

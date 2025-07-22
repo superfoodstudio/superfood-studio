@@ -56,6 +56,48 @@ interface RecipeUpdateInput {
 }
 
 export const recipeResolvers = {
+  Recipe: {
+    // Resolver for the ratings field
+    ratings: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
+      return prisma.recipeRating.findMany({
+        where: { recipeId: parent.id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+    },
+
+    // Resolver for the averageRating field
+    averageRating: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
+      const ratings = await prisma.recipeRating.findMany({
+        where: { recipeId: parent.id },
+        select: { rating: true }
+      });
+
+      if (ratings.length === 0) {
+        return null;
+      }
+
+      const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
+      return Number((sum / ratings.length).toFixed(1));
+    },
+
+    // Resolver for the totalRatings field
+    totalRatings: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
+      return prisma.recipeRating.count({
+        where: { recipeId: parent.id }
+      });
+    }
+  },
+
   Query: {
     recipes: async (_parent: unknown, args: RecipeFilters, { prisma }: GraphQLContext) => {
       const { category, status, search, sort } = args;
@@ -214,6 +256,52 @@ export const recipeResolvers = {
   },
 
   Mutation: {
+    rateRecipe: async (
+      _parent: unknown,
+      { input }: { input: { recipeId: string; rating: number } },
+      { prisma, user }: GraphQLContext
+    ) => {
+      const { recipeId, rating } = input;
+      if (!user) {
+        throw new Error('Authentication required');
+      }
+
+      if (rating < 1 || rating > 5) {
+        throw new Error('Rating must be between 1 and 5');
+      }
+
+      // Use upsert to either create or update the rating
+      const recipeRating = await prisma.recipeRating.upsert({
+        where: {
+          userId_recipeId: {
+            userId: user.id,
+            recipeId: recipeId
+          }
+        },
+        update: {
+          rating: rating,
+          updatedAt: new Date()
+        },
+        create: {
+          userId: user.id,
+          recipeId: recipeId,
+          rating: rating
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      });
+
+      return recipeRating;
+    },
+
     createRecipe: async (
       _parent: unknown,
       { input }: { input: Omit<RecipeCreateInput, 'slug' | 'isPublished' | 'uploadDate'> },

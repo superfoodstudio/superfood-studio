@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { View, Text, Button, Modal, useToggle } from 'reshaped';
+import { View, Text, Button, Modal, useToggle, Skeleton } from 'reshaped';
 import { useLazyLoadQuery } from 'react-relay';
 import { SiteSettingsQuery } from '@/graphql/queries/SiteSettingsQueries';
 import type { SiteSettingsQueriesQuery } from '@/__generated__/SiteSettingsQueriesQuery.graphql';
@@ -89,20 +89,11 @@ function WeeklyGroceryListContent() {
 
 function WeeklyGroceryListLoading() {
   return (
-    <Button
-      variant="solid"
-      disabled
-      attributes={{
-        style: {
-          backgroundColor: '#e2e8f0',
-          borderRadius: '8px',
-          fontWeight: '600',
-          letterSpacing: '0.5px'
-        }
-      }}
-    >
-      Loading...
-    </Button>
+    <Skeleton 
+      height="2.75rem" 
+      width="12rem" 
+      borderRadius="8px"
+    />
   );
 }
 

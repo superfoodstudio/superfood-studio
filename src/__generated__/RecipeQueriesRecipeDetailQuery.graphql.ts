@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0a86756f4741fc7798148c3b662eae60>>
+ * @generated SignedSource<<2a3fcf081fab4591987ff2231b91ca32>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -37,7 +37,21 @@ v1 = [
     "name": "id",
     "variableName": "id"
   }
-];
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "createdAt",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -79,13 +93,7 @@ return {
         "name": "recipe",
         "plural": false,
         "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -142,11 +150,65 @@ return {
             "name": "uploadDate",
             "storageKey": null
           },
+          (v3/*: any*/),
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "createdAt",
+            "name": "averageRating",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "totalRatings",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "RecipeRating",
+            "kind": "LinkedField",
+            "name": "ratings",
+            "plural": true,
+            "selections": [
+              (v2/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "rating",
+                "storageKey": null
+              },
+              (v3/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "user",
+                "plural": false,
+                "selections": [
+                  (v2/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "firstName",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "lastName",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
             "storageKey": null
           }
         ],
@@ -155,12 +217,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "26541d2ec2ba7a9f3646ebe218dd5334",
+    "cacheID": "54a7bae4601fba65bded72592b58c823",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeDetailQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n}\n"
+    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
   }
 };
 })();

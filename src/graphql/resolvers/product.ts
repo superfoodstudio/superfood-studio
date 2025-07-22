@@ -88,6 +88,48 @@ interface UpdateProductInputWithStripe {
 }
 
 export const productResolvers = {
+  Product: {
+    // Resolver for the ratings field
+    ratings: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
+      return prisma.productRating.findMany({
+        where: { productId: parent.id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+    },
+
+    // Resolver for the averageRating field
+    averageRating: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
+      const ratings = await prisma.productRating.findMany({
+        where: { productId: parent.id },
+        select: { rating: true }
+      });
+
+      if (ratings.length === 0) {
+        return null;
+      }
+
+      const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
+      return Number((sum / ratings.length).toFixed(1));
+    },
+
+    // Resolver for the totalRatings field
+    totalRatings: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
+      return prisma.productRating.count({
+        where: { productId: parent.id }
+      });
+    }
+  },
+
   Query: {
     products: async (_parent: unknown, args: ProductFilters, { prisma }: GraphQLContext) => {
       const { category, status, search, sort } = args;
@@ -258,6 +300,52 @@ export const productResolvers = {
   },
 
   Mutation: {
+    rateProduct: async (
+      _parent: unknown,
+      { input }: { input: { productId: string; rating: number } },
+      { prisma, user }: GraphQLContext
+    ) => {
+      const { productId, rating } = input;
+      if (!user) {
+        throw new Error('Authentication required');
+      }
+
+      if (rating < 1 || rating > 5) {
+        throw new Error('Rating must be between 1 and 5');
+      }
+
+      // Use upsert to either create or update the rating
+      const productRating = await prisma.productRating.upsert({
+        where: {
+          userId_productId: {
+            userId: user.id,
+            productId: productId
+          }
+        },
+        update: {
+          rating: rating,
+          updatedAt: new Date()
+        },
+        create: {
+          userId: user.id,
+          productId: productId,
+          rating: rating
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      });
+
+      return productRating;
+    },
+
     createProduct: async (
       _parent: unknown,
       { input }: { input: CreateProductInputWithStripe },

@@ -16,6 +16,7 @@ import { AppContainer } from '@/components/layout/AppContainer';
 import { useParams, useRouter } from 'next/navigation';
 import { MediaDisplay } from '@/components/recipes/MediaDisplay';
 import { RecipeComments } from '@/components/recipes/RecipeComments';
+import { StarRating } from '@/components/ratings/StarRating';
 
 // LazyLoad component that will only fetch data when it's needed
 function RecipeDetailLazy({ slug }: { slug: string }) {
@@ -135,6 +136,18 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
         
         {/* Recipe Description */}
         <Text variant="body-1">{recipe.description}</Text>
+        
+        {/* Rating Section */}
+        <View direction="column" gap={2}>
+          <Text variant="title-3">Rate this recipe</Text>
+          <StarRating
+            itemId={recipe.id}
+            itemType="recipe"
+            averageRating={recipe.averageRating || 0}
+            totalRatings={recipe.totalRatings}
+            size="large"
+          />
+        </View>
         
         <Divider />
         

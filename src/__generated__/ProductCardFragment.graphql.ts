@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<52e5b0179db5d94685f85de119f7d63f>>
+ * @generated SignedSource<<ec786c22658ef085fbf51e3505c35acf>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { Fragment, ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 export type ProductCardFragment$data = {
+  readonly averageRating: number | null;
   readonly category: string;
   readonly description: string;
   readonly id: string;
@@ -20,6 +21,7 @@ export type ProductCardFragment$data = {
   readonly price: number;
   readonly slug: string;
   readonly tags: ReadonlyArray<string>;
+  readonly totalRatings: number;
   readonly " $fragmentType": "ProductCardFragment";
 };
 export type ProductCardFragment$key = {
@@ -95,12 +97,26 @@ const node: ReaderFragment = {
       "kind": "ScalarField",
       "name": "inventory",
       "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "averageRating",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "totalRatings",
+      "storageKey": null
     }
   ],
   "type": "Product",
   "abstractKey": null
 };
 
-(node as any).hash = "d8850dbfed4118b404aacccede7bbfa5";
+(node as any).hash = "a5c8b7779a89a7fb9472e31310f31392";
 
 export default node;
