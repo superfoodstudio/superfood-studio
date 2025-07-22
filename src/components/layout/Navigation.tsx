@@ -107,7 +107,7 @@ export function Navigation() {
         justify="space-between"
         align="center"
         padding={4}
-        backgroundColor="elevation-base"
+        backgroundColor="page"
         width="100%"
         attributes={{
           style: {

@@ -18,7 +18,7 @@ export default function AdminLayout({
         justify="space-between"
         align="center"
         padding={4}
-        backgroundColor="elevation-base"
+        backgroundColor="page"
       >
         <Text variant="title-2">Admin Recipes</Text>
         <Link href="/profile">
