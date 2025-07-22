@@ -41,21 +41,13 @@ export async function POST(
       );
     }
 
-    // Create or update the user's rating for this product
-    const productRating = await prisma.productRating.upsert({
+    // Check if rating exists, then create or update (avoiding transactions)
+    let productRating = await prisma.productRating.findUnique({
       where: {
         userId_productId: {
           userId: user.id,
           productId: params.id
         }
-      },
-      update: {
-        rating
-      },
-      create: {
-        rating,
-        userId: user.id,
-        productId: params.id
       },
       include: {
         user: {
@@ -74,6 +66,62 @@ export async function POST(
         }
       }
     });
+
+    if (productRating) {
+      // Update existing rating
+      productRating = await prisma.productRating.update({
+        where: {
+          userId_productId: {
+            userId: user.id,
+            productId: params.id
+          }
+        },
+        data: {
+          rating
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          },
+          product: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+    } else {
+      // Create new rating
+      productRating = await prisma.productRating.create({
+        data: {
+          rating,
+          userId: user.id,
+          productId: params.id
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          },
+          product: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+    }
 
     return NextResponse.json(productRating);
   } catch (error) {

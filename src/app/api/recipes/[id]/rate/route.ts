@@ -41,21 +41,13 @@ export async function POST(
       );
     }
 
-    // Create or update the user's rating for this recipe
-    const recipeRating = await prisma.recipeRating.upsert({
+    // Check if rating exists, then create or update (avoiding transactions)
+    let recipeRating = await prisma.recipeRating.findUnique({
       where: {
         userId_recipeId: {
           userId: user.id,
           recipeId: params.id
         }
-      },
-      update: {
-        rating
-      },
-      create: {
-        rating,
-        userId: user.id,
-        recipeId: params.id
       },
       include: {
         user: {
@@ -74,6 +66,62 @@ export async function POST(
         }
       }
     });
+
+    if (recipeRating) {
+      // Update existing rating
+      recipeRating = await prisma.recipeRating.update({
+        where: {
+          userId_recipeId: {
+            userId: user.id,
+            recipeId: params.id
+          }
+        },
+        data: {
+          rating
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          },
+          recipe: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+    } else {
+      // Create new rating
+      recipeRating = await prisma.recipeRating.create({
+        data: {
+          rating,
+          userId: user.id,
+          recipeId: params.id
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          },
+          recipe: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+    }
 
     return NextResponse.json(recipeRating);
   } catch (error) {

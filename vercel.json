@@ -3,5 +3,16 @@
   "env": {
     "NEXT_CONFIG_OUTPUT_TRACING": "false",
     "NODE_OPTIONS": "--max-old-space-size=4096"
-  }
+  },
+  "functions": {
+    "src/app/api/graphql/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/graphql",
+      "destination": "/api/graphql"
+    }
+  ]
 } 

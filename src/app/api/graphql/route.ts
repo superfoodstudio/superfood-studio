@@ -4,6 +4,13 @@ import { executeQuery } from '@/lib/relay/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// Ensure CORS headers are set properly for Vercel deployment
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, HEAD',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 export async function POST(request: NextRequest) {
   console.log('GraphQL POST request received');
   try {

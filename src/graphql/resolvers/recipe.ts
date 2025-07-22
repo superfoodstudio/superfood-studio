@@ -270,22 +270,13 @@ export const recipeResolvers = {
         throw new Error('Rating must be between 1 and 5');
       }
 
-      // Use upsert to either create or update the rating
-      const recipeRating = await prisma.recipeRating.upsert({
+      // Check if rating exists, then create or update (avoiding transactions)
+      let recipeRating = await prisma.recipeRating.findUnique({
         where: {
           userId_recipeId: {
             userId: user.id,
             recipeId: recipeId
           }
-        },
-        update: {
-          rating: rating,
-          updatedAt: new Date()
-        },
-        create: {
-          userId: user.id,
-          recipeId: recipeId,
-          rating: rating
         },
         include: {
           user: {
@@ -298,6 +289,51 @@ export const recipeResolvers = {
           }
         }
       });
+
+      if (recipeRating) {
+        // Update existing rating
+        recipeRating = await prisma.recipeRating.update({
+          where: {
+            userId_recipeId: {
+              userId: user.id,
+              recipeId: recipeId
+            }
+          },
+          data: {
+            rating: rating,
+            updatedAt: new Date()
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        });
+      } else {
+        // Create new rating
+        recipeRating = await prisma.recipeRating.create({
+          data: {
+            userId: user.id,
+            recipeId: recipeId,
+            rating: rating
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        });
+      }
 
       return recipeRating;
     },

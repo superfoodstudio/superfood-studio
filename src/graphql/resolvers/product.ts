@@ -314,22 +314,13 @@ export const productResolvers = {
         throw new Error('Rating must be between 1 and 5');
       }
 
-      // Use upsert to either create or update the rating
-      const productRating = await prisma.productRating.upsert({
+      // Check if rating exists, then create or update (avoiding transactions)
+      let productRating = await prisma.productRating.findUnique({
         where: {
           userId_productId: {
             userId: user.id,
             productId: productId
           }
-        },
-        update: {
-          rating: rating,
-          updatedAt: new Date()
-        },
-        create: {
-          userId: user.id,
-          productId: productId,
-          rating: rating
         },
         include: {
           user: {
@@ -342,6 +333,51 @@ export const productResolvers = {
           }
         }
       });
+
+      if (productRating) {
+        // Update existing rating
+        productRating = await prisma.productRating.update({
+          where: {
+            userId_productId: {
+              userId: user.id,
+              productId: productId
+            }
+          },
+          data: {
+            rating: rating,
+            updatedAt: new Date()
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        });
+      } else {
+        // Create new rating
+        productRating = await prisma.productRating.create({
+          data: {
+            userId: user.id,
+            productId: productId,
+            rating: rating
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        });
+      }
 
       return productRating;
     },

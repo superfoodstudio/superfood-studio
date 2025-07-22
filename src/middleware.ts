@@ -14,6 +14,11 @@ if (typeof window === 'undefined') {
 export async function middleware(request: NextRequest) {
   console.log('Middleware called for path:', request.nextUrl.pathname);
   
+  // Skip middleware for API routes to prevent interference
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+  
   // Log all cookies to help with debugging
   console.log('All cookies:', request.cookies.getAll().map(c => `${c.name}`).join(', '));
   // Check if Privy token exists
@@ -145,5 +150,10 @@ export const config = {
     '/admin/:path*',
     '/recipes/:path*',
     '/shop/:path*'
+  ],
+  // Exclude API routes from middleware processing
+  missing: [
+    { type: 'header', key: 'next-router-prefetch' },
+    { type: 'header', key: 'purpose', value: 'prefetch' },
   ],
 }; 

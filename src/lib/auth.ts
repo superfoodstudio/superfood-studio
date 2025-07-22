@@ -36,14 +36,9 @@ export class AuthService {
         throw new Error('No email found');
       }
 
-      // Create or update user in database
-      const user = await prisma.user.upsert({
+      // Check if user exists, create if not (avoiding transactions)
+      let user = await prisma.user.findUnique({
         where: { email: userDetails.email.address },
-        update: {},
-        create: {
-          email: userDetails.email.address,
-          role: 'SUBSCRIBER',
-        },
         select: {
           id: true,
           email: true,
@@ -54,6 +49,25 @@ export class AuthService {
           updatedAt: true,
         },
       });
+
+      // Create user if they don't exist
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            email: userDetails.email.address,
+            role: 'SUBSCRIBER',
+          },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+      }
 
       return user;
     } catch (error) {
