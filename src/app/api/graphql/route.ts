@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
   console.log('GraphQL POST request received');
   try {
     const { query, variables } = await request.json();
+    console.log('Query:', query?.substring(0, 100) + '...');
+    console.log('Variables:', JSON.stringify(variables));
 
     if (!query) {
       return NextResponse.json(
@@ -17,12 +19,17 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await executeQuery(query, variables || {}, request);
+    console.log('Query executed successfully, data keys:', Object.keys(data || {}));
 
     return NextResponse.json({ data });
   } catch (error) {
     console.error('GraphQL API Error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.message : String(error) : undefined
+      },
       { status: 500 }
     );
   }

@@ -7,7 +7,14 @@ import { createContext } from '@/graphql/context';
 import { NextRequest } from 'next/server';
 
 // Read schema files
-const unifiedSchema = readFileSync(join(process.cwd(), 'src/graphql/schema.graphql'), 'utf-8');
+let unifiedSchema: string;
+try {
+  unifiedSchema = readFileSync(join(process.cwd(), 'src/graphql/schema.graphql'), 'utf-8');
+  console.log('GraphQL schema loaded successfully');
+} catch (error) {
+  console.error('Failed to read GraphQL schema:', error);
+  throw error;
+}
 
 // Create schema
 const schema = makeExecutableSchema({
