@@ -1,62 +1,41 @@
 import { PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { PrivyClient } from '@privy-io/server-auth';
-
-export interface UserContext {
-  id?: string;
-  email?: string;
-  role?: 'ADMIN' | 'SUBSCRIBER' | 'PUBLIC';
-  isAuthenticated: boolean;
-}
+import { verifyPrivyTokenFast, UserContext } from '@/lib/auth-utils';
 
 export interface GraphQLContext {
   prisma: PrismaClient;
   user: UserContext;
+  // Helper to get full user data when needed (lazy loaded)
+  getFullUser: () => Promise<UserContext>;
 }
 
 export async function createContext({ req }: { req: any }): Promise<GraphQLContext> {
-  let user: UserContext = { isAuthenticated: false };
-
-  console.log('Creating GraphQL context...');
-  console.log('Request cookies:', Object.keys(req.cookies || {}));
-  console.log('Request headers:', Object.keys(req.headers || {}));
-
-  try {
-    const authToken = req.cookies?.['privy-token'] || req.headers?.authorization?.replace('Bearer ', '');
-    console.log('Auth token found:', !!authToken, authToken ? `${authToken.substring(0, 20)}...` : 'none');
-    
-    if (authToken) {
-      const privy = new PrivyClient(
-        process.env.NEXT_PUBLIC_PRIVY_APP_ID!,
-        process.env.PRIVY_APP_SECRET!
-      );
-
-      const verifiedUser = await privy.verifyAuthToken(authToken);
-      const userDetails = await privy.getUser(verifiedUser.userId);
-
-      if (userDetails.email?.address) {
-        // Check if user exists in our database
-        const dbUser = await prisma.user.findUnique({
-          where: { email: userDetails.email.address }
-        });
-
-        if (dbUser) {
-          user = {
-            id: dbUser.id,
-            email: dbUser.email,
-            role: dbUser.role as 'ADMIN' | 'SUBSCRIBER' | 'PUBLIC',
-            isAuthenticated: true
-          };
-        }
-      }
-    }
-  } catch (error) {
-    // Authentication failed silently
-    console.error('Authentication error:', error);
-  }
+  console.log('Creating lightweight GraphQL context...');
+  
+  const authToken = req.cookies?.['privy-token'] || req.headers?.authorization?.replace('Bearer ', '');
+  
+  // Fast token verification only (no DB queries)
+  const user = authToken ? await verifyPrivyTokenFast(authToken) : { isAuthenticated: false };
+  
+  console.log('Context created, user authenticated:', user.isAuthenticated);
 
   return {
     prisma,
-    user
+    user,
+    // Lazy loader for full user data when resolvers need it
+    getFullUser: async () => {
+      if (!authToken || !user.isAuthenticated) {
+        return { isAuthenticated: false };
+      }
+      
+      // Only fetch from DB when actually needed
+      try {
+        const { getUserFromPrivyToken } = await import('@/lib/auth-utils');
+        return await getUserFromPrivyToken(authToken);
+      } catch (error) {
+        console.error('Error loading full user:', error);
+        return { isAuthenticated: false };
+      }
+    }
   };
 } 

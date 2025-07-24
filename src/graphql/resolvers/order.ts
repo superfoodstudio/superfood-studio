@@ -8,12 +8,18 @@ const privy = new PrivyClient(
 
 async function getCurrentUserId(context: any): Promise<string | null> {
   try {
-    // Use the GraphQL context user that's already authenticated
-    if (context.user && context.user.isAuthenticated && context.user.id) {
-      return context.user.id;
+    // First check if we have basic auth
+    if (!context.user?.isAuthenticated) {
+      return null;
+    }
+
+    // If we don't have full user data, fetch it lazily
+    if (!context.user.id && context.getFullUser) {
+      const fullUser = await context.getFullUser();
+      return fullUser.isAuthenticated ? fullUser.id || null : null;
     }
     
-    return null;
+    return context.user.id || null;
   } catch (error) {
     console.error('Error getting current user:', error);
     return null;

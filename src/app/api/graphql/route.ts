@@ -12,11 +12,13 @@ const corsHeaders = {
 };
 
 export async function POST(request: NextRequest) {
-  console.log('GraphQL POST request received');
+  const startTime = Date.now();
+  console.log('GraphQL POST request received at:', new Date().toISOString());
+  
   try {
     const { query, variables } = await request.json();
-    console.log('Query:', query?.substring(0, 100) + '...');
-    console.log('Variables:', JSON.stringify(variables));
+    console.log('Query parsed, length:', query?.length || 0);
+    console.log('Variables count:', Object.keys(variables || {}).length);
 
     if (!query) {
       return NextResponse.json(
@@ -25,13 +27,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = await executeQuery(query, variables || {}, request);
-    console.log('Query executed successfully, data keys:', Object.keys(data || {}));
+    console.log('Starting query execution...');
+    const data = await Promise.race([
+      executeQuery(query, variables || {}, request),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('GraphQL execution timeout')), 25000)
+      )
+    ]);
+    
+    const duration = Date.now() - startTime;
+    console.log(`Query executed successfully in ${duration}ms`);
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('GraphQL API Error:', error);
+    const duration = Date.now() - startTime;
+    console.error(`GraphQL API Error after ${duration}ms:`, error);
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    
+    // Return timeout-specific error for 504 issues
+    if (error instanceof Error && error.message.includes('timeout')) {
+      return NextResponse.json(
+        { 
+          error: 'Request timeout',
+          details: process.env.NODE_ENV === 'development' ? error.message : 'GraphQL query timed out'
+        },
+        { status: 504 }
+      );
+    }
+    
     return NextResponse.json(
       { 
         error: 'Internal server error',
