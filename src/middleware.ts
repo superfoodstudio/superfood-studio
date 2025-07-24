@@ -2,6 +2,32 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { PrivyClient } from '@privy-io/server-auth';
 
+// Helper function to safely fetch and parse JSON from API routes
+async function safeFetchJson(url: string, options: RequestInit = {}) {
+  try {
+    console.log('Fetching from:', url);
+    const response = await fetch(url, options);
+    
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    if (!response.ok) {
+      const responseText = await response.text();
+      console.log('Error response body:', responseText.substring(0, 200));
+      return { success: false, status: response.status, error: responseText };
+    }
+
+    const responseText = await response.text();
+    console.log('Response body (first 200 chars):', responseText.substring(0, 200));
+    
+    const data = JSON.parse(responseText);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
 // Import prisma conditionally to prevent browser bundling issues
 let prisma: any;
 if (typeof window === 'undefined') {
@@ -14,8 +40,11 @@ if (typeof window === 'undefined') {
 export async function middleware(request: NextRequest) {
   console.log('Middleware called for path:', request.nextUrl.pathname);
   
-  // Skip middleware for API routes to prevent interference
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  // Skip middleware for specific API routes to prevent circular dependencies
+  if (request.nextUrl.pathname.startsWith('/api/user/role') || 
+      request.nextUrl.pathname.startsWith('/api/subscription') ||
+      request.nextUrl.pathname.startsWith('/api/auth/') ||
+      request.nextUrl.pathname.startsWith('/api/webhooks/')) {
     return NextResponse.next();
   }
   
@@ -49,13 +78,19 @@ export async function middleware(request: NextRequest) {
 
       // Check if user exists and has admin role using edge function
       // Since Prisma might not be available, we'll use the user role API instead
-      const roleResponse = await fetch(`${request.nextUrl.origin}/api/user/role`, {
+      const roleResult = await safeFetchJson(`${request.nextUrl.origin}/api/user/role`, {
         headers: {
           'Authorization': `Bearer ${authToken}`
         }
       });
       
-      const roleData = await roleResponse.json();
+      if (!roleResult.success) {
+        console.log('Failed to fetch user role for admin access:', roleResult.error);
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      const roleData = roleResult.data;
+      
       console.log('Admin access: User role =', roleData.role);
       
       if (roleData.role !== 'ADMIN') {
@@ -97,13 +132,19 @@ export async function middleware(request: NextRequest) {
       }
       
       // Check user role using API instead of Prisma directly
-      const roleResponse = await fetch(`${request.nextUrl.origin}/api/user/role`, {
+      const roleResult = await safeFetchJson(`${request.nextUrl.origin}/api/user/role`, {
         headers: {
           'Authorization': `Bearer ${authToken}`
         }
       });
       
-      const roleData = await roleResponse.json();
+      if (!roleResult.success) {
+        console.log('Failed to fetch user role:', roleResult.error);
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      const roleData = roleResult.data;
+      
       console.log('Subscriber content: User role =', roleData.role);
       
       // Admin always has access
@@ -115,13 +156,20 @@ export async function middleware(request: NextRequest) {
       // For subscribers, check active subscription status
       if (roleData.role === 'SUBSCRIBER') {
         try {
-          const subscriptionResponse = await fetch(`${request.nextUrl.origin}/api/subscription`, {
+          const subscriptionResult = await safeFetchJson(`${request.nextUrl.origin}/api/subscription`, {
             headers: {
               'Authorization': `Bearer ${authToken}`
             }
           });
           
-          const subscriptionData = await subscriptionResponse.json();
+          if (!subscriptionResult.success) {
+            console.log('Failed to fetch subscription data:', subscriptionResult.error);
+            console.log('Access denied - redirecting to subscription page');
+            return NextResponse.redirect(new URL('/subscription', request.url));
+          }
+
+          const subscriptionData = subscriptionResult.data;
+          
           console.log('Subscription data:', subscriptionData);
           
           // Check if subscription exists and is active
