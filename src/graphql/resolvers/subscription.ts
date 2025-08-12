@@ -11,8 +11,10 @@ export const subscriptionResolvers = {
     createSetupIntent: async (_parent: any, _args: any, context: any) => {
       try {
         console.log('CreateSetupIntent called with context keys:', Object.keys(context));
-        const { user } = context;
-        console.log('User from context:', JSON.stringify(user, null, 2));
+        
+        // Get full user data including ID and email
+        const user = await context.getFullUser();
+        console.log('Full user from context:', JSON.stringify(user, null, 2));
         
         if (!user?.isAuthenticated || !user?.id) {
           console.log('Authentication failed:', { isAuthenticated: user?.isAuthenticated, id: user?.id });
@@ -69,7 +71,7 @@ export const subscriptionResolvers = {
     // Get user's current subscription
     userSubscription: async (_parent: any, _args: any, context: any) => {
       try {
-        const { user } = context;
+        const user = await context.getFullUser();
         if (!user?.isAuthenticated || !user?.id) {
           return null;
         }
@@ -109,7 +111,7 @@ export const subscriptionResolvers = {
     // Get user's payment methods
     userPaymentMethods: async (_parent: any, _args: any, context: any) => {
       try {
-        const { user } = context;
+        const user = await context.getFullUser();
         if (!user?.isAuthenticated || !user?.id) {
           return [];
         }
@@ -149,11 +151,8 @@ export const subscriptionResolvers = {
     createSubscription: async (_parent: any, args: { input: { priceId: string; paymentMethodId: string } }, context: any) => {
       try {
         console.log('CreateSubscription called with context keys:', Object.keys(context));
-        const { user } = context;
-        console.log('User from context:', JSON.stringify(user, null, 2));
-        console.log('User isAuthenticated:', user?.isAuthenticated);
-        console.log('User id:', user?.id);
-        console.log('User email:', user?.email);
+        const user = await context.getFullUser();
+        console.log('Full user from context:', JSON.stringify(user, null, 2));
         
         if (!user?.isAuthenticated || !user?.id) {
           console.log('Authentication failed:', { 
@@ -271,7 +270,7 @@ export const subscriptionResolvers = {
     // Update subscription (change plan)
     updateSubscription: async (_parent: any, args: { input: { priceId: string } }, context: any) => {
       try {
-        const { user } = context;
+        const user = await context.getFullUser();
         if (!user?.isAuthenticated || !user?.id) {
           throw new Error('User must be authenticated');
         }
@@ -341,7 +340,7 @@ export const subscriptionResolvers = {
     // Cancel subscription
     cancelSubscription: async (_parent: any, _args: any, context: any) => {
       try {
-        const { user } = context;
+        const user = await context.getFullUser();
         if (!user?.isAuthenticated || !user?.id) {
           throw new Error('User must be authenticated');
         }
@@ -393,7 +392,7 @@ export const subscriptionResolvers = {
     // Reactivate subscription (turn auto-renewal back on)
     reactivateSubscription: async (_parent: any, _args: any, context: any) => {
       try {
-        const { user } = context;
+        const user = await context.getFullUser();
         if (!user?.isAuthenticated || !user?.id) {
           throw new Error('User must be authenticated');
         }

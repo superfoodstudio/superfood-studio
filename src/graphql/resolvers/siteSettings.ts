@@ -1,4 +1,5 @@
 import { GraphQLContext } from '../context';
+import { withRetry } from '@/lib/db-utils';
 
 interface UpdateSiteSettingsInput {
   homepageVideoUrl?: string;
@@ -15,16 +16,18 @@ export const siteSettingsResolvers = {
         throw new Error('Prisma client not available in context');
       }
       
-      // Get or create the first (and only) site settings record
-      let settings = await context.prisma.siteSettings.findFirst();
-      
-      if (!settings) {
-        settings = await context.prisma.siteSettings.create({
-          data: {}
-        });
-      }
-      
-      return settings;
+      // Get or create the first (and only) site settings record with retry
+      return await withRetry(async () => {
+        let settings = await context.prisma.siteSettings.findFirst();
+        
+        if (!settings) {
+          settings = await context.prisma.siteSettings.create({
+            data: {}
+          });
+        }
+        
+        return settings;
+      }, { maxRetries: 2, delay: 1000 });
     },
   },
 
