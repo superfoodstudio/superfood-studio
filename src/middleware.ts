@@ -1,6 +1,24 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getUserFromPrivyToken } from '@/lib/auth-utils';
+
+async function verifyAuthToken(token: string, origin: string) {
+  try {
+    const response = await fetch(`${origin}/api/auth/verify-middleware`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+    
+    if (!response.ok) {
+      return { isAuthenticated: false };
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Auth verification error:', error);
+    return { isAuthenticated: false };
+  }
+}
 
 export async function middleware(request: NextRequest) {
   console.log('Middleware called for path:', request.nextUrl.pathname);
@@ -9,7 +27,8 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/user/role') || 
       request.nextUrl.pathname.startsWith('/api/subscription') ||
       request.nextUrl.pathname.startsWith('/api/auth/') ||
-      request.nextUrl.pathname.startsWith('/api/webhooks/')) {
+      request.nextUrl.pathname.startsWith('/api/webhooks/') ||
+      request.nextUrl.pathname.startsWith('/api/debug/')) {
     return NextResponse.next();
   }
   
@@ -24,15 +43,16 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      // Use optimized auth function
-      const user = await getUserFromPrivyToken(authToken);
+      // Use API endpoint for auth verification
+      const user = await verifyAuthToken(authToken, request.nextUrl.origin);
+      console.log('Admin middleware - user data:', user);
       
       if (!user.isAuthenticated || user.role !== 'ADMIN') {
-        console.log('Admin access denied, user role:', user.role);
+        console.log('Admin access denied, user role:', user.role, 'authenticated:', user.isAuthenticated);
         return NextResponse.redirect(new URL('/', request.url));
       }
 
-      console.log('Admin access granted');
+      console.log('Admin access granted to user:', user.email);
       return NextResponse.next();
     } catch (error) {
       console.error('Admin middleware error:', error);
@@ -49,8 +69,8 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      // Use optimized auth function
-      const user = await getUserFromPrivyToken(authToken);
+      // Use API endpoint for auth verification
+      const user = await verifyAuthToken(authToken, request.nextUrl.origin);
       
       if (!user.isAuthenticated) {
         console.log('Subscriber content: Not authenticated');

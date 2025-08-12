@@ -113,7 +113,7 @@ export function Navigation() {
               variant="featured-2"
               attributes={{
                 style: {
-                  fontFamily: 'var(--font-big-caslon)',
+                  fontFamily: 'var(--font-header-logo)',
                   color: 'black',
                   textAlign: 'center'
                 }

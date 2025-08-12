@@ -37,11 +37,24 @@ export async function getUserFromPrivyToken(token: string): Promise<UserContext>
       return { isAuthenticated: false };
     }
 
-    // Only hit DB if we need role information
-    const dbUser = await prisma.user.findUnique({
-      where: { email: userDetails.email.address },
-      select: { id: true, email: true, role: true } // Only select what we need
-    });
+    // Only hit DB if we need role information - with proper error handling
+    let dbUser = null;
+    try {
+      // Ensure we're in a server environment
+      if (typeof window === 'undefined') {
+        const { prisma } = await import('@/lib/prisma');
+        dbUser = await prisma.user.findUnique({
+          where: { email: userDetails.email.address },
+          select: { id: true, email: true, role: true }
+        });
+      } else {
+        console.warn('Prisma client accessed in browser environment');
+        return { isAuthenticated: false };
+      }
+    } catch (dbError) {
+      console.error('Database error in auth:', dbError);
+      return { isAuthenticated: false };
+    }
 
     const user: UserContext = dbUser ? {
       id: dbUser.id,

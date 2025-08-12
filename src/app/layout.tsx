@@ -17,6 +17,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link 
+          rel="preload" 
+          href="/Midruns-Font-Duo/Web Fonts/midruns_-_script-webfont.woff2" 
+          as="font" 
+          type="font/woff2" 
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <RootLayoutClient>{children}</RootLayoutClient>
       </body>

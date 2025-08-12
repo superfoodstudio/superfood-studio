@@ -1,3 +1,13 @@
+/* Local font declarations */
+@font-face {
+  font-family: 'Midruns Script';
+  src: url('/Midruns-Font-Duo/Web Fonts/midruns_-_script-webfont.woff2') format('woff2'),
+       url('/Midruns-Font-Duo/Web Fonts/midruns_-_script-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap');
@@ -9,6 +19,7 @@
   --font-big-caslon: 'Big Caslon', serif;
   --font-oswald: 'Oswald', sans-serif;
   --font-carrois-gothic: 'Carrois Gothic SC', sans-serif;
+  --font-header-logo: 'Midruns Script', serif;
 }
 
 /* Minimal styling without Tailwind */
