@@ -16,16 +16,24 @@ const RecipeCardFragment = `
 `;
 
 export const RecipeListQuery = graphql`
-  query RecipeQueriesRecipeListQuery($category: String, $limit: Int, $offset: Int) {
-    publicRecipes(category: $category, limit: $limit, offset: $offset) {
-      id
-      name
-      slug
-      description
-      category
-      mediaUrl
-      previewImageUrl
-      uploadDate
+  query RecipeQueriesRecipeListQuery($category: String, $first: Int, $after: String) {
+    publicRecipes(category: $category, first: $first, after: $after) {
+      edges {
+        node {
+          id
+          name
+          slug
+          description
+          category
+          mediaUrl
+          previewImageUrl
+          uploadDate
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
@@ -60,14 +68,22 @@ export const RecipeDetailFragment = graphql`
     createdAt
     averageRating
     totalRatings
-    ratings {
-      id
-      rating
-      createdAt
-      user {
-        id
-        firstName
-        lastName
+    ratings(first: 10) {
+      edges {
+        node {
+          id
+          rating
+          createdAt
+          user {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }

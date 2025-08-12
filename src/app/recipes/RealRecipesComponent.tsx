@@ -23,7 +23,7 @@ const RecipeList = ({ queryRef }: { queryRef: any }) => {
     );
     
     // Handle case where data is missing
-    if (!data.publicRecipes || data.publicRecipes.length === 0) {
+    if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
       return (
         <View padding={4}>
           <Text>No recipes found</Text>
@@ -34,7 +34,7 @@ const RecipeList = ({ queryRef }: { queryRef: any }) => {
     return (
       <View padding={4}>
         <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
-          {data.publicRecipes.map((recipe: any) => (
+          {data.publicRecipes.edges.map(({ node: recipe }: any) => (
             recipe && <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </Grid>
@@ -54,9 +54,8 @@ export default function RealRecipesComponent() {
     try {
       loadQuery({ 
         category: null,
-        status: "published",
-        search: null,
-        sort: "newest"
+        first: 12,
+        after: null
       });
     } catch (error) {
       console.error("Error loading recipes:", error);

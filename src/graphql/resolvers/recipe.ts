@@ -1,18 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 import { GraphQLContext } from '../context';
 import { generateSlug } from '@/lib/utils';
+import { paginateQuery, CursorPaginationArgs } from '@/lib/pagination';
 
-interface RecipeFilters {
+interface RecipeFilters extends CursorPaginationArgs {
   category?: string;
   status?: 'live' | 'not-live' | 'all';
   search?: string;
   sort?: 'a-z' | 'z-a' | 'oldest' | 'newest';
 }
 
-interface PublicRecipeFilters {
+interface PublicRecipeFilters extends CursorPaginationArgs {
   category?: string;
-  limit?: number;
-  offset?: number;
 }
 
 // Define our own types for Prisma queries
@@ -57,22 +56,34 @@ interface RecipeUpdateInput {
 
 export const recipeResolvers = {
   Recipe: {
-    // Resolver for the ratings field
-    ratings: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
-      return prisma.recipeRating.findMany({
-        where: { recipeId: parent.id },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true
-            }
+    // Resolver for the ratings field with pagination
+    ratings: async (parent: any, args: CursorPaginationArgs, { prisma }: GraphQLContext) => {
+      return paginateQuery(
+        {
+          findMany: async (queryOptions: any) => {
+            return prisma.recipeRating.findMany({
+              ...queryOptions,
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true
+                  }
+                }
+              }
+            });
           }
         },
-        orderBy: { createdAt: 'desc' }
-      });
+        args,
+        { recipeId: parent.id },
+        {
+          cursorField: 'createdAt',
+          defaultLimit: 10,
+          maxLimit: 100
+        }
+      );
     },
 
     // Resolver for the averageRating field
@@ -100,26 +111,11 @@ export const recipeResolvers = {
 
   Query: {
     recipes: async (_parent: unknown, args: RecipeFilters, { prisma }: GraphQLContext) => {
-      const { category, status, search, sort } = args;
+      const { category, status, search, sort, ...paginationArgs } = args;
 
-      let orderBy: RecipeOrderByWithRelationInput = {};
-      switch (sort) {
-        case 'a-z':
-          orderBy = { name: 'asc' };
-          break;
-        case 'z-a':
-          orderBy = { name: 'desc' };
-          break;
-        case 'oldest':
-          orderBy = { uploadDate: 'asc' };
-          break;
-        default:
-          orderBy = { uploadDate: 'desc' };
-      }
-
-      const where: RecipeWhereInput = {
+      const baseWhere: RecipeWhereInput = {
         ...(category ? { category } : {}),
-        ...(status && status !== 'all' ? { status } : {}),
+        ...(status && status !== 'all' ? { isPublished: status === 'live' } : {}),
         ...(search
           ? {
               OR: [
@@ -130,10 +126,57 @@ export const recipeResolvers = {
           : {}),
       };
 
-      return prisma.recipe.findMany({
-        where,
-        orderBy,
-      });
+      // Determine cursor field based on sort
+      let cursorField = 'uploadDate';
+      if (sort === 'a-z' || sort === 'z-a') {
+        cursorField = 'name';
+      }
+
+      return paginateQuery(
+        prisma.recipe,
+        paginationArgs,
+        baseWhere,
+        {
+          cursorField,
+          defaultLimit: 20,
+          maxLimit: 100
+        }
+      );
+    },
+
+    // Alias for recipes connection (for admin compatibility)
+    recipesConnection: async (_parent: unknown, args: RecipeFilters, { prisma }: GraphQLContext) => {
+      const { category, status, search, sort, ...paginationArgs } = args;
+
+      const baseWhere: RecipeWhereInput = {
+        ...(category ? { category } : {}),
+        ...(status && status !== 'all' ? { isPublished: status === 'live' } : {}),
+        ...(search
+          ? {
+              OR: [
+                { name: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
+      };
+
+      // Determine cursor field based on sort
+      let cursorField = 'uploadDate';
+      if (sort === 'a-z' || sort === 'z-a') {
+        cursorField = 'name';
+      }
+
+      return paginateQuery(
+        prisma.recipe,
+        paginationArgs,
+        baseWhere,
+        {
+          cursorField,
+          defaultLimit: 20,
+          maxLimit: 100
+        }
+      );
     },
 
     recipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
@@ -149,20 +192,24 @@ export const recipeResolvers = {
     },
     
     publicRecipes: async (_parent: unknown, args: PublicRecipeFilters, { prisma, user }: GraphQLContext) => {
-      const { category, limit = 10, offset = 0 } = args;
+      const { category, ...paginationArgs } = args;
       
       // For public recipes, we only show published recipes
-      const where: RecipeWhereInput = {
+      const baseWhere = {
         isPublished: true,
         ...(category ? { category } : {}),
       };
       
-      return prisma.recipe.findMany({
-        where,
-        orderBy: { uploadDate: 'desc' },
-        take: limit,
-        skip: offset,
-      });
+      return paginateQuery(
+        prisma.recipe,
+        paginationArgs,
+        baseWhere,
+        {
+          cursorField: 'uploadDate',
+          defaultLimit: 10,
+          maxLimit: 50
+        }
+      );
     },
 
     // Recipes connection for infinite scrolling

@@ -11,17 +11,21 @@ import { graphql } from 'relay-runtime';
 
 const AdminCommentsQuery = graphql`
   query pageCommentsQuery {
-    recipes(status: "all") {
-      id
-      name
-      slug
-      comments {
-        id
-        content
-        author
-        email
-        isHidden
-        createdAt
+    recipes(first: 100, status: "all") {
+      edges {
+        node {
+          id
+          name
+          slug
+          comments {
+            id
+            content
+            author
+            email
+            isHidden
+            createdAt
+          }
+        }
       }
     }
   }
@@ -71,11 +75,11 @@ function AdminCommentsContent() {
   };
 
   // Get all comments from all recipes
-  const allComments = data.recipes.flatMap(recipe => 
-    recipe.comments.map(comment => ({
+  const allComments = data.recipes.edges.flatMap(edge => 
+    edge.node.comments.map(comment => ({
       ...comment,
-      recipeName: recipe.name,
-      recipeSlug: recipe.slug
+      recipeName: edge.node.name,
+      recipeSlug: edge.node.slug
     }))
   ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 

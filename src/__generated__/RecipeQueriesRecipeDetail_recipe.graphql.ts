@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5973aa492016a5d6a0560bb82893e02f>>
+ * @generated SignedSource<<5ad07acb6301ed1f9a19d939a47dc22c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -20,16 +20,24 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
   readonly instructions: ReadonlyArray<string> | null;
   readonly mediaUrl: string;
   readonly name: string;
-  readonly ratings: ReadonlyArray<{
-    readonly createdAt: any;
-    readonly id: string;
-    readonly rating: number;
-    readonly user: {
-      readonly firstName: string | null;
-      readonly id: string;
-      readonly lastName: string | null;
+  readonly ratings: {
+    readonly edges: ReadonlyArray<{
+      readonly node: {
+        readonly createdAt: any;
+        readonly id: string;
+        readonly rating: number;
+        readonly user: {
+          readonly firstName: string | null;
+          readonly id: string;
+          readonly lastName: string | null;
+        };
+      };
+    }>;
+    readonly pageInfo: {
+      readonly endCursor: string | null;
+      readonly hasNextPage: boolean;
     };
-  }>;
+  };
   readonly slug: string;
   readonly totalRatings: number;
   readonly uploadDate: any;
@@ -135,49 +143,102 @@ return {
     },
     {
       "alias": null,
-      "args": null,
-      "concreteType": "RecipeRating",
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10
+        }
+      ],
+      "concreteType": "RecipeRatingConnection",
       "kind": "LinkedField",
       "name": "ratings",
-      "plural": true,
+      "plural": false,
       "selections": [
-        (v0/*: any*/),
         {
           "alias": null,
           "args": null,
-          "kind": "ScalarField",
-          "name": "rating",
+          "concreteType": "RecipeRatingEdge",
+          "kind": "LinkedField",
+          "name": "edges",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "RecipeRating",
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                (v0/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "rating",
+                  "storageKey": null
+                },
+                (v1/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "User",
+                  "kind": "LinkedField",
+                  "name": "user",
+                  "plural": false,
+                  "selections": [
+                    (v0/*: any*/),
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "firstName",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "lastName",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
           "storageKey": null
         },
-        (v1/*: any*/),
         {
           "alias": null,
           "args": null,
-          "concreteType": "User",
+          "concreteType": "PageInfo",
           "kind": "LinkedField",
-          "name": "user",
+          "name": "pageInfo",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
             {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "firstName",
+              "name": "hasNextPage",
               "storageKey": null
             },
             {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "lastName",
+              "name": "endCursor",
               "storageKey": null
             }
           ],
           "storageKey": null
         }
       ],
-      "storageKey": null
+      "storageKey": "ratings(first:10)"
     }
   ],
   "type": "Recipe",
@@ -185,6 +246,6 @@ return {
 };
 })();
 
-(node as any).hash = "184ad585719ae1404d5d7c7087538fd4";
+(node as any).hash = "a8f9c76fb684791c240e853495afadd3";
 
 export default node;

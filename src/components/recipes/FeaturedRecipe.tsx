@@ -15,8 +15,8 @@ function FeaturedRecipeContent() {
     {}
   );
   
-  // Get the latest recipe (first in the list)
-  const recipe = data.publicRecipes?.[0];
+  // Get the latest recipe (first in the edges)
+  const recipe = data.publicRecipes?.edges?.[0]?.node;
   
   if (!recipe) {
     return null;

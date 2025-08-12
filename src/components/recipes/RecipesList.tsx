@@ -7,15 +7,23 @@ import { View, Text } from 'reshaped';
 import { RecipesListQuery } from '@/__generated__/RecipesListQuery.graphql';
 
 const recipesListQuery = graphql`
-  query RecipesListQuery($category: String) {
-    publicRecipes(category: $category) {
-      id
-      name
-      slug
-      description
-      category
-      mediaUrl
-      uploadDate
+  query RecipesListQuery($category: String, $first: Int) {
+    publicRecipes(category: $category, first: $first) {
+      edges {
+        node {
+          id
+          name
+          slug
+          description
+          category
+          mediaUrl
+          uploadDate
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
 `;
@@ -27,10 +35,10 @@ interface RecipesListProps {
 function RecipesListContent({ category }: RecipesListProps) {
   const data = useLazyLoadQuery<RecipesListQuery>(
     recipesListQuery,
-    { category }
+    { category, first: 20 }
   );
 
-  if (!data.publicRecipes || data.publicRecipes.length === 0) {
+  if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
     return (
       <View padding={4}>
         <Text>No recipes found</Text>
@@ -46,7 +54,7 @@ function RecipesListContent({ category }: RecipesListProps) {
         gap={3}
         wrap
       >
-        {data.publicRecipes.map((recipe) => (
+        {data.publicRecipes.edges.map(({ node: recipe }) => (
           <div 
             key={recipe.id} 
             style={{ 

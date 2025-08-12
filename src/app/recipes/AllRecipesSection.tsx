@@ -94,12 +94,12 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
     RecipeListQuery,
     { 
       category: category || null,
-      limit: 15,
-      offset: 0
+      first: 15,
+      after: null
     }
   );
   
-  if (!data.publicRecipes || data.publicRecipes.length === 0) {
+  if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
     return (
       <View padding={4}>
         <Text align="center">No recipes found</Text>
@@ -108,7 +108,7 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
   }
   
   // Sort recipes if needed (since GraphQL might not handle all sort options)
-  let sortedRecipes = [...data.publicRecipes].filter(Boolean);
+  let sortedRecipes = data.publicRecipes.edges.map(edge => edge.node).filter(Boolean);
   
   switch (sort) {
     case 'a-z':

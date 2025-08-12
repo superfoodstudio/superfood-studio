@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { PrivyClient } from '@privy-io/server-auth';
+import { paginateQuery, CursorPaginationArgs } from '@/lib/pagination';
 
 const privy = new PrivyClient(
   process.env.NEXT_PUBLIC_PRIVY_APP_ID!,
@@ -75,8 +76,8 @@ export const orderResolvers = {
       }
     },
 
-    // Get current user's orders
-    userOrders: async (_parent: any, _args: any, context: any) => {
+    // Get current user's orders with pagination
+    userOrders: async (_parent: any, args: CursorPaginationArgs, context: any) => {
       try {
         console.log('userOrders resolver called');
         console.log('Context user:', context.user);
@@ -89,71 +90,91 @@ export const orderResolvers = {
         }
 
         console.log('Querying orders for userId:', userId);
-        const orders = await prisma.order.findMany({
-          where: {
-            userId: userId,
-          },
-          include: {
-            items: {
-              include: {
-                product: {
-                  select: {
-                    id: true,
-                    name: true,
-                    slug: true,
-                    description: true,
-                    photoUrl: true,
-                    videoUrl: true,
-                    price: true,
-                    category: true,
-                    tags: true,
-                    inventory: true,
-                    isActive: true,
-                    stripeProductId: true,
-                    stripePriceId: true,
-                    createdAt: true,
-                    updatedAt: true,
+        
+        // Use pagination utility with custom query to include relations
+        const paginatedOrders = await paginateQuery(
+          {
+            findMany: async (queryOptions: any) => {
+              return prisma.order.findMany({
+                ...queryOptions,
+                include: {
+                  items: {
+                    include: {
+                      product: {
+                        select: {
+                          id: true,
+                          name: true,
+                          slug: true,
+                          description: true,
+                          photoUrl: true,
+                          videoUrl: true,
+                          price: true,
+                          category: true,
+                          tags: true,
+                          inventory: true,
+                          isActive: true,
+                          stripeProductId: true,
+                          stripePriceId: true,
+                          createdAt: true,
+                          updatedAt: true,
+                        },
+                      },
+                    },
+                  },
+                  user: {
+                    select: {
+                      id: true,
+                      email: true,
+                      firstName: true,
+                      lastName: true,
+                    },
                   },
                 },
-              },
-            },
-            user: {
-              select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
+              });
+            }
           },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        });
+          args,
+          { userId },
+          {
+            cursorField: 'createdAt',
+            defaultLimit: 10,
+            maxLimit: 50
+          }
+        );
 
-        console.log('Found orders:', orders.length);
-        console.log('Orders data:', orders.map(o => ({ id: o.id, userId: o.userId, status: o.status })));
+        console.log('Found orders:', paginatedOrders.edges.length);
+        console.log('Orders data:', paginatedOrders.edges.map(e => ({ id: (e.node as any).id, userId: (e.node as any).userId, status: (e.node as any).status })));
 
-        return orders.map(order => ({
-          id: order.id,
-          userId: order.userId,
-          total: order.total,
-          status: order.status,
-          createdAt: order.createdAt.toISOString(),
-          updatedAt: order.updatedAt.toISOString(),
-          stripeSessionId: order.stripeSessionId,
-          shippingAddress: order.shippingAddress,
-          user: order.user,
-          items: order.items
-            .filter(item => item.product !== null) // Filter out items with deleted products
-            .map(item => ({
-              id: item.id,
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price,
-              product: item.product,
-            })),
-        }));
+        // Transform the paginated result to match expected format
+        return {
+          ...paginatedOrders,
+          edges: paginatedOrders.edges.map(edge => {
+            const order = edge.node as any;
+            return {
+              ...edge,
+              node: {
+                id: order.id,
+                userId: order.userId,
+                total: order.total,
+                status: order.status,
+                createdAt: order.createdAt.toISOString(),
+                updatedAt: order.updatedAt.toISOString(),
+                stripeSessionId: order.stripeSessionId,
+                shippingAddress: order.shippingAddress,
+                user: order.user,
+                items: order.items
+                  .filter((item: any) => item.product !== null) // Filter out items with deleted products
+                  .map((item: any) => ({
+                    id: item.id,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price: item.price,
+                    product: item.product,
+                  })),
+              }
+            };
+          })
+        };
       } catch (error) {
         console.error('Error fetching user orders:', error);
         throw new Error('Failed to fetch orders');

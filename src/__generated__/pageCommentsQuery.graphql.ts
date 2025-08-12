@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9401b731ef5e2f225b0ecbf700bcbb3c>>
+ * @generated SignedSource<<ab5c28c2e0bb74a937b2a958cc4d03e1>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,19 +11,23 @@
 import { ConcreteRequest, Query } from 'relay-runtime';
 export type pageCommentsQuery$variables = {};
 export type pageCommentsQuery$data = {
-  readonly recipes: ReadonlyArray<{
-    readonly comments: ReadonlyArray<{
-      readonly author: string;
-      readonly content: string;
-      readonly createdAt: any;
-      readonly email: string | null;
-      readonly id: string;
-      readonly isHidden: boolean;
+  readonly recipes: {
+    readonly edges: ReadonlyArray<{
+      readonly node: {
+        readonly comments: ReadonlyArray<{
+          readonly author: string;
+          readonly content: string;
+          readonly createdAt: any;
+          readonly email: string | null;
+          readonly id: string;
+          readonly isHidden: boolean;
+        }>;
+        readonly id: string;
+        readonly name: string;
+        readonly slug: string;
+      };
     }>;
-    readonly id: string;
-    readonly name: string;
-    readonly slug: string;
-  }>;
+  };
 };
 export type pageCommentsQuery = {
   response: pageCommentsQuery$data;
@@ -44,79 +48,106 @@ v1 = [
     "args": [
       {
         "kind": "Literal",
+        "name": "first",
+        "value": 100
+      },
+      {
+        "kind": "Literal",
         "name": "status",
         "value": "all"
       }
     ],
-    "concreteType": "Recipe",
+    "concreteType": "RecipeConnection",
     "kind": "LinkedField",
     "name": "recipes",
-    "plural": true,
+    "plural": false,
     "selections": [
-      (v0/*: any*/),
       {
         "alias": null,
         "args": null,
-        "kind": "ScalarField",
-        "name": "name",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "slug",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Comment",
+        "concreteType": "RecipeEdge",
         "kind": "LinkedField",
-        "name": "comments",
+        "name": "edges",
         "plural": true,
         "selections": [
-          (v0/*: any*/),
           {
             "alias": null,
             "args": null,
-            "kind": "ScalarField",
-            "name": "content",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "author",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "email",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "isHidden",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "createdAt",
+            "concreteType": "Recipe",
+            "kind": "LinkedField",
+            "name": "node",
+            "plural": false,
+            "selections": [
+              (v0/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "slug",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "Comment",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": true,
+                "selections": [
+                  (v0/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "content",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "author",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "email",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "isHidden",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "createdAt",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
             "storageKey": null
           }
         ],
         "storageKey": null
       }
     ],
-    "storageKey": "recipes(status:\"all\")"
+    "storageKey": "recipes(first:100,status:\"all\")"
   }
 ];
 return {
@@ -137,16 +168,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "3ca6e18146148403e04145db18c91a9f",
+    "cacheID": "bc7cc6c9e181f2831bf5a58da448a0a5",
     "id": null,
     "metadata": {},
     "name": "pageCommentsQuery",
     "operationKind": "query",
-    "text": "query pageCommentsQuery {\n  recipes(status: \"all\") {\n    id\n    name\n    slug\n    comments {\n      id\n      content\n      author\n      email\n      isHidden\n      createdAt\n    }\n  }\n}\n"
+    "text": "query pageCommentsQuery {\n  recipes(first: 100, status: \"all\") {\n    edges {\n      node {\n        id\n        name\n        slug\n        comments {\n          id\n          content\n          author\n          email\n          isHidden\n          createdAt\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "a59a1a88bae368d567e1a12a69f5bec2";
+(node as any).hash = "5bbdf91417220afaff59fdcf5f97ebbe";
 
 export default node;

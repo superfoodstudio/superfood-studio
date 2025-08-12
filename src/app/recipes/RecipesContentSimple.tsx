@@ -13,12 +13,12 @@ function RecipeListContent() {
     RecipeListQuery,
     { 
       category: null,
-      limit: 12,
-      offset: 0
+      first: 12,
+      after: null
     }
   );
   
-  if (!data.publicRecipes || data.publicRecipes.length === 0) {
+  if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
     return (
       <View padding={4}>
         <Text align="center">No recipes found</Text>
@@ -29,7 +29,7 @@ function RecipeListContent() {
   return (
     <View padding={4}>
       <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
-        {data.publicRecipes.map((recipe) => (
+        {data.publicRecipes.edges.map(({ node: recipe }) => (
           recipe && <RecipeCard key={recipe.id} recipe={recipe} />
         ))}
       </Grid>

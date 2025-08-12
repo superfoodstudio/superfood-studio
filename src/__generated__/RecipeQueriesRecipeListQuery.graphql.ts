@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f5784e26755008b8bb87c209ab4c2f82>>
+ * @generated SignedSource<<0ad6e59780c79a3ddc8595d7834f9b3f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,21 +10,29 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 export type RecipeQueriesRecipeListQuery$variables = {
+  after?: string | null;
   category?: string | null;
-  limit?: number | null;
-  offset?: number | null;
+  first?: number | null;
 };
 export type RecipeQueriesRecipeListQuery$data = {
-  readonly publicRecipes: ReadonlyArray<{
-    readonly category: string;
-    readonly description: string;
-    readonly id: string;
-    readonly mediaUrl: string;
-    readonly name: string;
-    readonly previewImageUrl: string | null;
-    readonly slug: string;
-    readonly uploadDate: any;
-  }>;
+  readonly publicRecipes: {
+    readonly edges: ReadonlyArray<{
+      readonly node: {
+        readonly category: string;
+        readonly description: string;
+        readonly id: string;
+        readonly mediaUrl: string;
+        readonly name: string;
+        readonly previewImageUrl: string | null;
+        readonly slug: string;
+        readonly uploadDate: any;
+      };
+    }>;
+    readonly pageInfo: {
+      readonly endCursor: string | null;
+      readonly hasNextPage: boolean;
+    };
+  };
 };
 export type RecipeQueriesRecipeListQuery = {
   response: RecipeQueriesRecipeListQuery$data;
@@ -32,27 +40,30 @@ export type RecipeQueriesRecipeListQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "category"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "limit"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "offset"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "after"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "category"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "first"
+},
+v3 = [
   {
     "alias": null,
     "args": [
+      {
+        "kind": "Variable",
+        "name": "after",
+        "variableName": "after"
+      },
       {
         "kind": "Variable",
         "name": "category",
@@ -60,74 +71,116 @@ v1 = [
       },
       {
         "kind": "Variable",
-        "name": "limit",
-        "variableName": "limit"
-      },
-      {
-        "kind": "Variable",
-        "name": "offset",
-        "variableName": "offset"
+        "name": "first",
+        "variableName": "first"
       }
     ],
-    "concreteType": "Recipe",
+    "concreteType": "RecipeConnection",
     "kind": "LinkedField",
     "name": "publicRecipes",
-    "plural": true,
+    "plural": false,
     "selections": [
       {
         "alias": null,
         "args": null,
-        "kind": "ScalarField",
-        "name": "id",
+        "concreteType": "RecipeEdge",
+        "kind": "LinkedField",
+        "name": "edges",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Recipe",
+            "kind": "LinkedField",
+            "name": "node",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "slug",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "category",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "mediaUrl",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "previewImageUrl",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "uploadDate",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
         "storageKey": null
       },
       {
         "alias": null,
         "args": null,
-        "kind": "ScalarField",
-        "name": "name",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "slug",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "description",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "category",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "mediaUrl",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "previewImageUrl",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "uploadDate",
+        "concreteType": "PageInfo",
+        "kind": "LinkedField",
+        "name": "pageInfo",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "hasNextPage",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "endCursor",
+            "storageKey": null
+          }
+        ],
         "storageKey": null
       }
     ],
@@ -136,32 +189,40 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "RecipeQueriesRecipeListQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v3/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v1/*: any*/),
+      (v2/*: any*/),
+      (v0/*: any*/)
+    ],
     "kind": "Operation",
     "name": "RecipeQueriesRecipeListQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "eecf5ab493922153aa21a65fa65d6765",
+    "cacheID": "a92e5020c2612618d0fc2effea2a1035",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeListQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeListQuery(\n  $category: String\n  $limit: Int\n  $offset: Int\n) {\n  publicRecipes(category: $category, limit: $limit, offset: $offset) {\n    id\n    name\n    slug\n    description\n    category\n    mediaUrl\n    previewImageUrl\n    uploadDate\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeListQuery(\n  $category: String\n  $first: Int\n  $after: String\n) {\n  publicRecipes(category: $category, first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        previewImageUrl\n        uploadDate\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "697813b019cf97e9898b9ed0a05ee3a3";
+(node as any).hash = "797b068a4fd24a8ce48322b315c2fcd4";
 
 export default node;

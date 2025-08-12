@@ -174,6 +174,17 @@ type PageInfo {
   endCursor: String
 }
 
+# Order connections
+type OrderEdge {
+  cursor: String!
+  node: Order!
+}
+
+type OrderConnection {
+  edges: [OrderEdge!]!
+  pageInfo: PageInfo!
+}
+
 # Cart schema
 type CartItem {
   id: ID!
@@ -307,17 +318,21 @@ type AdminOrderConnection {
 }
 
 type Query {
-  # Recipe queries
+  # Recipe queries with cursor pagination
   recipes(
+    first: Int
+    after: String
+    last: Int
+    before: String
     category: String
     status: String
     search: String
     sort: String
-  ): [Recipe!]!
+  ): RecipeConnection!
   recipe(id: ID!): Recipe
   recipeBySlug(slug: String!): Recipe
   
-  # Recipe connection (paginated)
+  # Recipe connection (alias for compatibility)
   recipesConnection(
     first: Int
     after: String
@@ -327,17 +342,12 @@ type Query {
     sort: String
   ): RecipeConnection!
   
-  # Public Recipe queries
+  # Public Recipe queries with cursor pagination
   publicRecipes(
-    category: String
-    limit: Int
-    offset: Int
-  ): [Recipe!]!
-  
-  # Public Recipe connection (paginated)
-  publicRecipesConnection(
     first: Int
     after: String
+    last: Int
+    before: String
     category: String
   ): RecipeConnection!
 
@@ -380,7 +390,12 @@ type Query {
   
   # User/Order queries
   currentUser: User
-  userOrders: [Order!]!
+  userOrders(
+    first: Int
+    after: String
+    last: Int
+    before: String
+  ): OrderConnection!
   userOrder(orderId: String!): Order
   orderByPaymentIntent(paymentIntentId: String!): Order
   

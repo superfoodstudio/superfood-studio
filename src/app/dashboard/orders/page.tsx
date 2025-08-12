@@ -73,7 +73,7 @@ function OrdersContent() {
             ORDER HISTORY
           </Text>
 
-          {!data.userOrders || data.userOrders.length === 0 ? (
+          {!data.userOrders || data.userOrders.edges.length === 0 ? (
             <View direction="column" align="center" gap={4}>
               <Text 
                 attributes={{ 
@@ -122,7 +122,7 @@ function OrdersContent() {
             </View>
           ) : (
             <View direction="column">
-              {data.userOrders.map((order, index) => (
+              {data.userOrders.edges.map(({ node: order }, index) => (
                 <View key={order.id}>
                   {/* Order Row */}
                   <View 
@@ -132,7 +132,7 @@ function OrdersContent() {
                       style: { 
                         height: '50px',
                         padding: '15px 0',
-                        borderBottom: index < data.userOrders!.length - 1 ? '1px solid #e0ddd8' : 'none',
+                        borderBottom: index < data.userOrders!.edges.length - 1 ? '1px solid #e0ddd8' : 'none',
                         alignItems: 'center'
                       } 
                     }}
