@@ -34,6 +34,9 @@ function RecipeDetailLazy({ slug }: { slug: string }) {
   return <RecipeNotFound />;
 }
 
+// Force dynamic rendering to avoid static generation issues on Vercel
+export const dynamic = 'force-dynamic';
+
 export default function RecipeDetailPage() {
   const params = useParams();
   const recipeSlug = params.slug as string;

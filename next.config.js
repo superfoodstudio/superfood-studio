@@ -13,7 +13,8 @@ const nextConfig = {
     ],
   },
   // Vercel deployment configuration  
-  output: 'standalone'
+  output: 'standalone',
+  outputFileTracing: false
 };
 
 module.exports = nextConfig; 
