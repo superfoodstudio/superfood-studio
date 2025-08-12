@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9460a3cb0a245fedbde7a7fbfa078fbf>>
+ * @generated SignedSource<<2a3fcf081fab4591987ff2231b91ca32>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -167,102 +167,49 @@ return {
           },
           {
             "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "first",
-                "value": 10
-              }
-            ],
-            "concreteType": "RecipeRatingConnection",
+            "args": null,
+            "concreteType": "RecipeRating",
             "kind": "LinkedField",
             "name": "ratings",
-            "plural": false,
+            "plural": true,
             "selections": [
+              (v2/*: any*/),
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "RecipeRatingEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "RecipeRating",
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      (v2/*: any*/),
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "rating",
-                        "storageKey": null
-                      },
-                      (v3/*: any*/),
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "User",
-                        "kind": "LinkedField",
-                        "name": "user",
-                        "plural": false,
-                        "selections": [
-                          (v2/*: any*/),
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "firstName",
-                            "storageKey": null
-                          },
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "lastName",
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
+                "kind": "ScalarField",
+                "name": "rating",
                 "storageKey": null
               },
+              (v3/*: any*/),
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "PageInfo",
+                "concreteType": "User",
                 "kind": "LinkedField",
-                "name": "pageInfo",
+                "name": "user",
                 "plural": false,
                 "selections": [
+                  (v2/*: any*/),
                   {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "hasNextPage",
+                    "name": "firstName",
                     "storageKey": null
                   },
                   {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "endCursor",
+                    "name": "lastName",
                     "storageKey": null
                   }
                 ],
                 "storageKey": null
               }
             ],
-            "storageKey": "ratings(first:10)"
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -270,12 +217,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e93eb2a1b5cdaea31e285b19fa65855b",
+    "cacheID": "54a7bae4601fba65bded72592b58c823",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeDetailQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings(first: 10) {\n    edges {\n      node {\n        id\n        rating\n        createdAt\n        user {\n          id\n          firstName\n          lastName\n        }\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
   }
 };
 })();

@@ -40,16 +40,28 @@ export interface PaginationConfig {
 export function createCursor(record: any, field = 'id'): string {
   const value = record[field];
   if (!value) throw new Error(`Record missing cursor field: ${field}`);
-  return Buffer.from(`${field}:${value}`).toString('base64');
+  
+  // Convert dates to ISO strings for consistent cursor format
+  const serializedValue = value instanceof Date ? value.toISOString() : value;
+  
+  return Buffer.from(`${field}:${serializedValue}`).toString('base64');
 }
 
 /**
  * Parses a cursor to extract field and value
  */
-export function parseCursor(cursor: string): { field: string; value: string } {
+export function parseCursor(cursor: string): { field: string; value: any } {
   try {
     const decoded = Buffer.from(cursor, 'base64').toString();
-    const [field, value] = decoded.split(':');
+    const [field, ...valueParts] = decoded.split(':');
+    const value = valueParts.join(':'); // Handle values that might contain colons
+    
+    // Try to parse as date for common date fields
+    if (field === 'uploadDate' || field === 'createdAt' || field === 'updatedAt') {
+      const dateValue = new Date(value);
+      return { field, value: dateValue };
+    }
+    
     return { field, value };
   } catch (error) {
     throw new Error('Invalid cursor format');

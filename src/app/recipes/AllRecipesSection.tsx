@@ -2,11 +2,12 @@
 
 import { Suspense, useState } from 'react';
 import { View, Text, Grid, Select, Button } from 'reshaped';
-import { useLazyLoadQuery } from 'react-relay';
-import { RecipeListQuery } from '@/graphql/queries/RecipeQueries';
-import type { RecipeQueriesRecipeListQuery } from '@/__generated__/RecipeQueriesRecipeListQuery.graphql';
+import { useLazyLoadQuery, usePaginationFragment, graphql } from 'react-relay';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { RecipeCard } from '@/components/recipes/RecipeCard';
+import { LoadMore } from '@/components/ui/LoadMore';
+import type { RecipeQueriesRecipeListQuery } from '@/__generated__/RecipeQueriesRecipeListQuery.graphql';
+import type { AllRecipesSectionPaginationFragment$key } from '@/__generated__/AllRecipesSectionPaginationFragment.graphql';
 
 const categories = [
   { value: '', label: 'all' },
@@ -89,14 +90,49 @@ function RecipeFilters({ selectedCategory, selectedSort, onCategoryChange, onSor
   );
 }
 
+const allRecipesSectionQuery = graphql`
+  query AllRecipesSectionQuery($category: String, $first: Int!, $after: String) {
+    ...AllRecipesSectionPaginationFragment
+  }
+`;
+
+const allRecipesSectionPaginationFragment = graphql`
+  fragment AllRecipesSectionPaginationFragment on Query
+  @refetchable(queryName: "AllRecipesSectionPaginationQuery") {
+    publicRecipes(category: $category, first: $first, after: $after)
+    @connection(key: "AllRecipesSection_publicRecipes") {
+      edges {
+        node {
+          id
+          name
+          slug
+          description
+          category
+          mediaUrl
+          previewImageUrl
+          uploadDate
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;
+
 function RecipeGridContent({ category, sort }: { category: string; sort: string }) {
-  const data = useLazyLoadQuery<RecipeQueriesRecipeListQuery>(
-    RecipeListQuery,
+  const queryData = useLazyLoadQuery<any>(
+    allRecipesSectionQuery,
     { 
       category: category || null,
-      first: 15,
-      after: null
+      first: 12
     }
+  );
+
+  const { data, loadNext, hasNext, isLoadingNext } = usePaginationFragment(
+    allRecipesSectionPaginationFragment, 
+    queryData
   );
   
   if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
@@ -108,30 +144,41 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
   }
   
   // Sort recipes if needed (since GraphQL might not handle all sort options)
-  let sortedRecipes = data.publicRecipes.edges.map(edge => edge.node).filter(Boolean);
+  let sortedRecipes = data.publicRecipes.edges.map((edge: any) => edge.node).filter(Boolean);
   
   switch (sort) {
     case 'a-z':
-      sortedRecipes.sort((a, b) => a.name.localeCompare(b.name));
+      sortedRecipes.sort((a: any, b: any) => a.name.localeCompare(b.name));
       break;
     case 'z-a':
-      sortedRecipes.sort((a, b) => b.name.localeCompare(a.name));
+      sortedRecipes.sort((a: any, b: any) => b.name.localeCompare(a.name));
       break;
     case 'oldest':
-      sortedRecipes.sort((a, b) => new Date(a.uploadDate).getTime() - new Date(b.uploadDate).getTime());
+      sortedRecipes.sort((a: any, b: any) => new Date(a.uploadDate).getTime() - new Date(b.uploadDate).getTime());
       break;
     case 'newest':
     default:
-      sortedRecipes.sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
+      sortedRecipes.sort((a: any, b: any) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
       break;
   }
+
+  const handleLoadMore = () => {
+    loadNext(12);
+  };
   
   return (
-    <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
-      {sortedRecipes.map((recipe) => (
-        <RecipeCard key={recipe.id} recipe={recipe} />
-      ))}
-    </Grid>
+    <View direction="column" gap={4}>
+      <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
+        {sortedRecipes.map((recipe: any) => (
+          <RecipeCard key={recipe.id} recipe={recipe} />
+        ))}
+      </Grid>
+      <LoadMore
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        onLoadMore={handleLoadMore}
+      />
+    </View>
   );
 }
 

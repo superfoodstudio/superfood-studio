@@ -19,12 +19,7 @@ type Recipe {
   ingredients: [String!]
   instructions: [String!]
   comments: [Comment!]!
-  ratings(
-    first: Int
-    after: String
-    last: Int
-    before: String
-  ): RecipeRatingConnection!
+  ratings: [RecipeRating!]!
   averageRating: Float
   totalRatings: Int!
 }

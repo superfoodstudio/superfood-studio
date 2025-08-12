@@ -1,14 +1,24 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { graphql, useLazyLoadQuery } from 'react-relay';
+import { graphql, useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { RecipeCard } from './RecipeCard';
 import { View, Text } from 'reshaped';
+import { LoadMore } from '@/components/ui/LoadMore';
 import { RecipesListQuery } from '@/__generated__/RecipesListQuery.graphql';
+import type { RecipesListPaginationFragment$key } from '@/__generated__/RecipesListPaginationFragment.graphql';
 
 const recipesListQuery = graphql`
-  query RecipesListQuery($category: String, $first: Int) {
-    publicRecipes(category: $category, first: $first) {
+  query RecipesListQuery($category: String, $first: Int!, $after: String) {
+    ...RecipesListPaginationFragment
+  }
+`;
+
+const recipesListPaginationFragment = graphql`
+  fragment RecipesListPaginationFragment on Query
+  @refetchable(queryName: "RecipesListPaginationQuery") {
+    publicRecipes(category: $category, first: $first, after: $after)
+    @connection(key: "RecipesList_publicRecipes") {
       edges {
         node {
           id
@@ -33,10 +43,15 @@ interface RecipesListProps {
 }
 
 function RecipesListContent({ category }: RecipesListProps) {
-  const data = useLazyLoadQuery<RecipesListQuery>(
+  const queryData = useLazyLoadQuery<RecipesListQuery>(
     recipesListQuery,
-    { category, first: 20 }
+    { category, first: 12 }
   );
+
+  const { data, loadNext, hasNext, isLoadingNext } = usePaginationFragment<
+    RecipesListQuery,
+    RecipesListPaginationFragment$key
+  >(recipesListPaginationFragment, queryData);
 
   if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
     return (
@@ -45,6 +60,10 @@ function RecipesListContent({ category }: RecipesListProps) {
       </View>
     );
   }
+
+  const handleLoadMore = () => {
+    loadNext(12);
+  };
 
   return (
     <View direction="column" gap={4}>
@@ -68,6 +87,11 @@ function RecipesListContent({ category }: RecipesListProps) {
           </div>
         ))}
       </View>
+      <LoadMore
+        hasNext={hasNext}
+        isLoadingNext={isLoadingNext}
+        onLoadMore={handleLoadMore}
+      />
     </View>
   );
 }

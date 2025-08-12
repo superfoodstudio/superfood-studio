@@ -68,22 +68,14 @@ export const RecipeDetailFragment = graphql`
     createdAt
     averageRating
     totalRatings
-    ratings(first: 10) {
-      edges {
-        node {
-          id
-          rating
-          createdAt
-          user {
-            id
-            firstName
-            lastName
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
+    ratings {
+      id
+      rating
+      createdAt
+      user {
+        id
+        firstName
+        lastName
       }
     }
   }

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a4af0a451fd4a9f8e099f972224cfb82>>
+ * @generated SignedSource<<c5a0708c7c16ed25e18f223d2d0265bf>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,45 +10,36 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type RecipesListQuery$variables = {
+export type RecipesContentSimplePaginationQuery$variables = {
   after?: string | null;
-  category?: string | null;
-  first: number;
+  first?: number | null;
 };
-export type RecipesListQuery$data = {
-  readonly " $fragmentSpreads": FragmentRefs<"RecipesListPaginationFragment">;
+export type RecipesContentSimplePaginationQuery$data = {
+  readonly " $fragmentSpreads": FragmentRefs<"RecipesContentSimplePaginationFragment">;
 };
-export type RecipesListQuery = {
-  response: RecipesListQuery$data;
-  variables: RecipesListQuery$variables;
+export type RecipesContentSimplePaginationQuery = {
+  response: RecipesContentSimplePaginationQuery$data;
+  variables: RecipesContentSimplePaginationQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "after"
-},
-v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "category"
-},
-v2 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "first"
-},
-v3 = [
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "after"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "first"
+  }
+],
+v1 = [
   {
     "kind": "Variable",
     "name": "after",
     "variableName": "after"
-  },
-  {
-    "kind": "Variable",
-    "name": "category",
-    "variableName": "category"
   },
   {
     "kind": "Variable",
@@ -58,19 +49,15 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "RecipesListQuery",
+    "name": "RecipesContentSimplePaginationQuery",
     "selections": [
       {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "RecipesListPaginationFragment"
+        "name": "RecipesContentSimplePaginationFragment"
       }
     ],
     "type": "Query",
@@ -78,17 +65,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "RecipesListQuery",
+    "name": "RecipesContentSimplePaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "RecipeConnection",
         "kind": "LinkedField",
         "name": "publicRecipes",
@@ -156,6 +139,13 @@ return {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
+                    "name": "previewImageUrl",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
                     "name": "uploadDate",
                     "storageKey": null
                   },
@@ -209,28 +199,26 @@ return {
       },
       {
         "alias": null,
-        "args": (v3/*: any*/),
-        "filters": [
-          "category"
-        ],
+        "args": (v1/*: any*/),
+        "filters": null,
         "handle": "connection",
-        "key": "RecipesList_publicRecipes",
+        "key": "RecipesContentSimple_publicRecipes",
         "kind": "LinkedHandle",
         "name": "publicRecipes"
       }
     ]
   },
   "params": {
-    "cacheID": "3276eee30917f4ea38970e07a574204a",
+    "cacheID": "4018c1ad9840107022f65c82b20340d1",
     "id": null,
     "metadata": {},
-    "name": "RecipesListQuery",
+    "name": "RecipesContentSimplePaginationQuery",
     "operationKind": "query",
-    "text": "query RecipesListQuery(\n  $category: String\n  $first: Int!\n  $after: String\n) {\n  ...RecipesListPaginationFragment\n}\n\nfragment RecipesListPaginationFragment on Query {\n  publicRecipes(category: $category, first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        uploadDate\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query RecipesContentSimplePaginationQuery(\n  $after: String\n  $first: Int\n) {\n  ...RecipesContentSimplePaginationFragment\n}\n\nfragment RecipesContentSimplePaginationFragment on Query {\n  publicRecipes(first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        previewImageUrl\n        uploadDate\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "43552ce932ccc99a4f670b107c029e8e";
+(node as any).hash = "ca08325b5c3a7ae18845e66651a2b3af";
 
 export default node;

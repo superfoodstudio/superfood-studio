@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a4af0a451fd4a9f8e099f972224cfb82>>
+ * @generated SignedSource<<0dfa183202817f157ac6cf9e212f5d41>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,36 +10,38 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type RecipesListQuery$variables = {
+export type RecipesListPaginationQuery$variables = {
   after?: string | null;
   category?: string | null;
-  first: number;
+  first?: number | null;
 };
-export type RecipesListQuery$data = {
+export type RecipesListPaginationQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"RecipesListPaginationFragment">;
 };
-export type RecipesListQuery = {
-  response: RecipesListQuery$data;
-  variables: RecipesListQuery$variables;
+export type RecipesListPaginationQuery = {
+  response: RecipesListPaginationQuery$data;
+  variables: RecipesListPaginationQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "after"
-},
-v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "category"
-},
-v2 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "first"
-},
-v3 = [
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "after"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "category"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "first"
+  }
+],
+v1 = [
   {
     "kind": "Variable",
     "name": "after",
@@ -58,14 +60,10 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "RecipesListQuery",
+    "name": "RecipesListPaginationQuery",
     "selections": [
       {
         "args": null,
@@ -78,17 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "RecipesListQuery",
+    "name": "RecipesListPaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "RecipeConnection",
         "kind": "LinkedField",
         "name": "publicRecipes",
@@ -209,7 +203,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "filters": [
           "category"
         ],
@@ -221,16 +215,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3276eee30917f4ea38970e07a574204a",
+    "cacheID": "28ec46dafb3f60ba13015debb91f3b0b",
     "id": null,
     "metadata": {},
-    "name": "RecipesListQuery",
+    "name": "RecipesListPaginationQuery",
     "operationKind": "query",
-    "text": "query RecipesListQuery(\n  $category: String\n  $first: Int!\n  $after: String\n) {\n  ...RecipesListPaginationFragment\n}\n\nfragment RecipesListPaginationFragment on Query {\n  publicRecipes(category: $category, first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        uploadDate\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query RecipesListPaginationQuery(\n  $after: String\n  $category: String\n  $first: Int\n) {\n  ...RecipesListPaginationFragment\n}\n\nfragment RecipesListPaginationFragment on Query {\n  publicRecipes(category: $category, first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        uploadDate\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "43552ce932ccc99a4f670b107c029e8e";
+(node as any).hash = "2911eda59990d75cb2fbf980157e56a4";
 
 export default node;

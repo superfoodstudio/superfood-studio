@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5ad07acb6301ed1f9a19d939a47dc22c>>
+ * @generated SignedSource<<5973aa492016a5d6a0560bb82893e02f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -20,24 +20,16 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
   readonly instructions: ReadonlyArray<string> | null;
   readonly mediaUrl: string;
   readonly name: string;
-  readonly ratings: {
-    readonly edges: ReadonlyArray<{
-      readonly node: {
-        readonly createdAt: any;
-        readonly id: string;
-        readonly rating: number;
-        readonly user: {
-          readonly firstName: string | null;
-          readonly id: string;
-          readonly lastName: string | null;
-        };
-      };
-    }>;
-    readonly pageInfo: {
-      readonly endCursor: string | null;
-      readonly hasNextPage: boolean;
+  readonly ratings: ReadonlyArray<{
+    readonly createdAt: any;
+    readonly id: string;
+    readonly rating: number;
+    readonly user: {
+      readonly firstName: string | null;
+      readonly id: string;
+      readonly lastName: string | null;
     };
-  };
+  }>;
   readonly slug: string;
   readonly totalRatings: number;
   readonly uploadDate: any;
@@ -143,102 +135,49 @@ return {
     },
     {
       "alias": null,
-      "args": [
-        {
-          "kind": "Literal",
-          "name": "first",
-          "value": 10
-        }
-      ],
-      "concreteType": "RecipeRatingConnection",
+      "args": null,
+      "concreteType": "RecipeRating",
       "kind": "LinkedField",
       "name": "ratings",
-      "plural": false,
+      "plural": true,
       "selections": [
+        (v0/*: any*/),
         {
           "alias": null,
           "args": null,
-          "concreteType": "RecipeRatingEdge",
-          "kind": "LinkedField",
-          "name": "edges",
-          "plural": true,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "concreteType": "RecipeRating",
-              "kind": "LinkedField",
-              "name": "node",
-              "plural": false,
-              "selections": [
-                (v0/*: any*/),
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "rating",
-                  "storageKey": null
-                },
-                (v1/*: any*/),
-                {
-                  "alias": null,
-                  "args": null,
-                  "concreteType": "User",
-                  "kind": "LinkedField",
-                  "name": "user",
-                  "plural": false,
-                  "selections": [
-                    (v0/*: any*/),
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "firstName",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "lastName",
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                }
-              ],
-              "storageKey": null
-            }
-          ],
+          "kind": "ScalarField",
+          "name": "rating",
           "storageKey": null
         },
+        (v1/*: any*/),
         {
           "alias": null,
           "args": null,
-          "concreteType": "PageInfo",
+          "concreteType": "User",
           "kind": "LinkedField",
-          "name": "pageInfo",
+          "name": "user",
           "plural": false,
           "selections": [
+            (v0/*: any*/),
             {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "hasNextPage",
+              "name": "firstName",
               "storageKey": null
             },
             {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "endCursor",
+              "name": "lastName",
               "storageKey": null
             }
           ],
           "storageKey": null
         }
       ],
-      "storageKey": "ratings(first:10)"
+      "storageKey": null
     }
   ],
   "type": "Recipe",
@@ -246,6 +185,6 @@ return {
 };
 })();
 
-(node as any).hash = "a8f9c76fb684791c240e853495afadd3";
+(node as any).hash = "184ad585719ae1404d5d7c7087538fd4";
 
 export default node;
