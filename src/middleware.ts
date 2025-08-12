@@ -71,6 +71,7 @@ export async function middleware(request: NextRequest) {
     try {
       // Use API endpoint for auth verification
       const user = await verifyAuthToken(authToken, request.nextUrl.origin);
+      console.log('User verification result:', { role: user.role, isAuthenticated: user.isAuthenticated, email: user.email });
       
       if (!user.isAuthenticated) {
         console.log('Subscriber content: Not authenticated');
