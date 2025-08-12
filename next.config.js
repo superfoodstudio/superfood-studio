@@ -12,16 +12,9 @@ const nextConfig = {
       'ipfs.io'
     ],
   },
-  // Disable output file tracing to avoid micromatch stack overflow
+  // Vercel deployment configuration  
   output: 'standalone',
-  outputFileTracing: false,
-  // Exclude relay deps from the server bundle
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = [...config.externals, 'react-relay', 'relay-runtime'];
-    }
-    return config;
-  }
+  outputFileTracing: false
 };
 
 module.exports = nextConfig; 
