@@ -3,9 +3,9 @@ const config = {
   themes: {
     superfood: {
       fontFamily: {
-        title: { family: "var(--font-big-caslon, 'Big Caslon', serif)" },
-        body: { family: "var(--font-lato, 'Lato', sans-serif)" },
-        button: { family: "var(--font-carrois-gothic, 'Carrois Gothic SC', sans-serif)" }
+        title: { family: "var(--font-midruns)" },
+        body: { family: "var(--font-lato)" },
+        button: { family: "var(--font-lato)" }
       },
       color: {
         // Primary colors - using forest green as main brand color

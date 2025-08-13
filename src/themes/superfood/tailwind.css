@@ -38,6 +38,14 @@
 --color-white: var(--rs-color-white);
 --color-black: var(--rs-color-black);
 --border-color-button-outline: var(--rs-color-border-button-outline);
+--color-lavender: var(--rs-color-lavender);
+--color-lime-green: var(--rs-color-lime-green);
+--color-coral-red: var(--rs-color-coral-red);
+--color-charcoal: var(--rs-color-charcoal);
+--color-sky-blue: var(--rs-color-sky-blue);
+--color-forest-green: var(--rs-color-forest-green);
+--color-burgundy: var(--rs-color-burgundy);
+--color-cream: var(--rs-color-cream);
 --text-color-on-primary: var(--rs-color-on-background-primary);
 --text-color-on-critical: var(--rs-color-on-background-critical);
 --text-color-on-warning: var(--rs-color-on-background-warning);

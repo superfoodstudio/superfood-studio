@@ -136,12 +136,8 @@ function MembershipContent() {
       direction="column"
       gap={10}
       padding={10}
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0',
-          minHeight: '100vh'
-        } 
-      }}
+      backgroundColor="page"
+      minHeight="100vh"
     >
       <View 
         maxWidth={400} 
@@ -787,11 +783,7 @@ function LoadingFallback() {
       align="center" 
       justify="center" 
       height="100vh"
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0'
-        } 
-      }}
+      backgroundColor="page"
     >
       <Text>Loading membership...</Text>
     </View>

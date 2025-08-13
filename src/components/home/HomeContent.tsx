@@ -80,35 +80,46 @@ export function HomeContent() {
           },
         }}
       >
-        <View divided={true} gap={4}>
-          <Text
-            variant="featured-3"
-            align="center"
-            attributes={{
-              style: {
-                fontFamily: "var(--font-carrois-gothic)",
-                letterSpacing: "1.28px",
-              },
-            }}
-          >
-            FROM THE FOUNDERS OF SOL SIPS
-          </Text>
-          <Text
-            variant="body-1"
-            align="center"
-            color="neutral"
-            attributes={{
-              style: {
-                fontFamily: "var(--font-oswald)",
-                letterSpacing: "0.96px;",
-              },
-            }}
-          >
-            Reimagine your relationship with cooking in our culinary playhouse.
-            We generate vibrant recipes for our members to explore in the
-            comfort of their home. Think of us as your creative kitchen
-            companion serving flavorful meals rooted in joy and simplicity.
-          </Text>
+        <View
+          maxWidth="600px"
+          width="100%"
+          paddingInline={4}
+          attributes={{
+            style: {
+              margin: '0 auto'
+            }
+          }}
+        >
+          <View divided={true} gap={4}>
+            <Text
+              variant="featured-3"
+              align="center"
+              attributes={{
+                style: {
+                  fontFamily: "var(--font-carrois-gothic)",
+                  letterSpacing: "1.28px",
+                },
+              }}
+            >
+              FROM THE FOUNDERS OF SOL SIPS
+            </Text>
+            <Text
+              variant="body-1"
+              align="center"
+              color="neutral"
+              attributes={{
+                style: {
+                  fontFamily: "var(--font-oswald)",
+                  letterSpacing: "0.96px;",
+                },
+              }}
+            >
+              Reimagine your relationship with cooking in our culinary playhouse.
+              We generate vibrant recipes for our members to explore in the
+              comfort of their home. Think of us as your creative kitchen
+              companion serving flavorful meals rooted in joy and simplicity.
+            </Text>
+          </View>
         </View>
         <Button variant="outline">LEARN MORE</Button>
       </View>
@@ -119,26 +130,9 @@ export function HomeContent() {
           BECOME A SUPERFOODIE
         </Text>
 
-        <View direction="row" align="center" justify="center" gap={6}>
-          <View align="center">
-            <span style={{ fontSize: "24px" }}>☕</span>
-          </View>
-          <View align="center">
-            <span style={{ fontSize: "24px" }}>🥑</span>
-          </View>
-          <View align="center">
-            <span style={{ fontSize: "24px" }}>📝</span>
-          </View>
-        </View>
 
         <Text variant="body-1" align="center" color="neutral">
-          learn the craft of building a plant-forward plate
-        </Text>
-
-        <Text variant="body-1" align="center" color="neutral">
-          unlock access to weekly recipes, special offers on our small batch
-          goods, quarterly master-classes with top culinary artists and member
-          rates on our in person garden-to-table activations
+          Your membership includes weekly recipe videos with prompts to reconnect with your food, special offers on our products and in-person activations, masterclasses with top culinary artists and quarterly sampling gift boxes shipped to your door with small batch goods from Superfood Studio and like-minded makers.
         </Text>
 
         <Button variant="solid" color="primary">

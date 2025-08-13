@@ -110,11 +110,11 @@ export function Navigation() {
         >
           <Link href="/" style={{ textDecoration: 'none' }}>
             <Text
-              variant="featured-2"
+              variant="featured-1"
               attributes={{
                 style: {
-                  fontFamily: 'var(--font-header-logo)',
-                  color: 'black',
+                  fontFamily: 'var(--font-midruns)',
+                  color: 'forestgreen',
                   textAlign: 'center'
                 }
               }}
