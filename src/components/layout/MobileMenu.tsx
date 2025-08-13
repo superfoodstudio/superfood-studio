@@ -57,7 +57,6 @@ export function MobileMenu({
         gap={6}
         padding={4}
         height="100%"
-        backgroundColor="page"
       >
         <View direction="row" justify="space-between" align="center">
           <Text variant="title-3" attributes={{

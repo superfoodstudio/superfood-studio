@@ -8,22 +8,29 @@
   font-display: swap;
 }
 
-/* Import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700&display=swap');
+@font-face {
+  font-family: 'Midruns Sans';
+  src: url('/Midruns-Font-Duo/Web Fonts/midtruns_sans-webfont.woff2') format('woff2'),
+       url('/Midruns-Font-Duo/Web Fonts/midtruns_sans-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* Base styles */
 :root {
-  --font-lato: 'Lato', sans-serif;
-  --font-midruns: 'Midruns Script', serif;
+  --font-midruns-script: 'Midruns Script', serif;
+  --font-midruns-sans: 'Midruns Sans', sans-serif;
+  --font-nunito: 'Nunito', 'Arial', sans-serif;
 }
 
 /* Minimal styling without Tailwind */
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-lato);
+  font-family: var(--font-nunito);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-midruns);
+  font-family: var(--font-midruns-script);
 }

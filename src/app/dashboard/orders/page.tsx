@@ -28,46 +28,45 @@ function OrdersContent() {
   };
 
   return (
-    <View 
+    <View
       direction="column"
       gap={10}
       padding={10}
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0',
+      attributes={{
+        style: {
           minHeight: '100vh'
-        } 
+        }
       }}
     >
-      <View 
-        maxWidth={600} 
+      <View
+        maxWidth={600}
         direction="column"
         gap={10}
         width="100%"
         paddingTop={10}
         attributes={{ style: { margin: 'auto' } }}
       >
-        <Card 
+        <Card
           padding={8}
-          attributes={{ 
-            style: { 
+          attributes={{
+            style: {
               backgroundColor: '#ffffff',
               border: '1px solid #e0ddd8',
               borderRadius: '2px'
-            } 
+            }
           }}
         >
           {/* Section Title */}
-          <Text 
-            attributes={{ 
-              style: { 
+          <Text
+            attributes={{
+              style: {
                 color: '#8a8a8a',
                 fontSize: '14px',
                 fontWeight: '600',
                 letterSpacing: '1.2px',
                 textTransform: 'uppercase',
                 marginBottom: '25px'
-              } 
+              }
             }}
           >
             ORDER HISTORY
@@ -75,34 +74,34 @@ function OrdersContent() {
 
           {!data.userOrders || data.userOrders.edges.length === 0 ? (
             <View direction="column" align="center" gap={4}>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '400',
                     color: '#4a4a4a',
                     textAlign: 'center'
-                  } 
+                  }
                 }}
               >
                 no orders found
               </Text>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '12px',
                     fontWeight: '400',
                     color: '#8a8a8a',
                     textAlign: 'center'
-                  } 
+                  }
                 }}
               >
                 start shopping to see your orders here
               </Text>
-              <Button 
+              <Button
                 onClick={() => router.push('/')}
-                attributes={{ 
-                  style: { 
+                attributes={{
+                  style: {
                     width: '150px',
                     height: '35px',
                     backgroundColor: '#6b4c7a',
@@ -114,7 +113,7 @@ function OrdersContent() {
                     borderRadius: '20px',
                     cursor: 'pointer',
                     marginTop: '15px'
-                  } 
+                  }
                 }}
               >
                 START SHOPPING
@@ -125,22 +124,22 @@ function OrdersContent() {
               {data.userOrders.edges.map(({ node: order }, index) => (
                 <View key={order.id}>
                   {/* Order Row */}
-                  <View 
-                    direction="row" 
+                  <View
+                    direction="row"
                     justify="space-between"
-                    attributes={{ 
-                      style: { 
+                    attributes={{
+                      style: {
                         height: '50px',
                         padding: '15px 0',
                         borderBottom: index < data.userOrders!.edges.length - 1 ? '1px solid #e0ddd8' : 'none',
                         alignItems: 'center'
-                      } 
+                      }
                     }}
                   >
                     <View direction="column" gap={1}>
-                      <a 
+                      <a
                         href={`/dashboard/orders/${order.id}`}
-                        style={{ 
+                        style={{
                           fontSize: '13px',
                           fontWeight: '500',
                           color: '#6b4c7a',
@@ -151,37 +150,37 @@ function OrdersContent() {
                       >
                         #{order.id.slice(-8).toUpperCase()}
                       </a>
-                      <Text 
-                        attributes={{ 
-                          style: { 
+                      <Text
+                        attributes={{
+                          style: {
                             fontSize: '11px',
                             fontWeight: '400',
                             color: '#8a8a8a'
-                          } 
+                          }
                         }}
                       >
                         {formatDate(order.createdAt)} • {order.items.length} items
                       </Text>
                     </View>
                     <View direction="column" align="end" gap={1}>
-                      <Text 
-                        attributes={{ 
-                          style: { 
+                      <Text
+                        attributes={{
+                          style: {
                             fontSize: '13px',
                             fontWeight: '500',
                             color: '#4a4a4a'
-                          } 
+                          }
                         }}
                       >
                         {formatPrice(order.total)}
                       </Text>
-                      <Text 
-                        attributes={{ 
-                          style: { 
+                      <Text
+                        attributes={{
+                          style: {
                             fontSize: '11px',
                             fontWeight: '400',
                             color: order.status === 'COMPLETED' ? '#6b4c7a' : '#8a8a8a'
-                          } 
+                          }
                         }}
                       >
                         {order.status.toLowerCase()}
@@ -194,20 +193,20 @@ function OrdersContent() {
           )}
 
           {/* Navigation Buttons */}
-          <View 
-            direction="column" 
+          <View
+            direction="column"
             align="center"
             gap={4}
-            attributes={{ 
-              style: { 
+            attributes={{
+              style: {
                 marginTop: '40px'
-              } 
+              }
             }}
           >
-            <Button 
+            <Button
               onClick={() => router.push('/dashboard/membership')}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   width: '200px',
                   height: '45px',
                   backgroundColor: '#6b4c7a',
@@ -218,16 +217,16 @@ function OrdersContent() {
                   letterSpacing: '0.5px',
                   borderRadius: '25px',
                   cursor: 'pointer'
-                } 
+                }
               }}
             >
               MANAGE MEMBERSHIP
             </Button>
 
-            <Button 
+            <Button
               onClick={() => router.push('/')}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   width: '200px',
                   height: '45px',
                   backgroundColor: 'transparent',
@@ -238,7 +237,7 @@ function OrdersContent() {
                   letterSpacing: '0.5px',
                   borderRadius: '25px',
                   cursor: 'pointer'
-                } 
+                }
               }}
             >
               CONTINUE SHOPPING
@@ -252,16 +251,11 @@ function OrdersContent() {
 
 function LoadingFallback() {
   return (
-    <View 
+    <View
       direction="column"
-      align="center" 
-      justify="center" 
+      align="center"
+      justify="center"
       height="100vh"
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0'
-        } 
-      }}
     >
       <Text>Loading orders...</Text>
     </View>

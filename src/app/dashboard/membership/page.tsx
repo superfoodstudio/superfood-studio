@@ -8,9 +8,9 @@ import type { SetupIntentQueryQuery } from '@/__generated__/SetupIntentQueryQuer
 import { MembershipQuery } from './MembershipQueries';
 import { SetupIntentQuery } from './SetupIntentQuery';
 import { StripePaymentForm } from './StripePaymentForm';
-import { 
-  CreateSubscriptionMutation, 
-  UpdateSubscriptionMutation, 
+import {
+  CreateSubscriptionMutation,
+  UpdateSubscriptionMutation,
   CancelSubscriptionMutation,
   ReactivateSubscriptionMutation
 } from './SubscriptionMutations';
@@ -58,9 +58,9 @@ function MembershipContent() {
   // Handler for subscription plan selection and payment
   const handleSubscriptionPlan = async (plan: 'monthly' | 'yearly', paymentMethodId: string) => {
     setIsProcessing(true);
-    
+
     try {
-      const priceId = plan === 'monthly' 
+      const priceId = plan === 'monthly'
         ? process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!
         : process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!;
 
@@ -132,42 +132,41 @@ function MembershipContent() {
   };
 
   return (
-    <View 
+    <View
       direction="column"
       gap={10}
       padding={10}
-      backgroundColor="page"
       minHeight="100vh"
     >
-      <View 
-        maxWidth={400} 
+      <View
+        maxWidth={400}
         direction="column"
         gap={10}
         width="100%"
         paddingTop={10}
         attributes={{ style: { margin: 'auto' } }}
       >
-        <Card 
+        <Card
           padding={8}
-          attributes={{ 
-            style: { 
+          attributes={{
+            style: {
               backgroundColor: '#ffffff',
               border: '1px solid #e0ddd8',
               borderRadius: '2px'
-            } 
+            }
           }}
         >
           {/* Section Title */}
-          <Text 
-            attributes={{ 
-              style: { 
+          <Text
+            attributes={{
+              style: {
                 color: '#8a8a8a',
                 fontSize: '14px',
                 fontWeight: '600',
                 letterSpacing: '1.2px',
                 textTransform: 'uppercase',
                 marginBottom: '25px'
-              } 
+              }
             }}
           >
             MANAGE MEMBERSHIP
@@ -176,38 +175,38 @@ function MembershipContent() {
           {/* Data Rows */}
           <View direction="column">
             {/* Join Date Row */}
-            <View 
-              direction="row" 
+            <View
+              direction="row"
               justify="space-between"
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   height: '35px',
                   padding: '12px 0',
                   borderBottom: '1px solid #e0ddd8',
                   alignItems: 'center'
-                } 
+                }
               }}
             >
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '400',
                     color: '#4a4a4a',
                     textTransform: 'lowercase'
-                  } 
+                  }
                 }}
               >
                 join date
               </Text>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '400',
                     color: '#4a4a4a',
                     textAlign: 'right'
-                  } 
+                  }
                 }}
               >
                 {getJoinDate(subscription)}
@@ -215,38 +214,38 @@ function MembershipContent() {
             </View>
 
             {/* Membership Type Row */}
-            <View 
-              direction="row" 
+            <View
+              direction="row"
               justify="space-between"
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   height: '35px',
                   padding: '12px 0',
                   borderBottom: '1px solid #e0ddd8',
                   alignItems: 'center'
-                } 
+                }
               }}
             >
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '400',
                     color: '#4a4a4a',
                     textTransform: 'lowercase'
-                  } 
+                  }
                 }}
               >
                 membership type
               </Text>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '400',
                     color: '#4a4a4a',
                     textAlign: 'right'
-                  } 
+                  }
                 }}
               >
                 {getMembershipType(subscription?.plan || null)}
@@ -254,41 +253,41 @@ function MembershipContent() {
             </View>
 
             {/* Details Row - Show subscription status */}
-            <View 
-              direction="row" 
+            <View
+              direction="row"
               justify="space-between"
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   height: '35px',
                   padding: '12px 0',
                   alignItems: 'center'
-                } 
+                }
               }}
             >
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '400',
                     color: '#4a4a4a',
                     textTransform: 'lowercase'
-                  } 
+                  }
                 }}
               >
                 status
               </Text>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '400',
                     color: subscription?.status === 'ACTIVE' ? '#6b4c7a' : '#4a4a4a',
                     textAlign: 'right'
-                  } 
+                  }
                 }}
               >
-                {subscription ? 
-                  subscription.status.toLowerCase() : 
+                {subscription ?
+                  subscription.status.toLowerCase() :
                   'inactive'
                 }
               </Text>
@@ -296,38 +295,38 @@ function MembershipContent() {
 
             {/* Auto-renewal status */}
             {subscription?.status === 'ACTIVE' && (
-              <View 
-                direction="row" 
+              <View
+                direction="row"
                 justify="space-between"
-                attributes={{ 
-                  style: { 
+                attributes={{
+                  style: {
                     height: '35px',
                     padding: '12px 0',
                     borderBottom: '1px solid #e0ddd8',
                     alignItems: 'center'
-                  } 
+                  }
                 }}
               >
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '13px',
                       fontWeight: '400',
                       color: '#4a4a4a',
                       textTransform: 'lowercase'
-                    } 
+                    }
                   }}
                 >
                   auto-renewal
                 </Text>
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '13px',
                       fontWeight: '400',
                       color: subscription.cancelAtPeriodEnd ? '#ef4444' : '#6b4c7a',
                       textAlign: 'right'
-                    } 
+                    }
                   }}
                 >
                   {subscription.cancelAtPeriodEnd ? 'off' : 'on'}
@@ -337,37 +336,37 @@ function MembershipContent() {
 
             {/* Next billing/expiry date */}
             {subscription?.status === 'ACTIVE' && (
-              <View 
-                direction="row" 
+              <View
+                direction="row"
                 justify="space-between"
-                attributes={{ 
-                  style: { 
+                attributes={{
+                  style: {
                     height: '35px',
                     padding: '12px 0',
                     alignItems: 'center'
-                  } 
+                  }
                 }}
               >
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '13px',
                       fontWeight: '400',
                       color: '#4a4a4a',
                       textTransform: 'lowercase'
-                    } 
+                    }
                   }}
                 >
                   {subscription.cancelAtPeriodEnd ? 'expires' : 'next billing'}
                 </Text>
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '13px',
                       fontWeight: '400',
                       color: '#4a4a4a',
                       textAlign: 'right'
-                    } 
+                    }
                   }}
                 >
                   {formatDate(subscription.currentPeriodEnd)}
@@ -377,24 +376,24 @@ function MembershipContent() {
           </View>
 
           {/* Button Section */}
-          <View 
-            direction="column" 
+          <View
+            direction="column"
             align="center"
             gap={4}
-            attributes={{ 
-              style: { 
+            attributes={{
+              style: {
                 marginTop: '40px'
-              } 
+              }
             }}
           >
             {/* Edit Button */}
-            <Button 
+            <Button
               onClick={() => {
                 console.log('Edit button clicked!');
                 editModal.activate();
               }}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   width: '200px',
                   height: '45px',
                   backgroundColor: '#6b4c7a',
@@ -405,18 +404,18 @@ function MembershipContent() {
                   letterSpacing: '0.5px',
                   borderRadius: '25px',
                   cursor: 'pointer'
-                } 
+                }
               }}
             >
               EDIT
             </Button>
 
             {/* Manage Wallet Button */}
-            <Button 
+            <Button
               variant="outline"
               onClick={() => walletModal.activate()}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   width: '200px',
                   height: '45px',
                   backgroundColor: 'transparent',
@@ -427,7 +426,7 @@ function MembershipContent() {
                   letterSpacing: '0.5px',
                   borderRadius: '25px',
                   cursor: 'pointer'
-                } 
+                }
               }}
             >
               MANAGE WALLET
@@ -437,8 +436,8 @@ function MembershipContent() {
       </View>
 
       {/* Edit Subscription Modal */}
-      <Modal 
-        active={editModal.active} 
+      <Modal
+        active={editModal.active}
         onClose={editModal.deactivate}
         size="medium"
       >
@@ -453,20 +452,20 @@ function MembershipContent() {
               Choose your subscription plan:
             </Text>
           </View>
-          
+
           <View direction="column" gap={4}>
-            <Button 
+            <Button
               size="large"
               variant={selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? 'solid' : 'outline'}
               onClick={() => setSelectedPlan('monthly')}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   justifyContent: 'space-between',
                   padding: '16px 20px',
                   backgroundColor: selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? '#6b4c7a' : 'transparent',
                   color: selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? '#ffffff' : '#6b4c7a',
                   border: `1px solid #6b4c7a`
-                } 
+                }
               }}
             >
               <View>
@@ -478,18 +477,18 @@ function MembershipContent() {
               <Text weight="bold" color={selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? 'primary' : undefined}>$10/month</Text>
             </Button>
 
-            <Button 
+            <Button
               size="large"
               variant={selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? 'solid' : 'outline'}
               onClick={() => setSelectedPlan('yearly')}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   justifyContent: 'space-between',
                   padding: '16px 20px',
                   backgroundColor: selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? '#6b4c7a' : 'transparent',
                   color: selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? '#ffffff' : '#6b4c7a',
                   border: `1px solid #6b4c7a`
-                } 
+                }
               }}
             >
               <View>
@@ -513,7 +512,7 @@ function MembershipContent() {
           {/* Cancel/Reactivate Subscription Section */}
           {subscription && subscription.status === 'ACTIVE' && (
             <View paddingTop={6}>
-              <View 
+              <View
                 padding={3}
                 attributes={{
                   style: {
@@ -527,7 +526,7 @@ function MembershipContent() {
                   {subscription.cancelAtPeriodEnd ? '🔄 Reactivate Subscription' : '⚠️ Cancel Subscription'}
                 </Text>
                 <Text variant="caption-1" color="neutral">
-                  {subscription.cancelAtPeriodEnd 
+                  {subscription.cancelAtPeriodEnd
                     ? 'Turn auto-renewal back on to continue your subscription beyond the expiry date.'
                     : `Your subscription will remain active until ${formatDate(subscription.currentPeriodEnd)}`
                   }
@@ -600,8 +599,8 @@ function MembershipContent() {
             )}
 
             <View direction="row" gap={3}>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={editModal.deactivate}
                 disabled={isProcessing}
               >
@@ -632,8 +631,8 @@ function MembershipContent() {
       </Modal>
 
       {/* Manage Wallet Modal */}
-      <Modal 
-        active={walletModal.active} 
+      <Modal
+        active={walletModal.active}
         onClose={walletModal.deactivate}
         size="large"
       >
@@ -645,15 +644,15 @@ function MembershipContent() {
           </View>
           <View paddingBottom={4}>
             <Text>
-              {selectedPlan 
+              {selectedPlan
                 ? `Enter your payment information to subscribe to the ${selectedPlan} plan.`
                 : 'Update your payment information and billing address.'
               }
             </Text>
           </View>
-          
+
           {selectedPlan && (
-            <View 
+            <View
               padding={3}
               attributes={{
                 style: {
@@ -678,7 +677,7 @@ function MembershipContent() {
               </Text>
             </View>
           )}
-          
+
           {/* Stripe Elements Form */}
           <Suspense fallback={<Text>Loading payment form...</Text>}>
             <StripePaymentForm
@@ -701,8 +700,8 @@ function MembershipContent() {
       </Modal>
 
       {/* Cancel Confirmation Modal */}
-      <Modal 
-        active={cancelModal.active} 
+      <Modal
+        active={cancelModal.active}
         onClose={cancelModal.deactivate}
         size="small"
       >
@@ -717,10 +716,10 @@ function MembershipContent() {
               This will turn off auto-renewal for your subscription. You'll continue to have full access until your subscription expires on {subscription ? formatDate(subscription.currentPeriodEnd) : ''}.
             </Text>
           </View>
-          
+
           <View direction="row" gap={3} justify="end">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={cancelModal.deactivate}
               disabled={isProcessing}
             >
@@ -778,12 +777,11 @@ function MembershipContent() {
 
 function LoadingFallback() {
   return (
-    <View 
+    <View
       direction="column"
-      align="center" 
-      justify="center" 
+      align="center"
+      justify="center"
       height="100vh"
-      backgroundColor="page"
     >
       <Text>Loading membership...</Text>
     </View>

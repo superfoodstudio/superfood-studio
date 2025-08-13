@@ -3,9 +3,8 @@ const config = {
   themes: {
     superfood: {
       fontFamily: {
-        title: { family: "var(--font-midruns)" },
-        body: { family: "var(--font-lato)" },
-        button: { family: "var(--font-lato)" }
+        title: { family: "var(--font-midruns-script)" },
+        body: { family: "var(--font-nunito)" }
       },
       color: {
         // Primary colors - using forest green as main brand color

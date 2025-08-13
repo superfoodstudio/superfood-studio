@@ -25,39 +25,38 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
 
   if (!order) {
     return (
-      <View 
+      <View
         direction="column"
         gap={10}
         padding={10}
-        attributes={{ 
-          style: { 
-            backgroundColor: '#f5f3f0',
+        attributes={{
+          style: {
             minHeight: '100vh'
-          } 
+          }
         }}
       >
-        <View 
-          maxWidth={600} 
+        <View
+          maxWidth={600}
           direction="column"
           gap={10}
           width="100%"
           paddingTop={10}
           attributes={{ style: { margin: 'auto' } }}
         >
-          <Card 
+          <Card
             padding={8}
-            attributes={{ 
-              style: { 
+            attributes={{
+              style: {
                 backgroundColor: '#ffffff',
                 border: '1px solid #e0ddd8',
                 borderRadius: '2px'
-              } 
+              }
             }}
           >
-            <Button 
+            <Button
               onClick={() => router.push('/dashboard/orders')}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   marginBottom: '20px',
                   backgroundColor: 'transparent',
                   border: 'none',
@@ -66,29 +65,29 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
                   fontWeight: '500',
                   cursor: 'pointer',
                   padding: '0'
-                } 
+                }
               }}
             >
               ← Back to Orders
             </Button>
-            <Text 
-              attributes={{ 
-                style: { 
+            <Text
+              attributes={{
+                style: {
                   fontSize: '16px',
                   fontWeight: '600',
                   color: '#4a4a4a',
                   marginBottom: '10px'
-                } 
+                }
               }}
             >
               Order Not Found
             </Text>
-            <Text 
-              attributes={{ 
-                style: { 
+            <Text
+              attributes={{
+                style: {
                   fontSize: '13px',
                   color: '#8a8a8a'
-                } 
+                }
               }}
             >
               The order you're looking for could not be found.
@@ -115,39 +114,38 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
   };
 
   return (
-    <View 
+    <View
       direction="column"
       gap={10}
       padding={10}
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0',
+      attributes={{
+        style: {
           minHeight: '100vh'
-        } 
+        }
       }}
     >
-      <View 
-        maxWidth={600} 
+      <View
+        maxWidth={600}
         direction="column"
         gap={10}
         width="100%"
         paddingTop={10}
         attributes={{ style: { margin: 'auto' } }}
       >
-        <Card 
+        <Card
           padding={8}
-          attributes={{ 
-            style: { 
+          attributes={{
+            style: {
               backgroundColor: '#ffffff',
               border: '1px solid #e0ddd8',
               borderRadius: '2px'
-            } 
+            }
           }}
         >
-          <Button 
+          <Button
             onClick={() => router.push('/dashboard/orders')}
-            attributes={{ 
-              style: { 
+            attributes={{
+              style: {
                 marginBottom: '20px',
                 backgroundColor: 'transparent',
                 border: 'none',
@@ -156,117 +154,117 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
                 fontWeight: '500',
                 cursor: 'pointer',
                 padding: '0'
-              } 
+              }
             }}
           >
             ← Back to Orders
           </Button>
 
           {/* Order Header */}
-          <Text 
-            attributes={{ 
-              style: { 
+          <Text
+            attributes={{
+              style: {
                 color: '#8a8a8a',
                 fontSize: '14px',
                 fontWeight: '600',
                 letterSpacing: '1.2px',
                 textTransform: 'uppercase',
                 marginBottom: '25px'
-              } 
+              }
             }}
           >
             ORDER #{order.id.slice(-8).toUpperCase()}
           </Text>
 
           {/* Order Summary */}
-          <View 
-            direction="column" 
+          <View
+            direction="column"
             gap={4}
-            attributes={{ 
-              style: { 
+            attributes={{
+              style: {
                 marginBottom: '30px',
                 padding: '20px',
                 backgroundColor: '#faf9f7',
                 border: '1px solid #e0ddd8',
                 borderRadius: '2px'
-              } 
+              }
             }}
           >
-            <Text 
-              attributes={{ 
-                style: { 
+            <Text
+              attributes={{
+                style: {
                   fontSize: '13px',
                   fontWeight: '600',
                   color: '#4a4a4a',
                   marginBottom: '15px'
-                } 
+                }
               }}
             >
               Order Summary
             </Text>
             <View direction="row" justify="space-between">
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '12px',
                     color: '#8a8a8a'
-                  } 
+                  }
                 }}
               >
                 Order Date:
               </Text>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '12px',
                     color: '#4a4a4a'
-                  } 
+                  }
                 }}
               >
                 {formatDate(order.createdAt)}
               </Text>
             </View>
             <View direction="row" justify="space-between">
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '12px',
                     color: '#8a8a8a'
-                  } 
+                  }
                 }}
               >
                 Status:
               </Text>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '12px',
                     color: order.status === 'COMPLETED' ? '#6b4c7a' : '#4a4a4a',
                     fontWeight: '500'
-                  } 
+                  }
                 }}
               >
                 {order.status.toLowerCase()}
               </Text>
             </View>
             <View direction="row" justify="space-between">
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '12px',
                     color: '#8a8a8a'
-                  } 
+                  }
                 }}
               >
                 Total:
               </Text>
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     color: '#4a4a4a',
                     fontWeight: '600'
-                  } 
+                  }
                 }}
               >
                 {formatPrice(order.total)}
@@ -276,59 +274,59 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
 
           {/* Shipping Address */}
           {order.shippingAddress && (
-            <View 
-              direction="column" 
+            <View
+              direction="column"
               gap={4}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   marginBottom: '30px',
                   padding: '20px',
                   backgroundColor: '#faf9f7',
                   border: '1px solid #e0ddd8',
                   borderRadius: '2px'
-                } 
+                }
               }}
             >
-              <Text 
-                attributes={{ 
-                  style: { 
+              <Text
+                attributes={{
+                  style: {
                     fontSize: '13px',
                     fontWeight: '600',
                     color: '#4a4a4a',
                     marginBottom: '15px'
-                  } 
+                  }
                 }}
               >
                 Shipping Address
               </Text>
               <View direction="column" gap={1}>
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '12px',
                       color: '#4a4a4a',
                       fontWeight: '500'
-                    } 
+                    }
                   }}
                 >
                   {order.shippingAddress.street}
                 </Text>
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '12px',
                       color: '#8a8a8a'
-                    } 
+                    }
                   }}
                 >
                   {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
                 </Text>
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '12px',
                       color: '#8a8a8a'
-                    } 
+                    }
                   }}
                 >
                   {order.shippingAddress.country}
@@ -338,14 +336,14 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
           )}
 
           {/* Items */}
-          <Text 
-            attributes={{ 
-              style: { 
+          <Text
+            attributes={{
+              style: {
                 fontSize: '13px',
                 fontWeight: '600',
                 color: '#4a4a4a',
                 marginBottom: '20px'
-              } 
+              }
             }}
           >
             Items Ordered
@@ -353,27 +351,27 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
 
           <View direction="column" gap={4}>
             {order.items.map((item, index) => (
-              <View 
+              <View
                 key={item.id}
-                direction="row" 
-                gap={3} 
-                attributes={{ 
-                  style: { 
+                direction="row"
+                gap={3}
+                attributes={{
+                  style: {
                     padding: '15px 0',
                     borderBottom: index < order.items.length - 1 ? '1px solid #e0ddd8' : 'none',
                     alignItems: 'center'
-                  } 
+                  }
                 }}
               >
-                <View 
-                  attributes={{ 
-                    style: { 
+                <View
+                  attributes={{
+                    style: {
                       width: '60px',
                       height: '60px',
                       borderRadius: '4px',
                       overflow: 'hidden',
                       flexShrink: 0
-                    } 
+                    }
                   }}
                 >
                   <Image
@@ -384,54 +382,54 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
                     style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                   />
                 </View>
-                <View 
-                  direction="column" 
+                <View
+                  direction="column"
                   gap={1}
-                  attributes={{ 
-                    style: { 
+                  attributes={{
+                    style: {
                       flex: 1
-                    } 
+                    }
                   }}
                 >
-                  <Text 
-                    attributes={{ 
-                      style: { 
+                  <Text
+                    attributes={{
+                      style: {
                         fontSize: '13px',
                         fontWeight: '500',
                         color: '#4a4a4a'
-                      } 
+                      }
                     }}
                   >
                     {item.product.name}
                   </Text>
-                  <Text 
-                    attributes={{ 
-                      style: { 
+                  <Text
+                    attributes={{
+                      style: {
                         fontSize: '11px',
                         color: '#8a8a8a'
-                      } 
+                      }
                     }}
                   >
                     {item.product.category}
                   </Text>
-                  <Text 
-                    attributes={{ 
-                      style: { 
+                  <Text
+                    attributes={{
+                      style: {
                         fontSize: '11px',
                         color: '#8a8a8a'
-                      } 
+                      }
                     }}
                   >
                     {formatPrice(item.product.price)} each × {item.quantity}
                   </Text>
                 </View>
-                <Text 
-                  attributes={{ 
-                    style: { 
+                <Text
+                  attributes={{
+                    style: {
                       fontSize: '13px',
                       fontWeight: '500',
                       color: '#4a4a4a'
-                    } 
+                    }
                   }}
                 >
                   {formatPrice(item.price * item.quantity)}
@@ -441,20 +439,20 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
           </View>
 
           {/* Navigation Buttons */}
-          <View 
-            direction="column" 
+          <View
+            direction="column"
             align="center"
             gap={4}
-            attributes={{ 
-              style: { 
+            attributes={{
+              style: {
                 marginTop: '40px'
-              } 
+              }
             }}
           >
-            <Button 
+            <Button
               onClick={() => router.push('/dashboard/orders')}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   width: '200px',
                   height: '45px',
                   backgroundColor: '#6b4c7a',
@@ -465,16 +463,16 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
                   letterSpacing: '0.5px',
                   borderRadius: '25px',
                   cursor: 'pointer'
-                } 
+                }
               }}
             >
               BACK TO ORDERS
             </Button>
 
-            <Button 
+            <Button
               onClick={() => router.push('/')}
-              attributes={{ 
-                style: { 
+              attributes={{
+                style: {
                   width: '200px',
                   height: '45px',
                   backgroundColor: 'transparent',
@@ -485,7 +483,7 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
                   letterSpacing: '0.5px',
                   borderRadius: '25px',
                   cursor: 'pointer'
-                } 
+                }
               }}
             >
               CONTINUE SHOPPING
@@ -499,16 +497,11 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
 
 function LoadingFallback() {
   return (
-    <View 
+    <View
       direction="column"
-      align="center" 
-      justify="center" 
+      align="center"
+      justify="center"
       height="100vh"
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0'
-        } 
-      }}
     >
       <Text>Loading order details...</Text>
     </View>

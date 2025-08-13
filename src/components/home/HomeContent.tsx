@@ -86,37 +86,28 @@ export function HomeContent() {
           paddingInline={4}
           attributes={{
             style: {
-              margin: '0 auto'
-            }
+              margin: "0 auto",
+            },
           }}
         >
           <View divided={true} gap={4}>
             <Text
-              variant="featured-3"
+              variant="featured-2"
               align="center"
               attributes={{
                 style: {
-                  fontFamily: "var(--font-carrois-gothic)",
+                  fontFamily: "var(--font-midruns-sans)",
                   letterSpacing: "1.28px",
+                  textTransform: "uppercase",
                 },
               }}
             >
-              FROM THE FOUNDERS OF SOL SIPS
+              From the founders of Sol Sips
             </Text>
-            <Text
-              variant="body-1"
-              align="center"
-              color="neutral"
-              attributes={{
-                style: {
-                  fontFamily: "var(--font-oswald)",
-                  letterSpacing: "0.96px;",
-                },
-              }}
-            >
-              Reimagine your relationship with cooking in our culinary playhouse.
-              We generate vibrant recipes for our members to explore in the
-              comfort of their home. Think of us as your creative kitchen
+            <Text variant="body-2" align="center" color="neutral">
+              Reimagine your relationship with cooking in our culinary
+              playhouse. We generate vibrant recipes for our members to explore
+              in the comfort of their home. Think of us as your creative kitchen
               companion serving flavorful meals rooted in joy and simplicity.
             </Text>
           </View>
@@ -126,13 +117,25 @@ export function HomeContent() {
 
       {/* Become a Superfoodie Section */}
       <View as="section" direction="column" align="center" gap={4} padding={8}>
-        <Text variant="featured-2" align="center">
-          BECOME A SUPERFOODIE
+        <Text
+          variant="featured-2"
+          align="center"
+          attributes={{
+            style: {
+              fontFamily: "var(--font-midruns-sans)",
+              textTransform: "uppercase",
+            },
+          }}
+        >
+          Become a Superfoodie
         </Text>
 
-
-        <Text variant="body-1" align="center" color="neutral">
-          Your membership includes weekly recipe videos with prompts to reconnect with your food, special offers on our products and in-person activations, masterclasses with top culinary artists and quarterly sampling gift boxes shipped to your door with small batch goods from Superfood Studio and like-minded makers.
+        <Text variant="body-2" align="center" color="neutral">
+          Your membership includes weekly recipe videos with prompts to
+          reconnect with your food, special offers on our products and in-person
+          activations, masterclasses with top culinary artists and quarterly
+          sampling gift boxes shipped to your door with small batch goods from
+          Superfood Studio and like-minded makers.
         </Text>
 
         <Button variant="solid" color="primary">
@@ -152,7 +155,6 @@ export function HomeContent() {
               padding: "8px 12px",
               borderRadius: "4px",
               border: "1px solid #e5e7eb",
-              fontFamily: "var(--font-lato)",
             }}
           />
           <Button variant="solid">STAY IN TOUCH →</Button>
@@ -163,10 +165,7 @@ export function HomeContent() {
             id="subscribeConsent"
             style={{ marginRight: "8px" }}
           />
-          <label
-            htmlFor="subscribeConsent"
-            style={{ fontSize: "0.8rem", fontFamily: "var(--font-lato)" }}
-          >
+          <label htmlFor="subscribeConsent" style={{ fontSize: "0.8rem" }}>
             Subscribe to receive communications for exclusive offers and events
             from Superfood Studio. By subscribing, you confirm you have read and
             understood our privacy policy.

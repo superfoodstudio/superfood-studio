@@ -9,19 +9,19 @@ import type { FeaturedRecipeQueryQuery } from '@/__generated__/FeaturedRecipeQue
 
 function FeaturedRecipeContent() {
   const router = useRouter();
-  
+
   const data = useLazyLoadQuery<FeaturedRecipeQueryQuery>(
     FeaturedRecipeQuery,
     {}
   );
-  
+
   // Get the latest recipe (first in the edges)
   const recipe = data.publicRecipes?.edges?.[0]?.node;
-  
+
   if (!recipe) {
     return null;
   }
-  
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -29,13 +29,12 @@ function FeaturedRecipeContent() {
       day: 'numeric'
     });
   };
-  
+
   return (
     <Card
       padding={0}
       attributes={{
         style: {
-          backgroundColor: '#f5f3f0',
           border: '1px solid #e5e5e5',
           borderRadius: '12px',
           overflow: 'hidden',
@@ -64,7 +63,7 @@ function FeaturedRecipeContent() {
             }}
           />
         </View>
-        
+
         {/* Recipe Content */}
         <View
           direction="column"
@@ -92,21 +91,20 @@ function FeaturedRecipeContent() {
               {recipe.category.toUpperCase()}
             </Text>
           </View>
-          
-          <Text 
+
+          <Text
             variant="title-3"
             attributes={{
               style: {
-                fontFamily: 'var(--font-big-caslon)',
                 lineHeight: '1.2'
               }
             }}
           >
             {recipe.name}
           </Text>
-          
-          <Text 
-            variant="body-2" 
+
+          <Text
+            variant="body-2"
             color="neutral-faded"
             attributes={{
               style: {
@@ -119,7 +117,7 @@ function FeaturedRecipeContent() {
           >
             {recipe.description}
           </Text>
-          
+
           <View direction="row" justify="space-between" align="center">
             <Text variant="caption-1" color="neutral-faded">
               {formatDate(recipe.uploadDate)}
@@ -152,7 +150,6 @@ function FeaturedRecipeLoading() {
       padding={6}
       attributes={{
         style: {
-          backgroundColor: '#f5f3f0',
           border: '1px solid #e5e5e5',
           borderRadius: '12px',
           height: '200px'

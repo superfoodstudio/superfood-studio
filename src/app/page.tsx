@@ -21,16 +21,11 @@ export default function Home() {
   // Show loading while checking authentication
   if (!ready) {
     return (
-      <View 
+      <View
         direction="column"
-        align="center" 
-        justify="center" 
+        align="center"
+        justify="center"
         height="100vh"
-        attributes={{ 
-          style: { 
-            backgroundColor: '#f5f3f0'
-          } 
-        }}
       >
         <Skeleton height="1.5rem" width="8rem" />
       </View>
@@ -44,16 +39,11 @@ export default function Home() {
 
   // Show loading while redirecting authenticated users
   return (
-    <View 
+    <View
       direction="column"
-      align="center" 
-      justify="center" 
+      align="center"
+      justify="center"
       height="100vh"
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0'
-        } 
-      }}
     >
       <Skeleton height="1.5rem" width="12rem" />
     </View>

@@ -23,16 +23,11 @@ export default function ProfilePage() {
 
   // Show loading while redirecting
   return (
-    <View 
+    <View
       direction="column"
-      align="center" 
-      justify="center" 
+      align="center"
+      justify="center"
       height="100vh"
-      attributes={{ 
-        style: { 
-          backgroundColor: '#f5f3f0'
-        } 
-      }}
     >
       <Text>Redirecting to dashboard...</Text>
     </View>

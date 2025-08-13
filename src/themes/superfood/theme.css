@@ -1,8 +1,7 @@
 
 			[data-rs-theme="superfood"] {
-					--rs-font-family-title: var(--font-midruns);
---rs-font-family-body: var(--font-lato);
---rs-font-family-button: var(--font-lato);
+					--rs-font-family-title: var(--font-midruns-script);
+--rs-font-family-body: var(--font-nunito);
 --rs-font-weight-regular: 400;
 --rs-font-weight-medium: 500;
 --rs-font-weight-semibold: 600;

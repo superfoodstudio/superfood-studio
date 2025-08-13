@@ -113,7 +113,7 @@ export function Navigation() {
               variant="featured-1"
               attributes={{
                 style: {
-                  fontFamily: 'var(--font-midruns)',
+                  fontFamily: 'var(--font-midruns-script)',
                   color: 'forestgreen',
                   textAlign: 'center'
                 }

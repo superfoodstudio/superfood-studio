@@ -578,11 +578,7 @@ function LoadingFallback() {
       align="center"
       justify="center"
       height="100vh"
-      attributes={{
-        style: {
-          backgroundColor: "#f5f3f0",
-        },
-      }}
+      backgroundColor="page"
     >
       <Text>Loading admin dashboard...</Text>
     </View>
