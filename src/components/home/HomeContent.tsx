@@ -11,11 +11,12 @@ function HeroVideoSection() {
   const data = useLazyLoadQuery<SiteSettingsQueriesQuery>(
     SiteSettingsQuery,
     {},
-    { fetchPolicy: 'store-or-network' }
+    { fetchPolicy: "store-or-network" }
   );
 
   // Fallback video URL if no admin video is set
-  const defaultVideoUrl = "https://ipfs.io/ipfs/bafybeiey5bktyrja2zfxdcnnil7neqhp3ngky2jsatqgjd3uyevcjn6p2a";
+  const defaultVideoUrl =
+    "https://ipfs.io/ipfs/bafybeiey5bktyrja2zfxdcnnil7neqhp3ngky2jsatqgjd3uyevcjn6p2a";
   const videoUrl = data.siteSettings?.homepageVideoUrl || defaultVideoUrl;
 
   return (
@@ -33,10 +34,7 @@ function HeroVideoSection() {
           display: "block",
         }}
       >
-        <source
-          src={videoUrl}
-          type="video/mp4"
-        />
+        <source src={videoUrl} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </View>
@@ -52,8 +50,8 @@ function HeroVideoLoading() {
         borderRadius="large"
         attributes={{
           style: {
-            display: "block"
-          }
+            display: "block",
+          },
         }}
       />
     </View>
@@ -62,13 +60,7 @@ function HeroVideoLoading() {
 
 export function HomeContent() {
   return (
-    <View
-      as="main"
-      direction="column"
-      padding={4}
-      paddingTop={0}
-      gap={2}
-    >
+    <View as="main" direction="column" padding={4} paddingTop={0} gap={2}>
       {/* Hero Video Section */}
       <Suspense fallback={<HeroVideoLoading />}>
         <HeroVideoSection />
@@ -112,14 +104,13 @@ export function HomeContent() {
               },
             }}
           >
-            a plant-forward concept studio with a new collection of audio-
-            <br />
-            visual recipes and superfood-centric tutorials every month
+            Reimagine your relationship with cooking in our culinary playhouse.
+            We generate vibrant recipes for our members to explore in the
+            comfort of their home. Think of us as your creative kitchen
+            companion serving flavorful meals rooted in joy and simplicity.
           </Text>
         </View>
-        <Button variant="outline">
-          LEARN MORE
-        </Button>
+        <Button variant="outline">LEARN MORE</Button>
       </View>
 
       {/* Become a Superfoodie Section */}
