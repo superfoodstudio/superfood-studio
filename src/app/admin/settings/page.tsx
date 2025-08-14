@@ -6,6 +6,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { FormField } from '@/components/admin/FormField';
 import { FormError } from '@/components/admin/FormError';
 import { VideoUpload } from '@/components/admin/VideoUpload';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { SiteSettingsQuery, UpdateSiteSettingsMutation } from '@/graphql/queries/SiteSettingsQueries';
@@ -82,10 +83,9 @@ function SiteSettingsContent() {
         </FormField>
         
         <FormField label="Weekly Grocery List" error={errors.weeklyGroceryList?.message}>
-          <TextArea 
-            name="weeklyGroceryList"
+          <RichTextEditor
             value={formValues.weeklyGroceryList}
-            onChange={({ value }) => setValue('weeklyGroceryList', value)}
+            onChange={(value) => setValue('weeklyGroceryList', value)}
             placeholder="Enter the weekly grocery list content here..."
             disabled={saving}
           />

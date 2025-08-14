@@ -85,9 +85,6 @@ export function Navigation() {
     <>
       <View
         as="header"
-        direction="row"
-        align="center"
-        padding={6}
         backgroundColor="page"
         width="100%"
         attributes={{
@@ -98,6 +95,18 @@ export function Navigation() {
           }
         }}
       >
+        <View
+          direction="row"
+          align="center"
+          padding={{ s: 4, m: 6 }}
+          width="100%"
+          attributes={{
+            style: {
+              maxWidth: '1280px',
+              margin: '0 auto'
+            }
+          }}
+        >
         {/* Logo - Centered with absolute positioning */}
         <View
           attributes={{
@@ -130,7 +139,7 @@ export function Navigation() {
                     color: 'var(--rs-color-forest-green)',
                     fontSize: '2.6rem',
                     position: 'absolute',
-                    top: '0px',
+                    top: '-6px',
                     left: '0px',
                     lineHeight: '1.2'
                   }
@@ -147,7 +156,7 @@ export function Navigation() {
                     color: 'var(--rs-color-forest-green)',
                     fontSize: '1.8rem',
                     position: 'absolute',
-                    bottom: '-8px',
+                    bottom: '0px',
                     right: '-4px',
                     lineHeight: '1.2'
                   }
@@ -249,6 +258,7 @@ export function Navigation() {
               Sign In
             </Button>
           )}
+        </View>
         </View>
       </View>
 

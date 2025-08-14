@@ -156,32 +156,6 @@ function DashboardContent() {
           gap={6}
           padding={8}
         >
-          {/* Coconut Image */}
-          <View
-            attributes={{
-              style: {
-                width: "280px",
-                height: "280px",
-                borderRadius: "50%",
-                backgroundColor: "#F5D565",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              },
-            }}
-          >
-            <img
-              src="/coconut.png"
-              alt="Coconut"
-              style={{
-                width: "220px",
-                height: "220px",
-                objectFit: "contain",
-              }}
-            />
-          </View>
-
           {/* Content Section */}
           <View
             direction="column"
@@ -194,7 +168,6 @@ function DashboardContent() {
               align={{ s: "center", m: "start" }}
               attributes={{
                 style: {
-                  fontFamily: '"Carrois Gothic SC"',
                   textTransform: "uppercase",
                   letterSpacing: "1px",
                   fontSize: "14px",
@@ -223,26 +196,6 @@ function DashboardContent() {
               gap={3}
               attributes={{ style: { marginTop: "16px", width: "100%" } }}
             >
-              <Button
-                variant="outline"
-                size="large"
-                onClick={() => router.push("/recipes")}
-                attributes={{
-                  style: {
-                    borderRadius: "25px",
-                    padding: "12px 32px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    letterSpacing: "0.5px",
-                    border: "2px solid #6b4c7a",
-                    color: "#6b4c7a",
-                    backgroundColor: "transparent",
-                  },
-                }}
-              >
-                SEE RECIPES
-              </Button>
-
               <Button
                 variant="solid"
                 size="large"

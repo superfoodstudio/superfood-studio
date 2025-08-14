@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { View, Text, Table, Button, Card } from 'reshaped';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
+import { LoadMore } from '@/components/ui/LoadMore';
 
 // Format date for display
 function formatDate(dateString: string): string {
@@ -76,7 +77,6 @@ function AdminRecipesContent() {
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [sortFilter, setSortFilter] = useState<string>('newest');
-  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const queryData = useLazyLoadQuery<pageRecipesPageQuery>(
     AdminRecipesPageQuery,
@@ -102,22 +102,20 @@ function AdminRecipesContent() {
 
   const recipes = data.recipesConnection?.edges?.map(edge => edge.node) || [];
   
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    if (!loadMoreRef.current || !hasNext || isLoadingNext) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNext && !isLoadingNext) {
-          loadNext(20);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasNext, isLoadingNext, loadNext]);
+  // Debug logging
+  console.log('Admin Recipes Debug:', {
+    statusFilter,
+    categoryFilter, 
+    searchFilter,
+    sortFilter,
+    recipesConnectionExists: !!data.recipesConnection,
+    edgesCount: data.recipesConnection?.edges?.length || 0,
+    recipes: recipes.length
+  });
+  
+  const handleLoadMore = () => {
+    loadNext(20);
+  };
 
   const handleStatusFilter = (status: string) => {
     setStatusFilter(status);
@@ -141,9 +139,20 @@ function AdminRecipesContent() {
   };
 
   return (
-    <View direction="column" gap={6}>
+    <View direction="column" gap={6} padding={8}>
       <View direction="row" justify="space-between" align="center">
-        <Text variant="title-2">Manage Recipes</Text>
+        <Text 
+          variant="body-1" 
+          weight="medium"
+          attributes={{
+            style: {
+              fontFamily: 'var(--font-midruns-sans)',
+              fontSize: '1.25rem'
+            }
+          }}
+        >
+          Manage Recipes
+        </Text>
         <Link href="/admin/recipes/new" passHref>
           <Button>Create New Recipe</Button>
         </Link>
@@ -279,22 +288,11 @@ function AdminRecipesContent() {
             </Table.Body>
           </Table>
           
-          {/* Infinite scroll trigger */}
-          {hasNext && (
-            <div 
-              ref={loadMoreRef}
-              style={{ height: '10px', visibility: 'hidden' }}
-            />
-          )}
-          
-          {/* Loading indicator */}
-          {isLoadingNext && (
-            <View direction="column" align="center" padding={4}>
-              <Text variant="caption-1" color="neutral-faded">
-                Loading more recipes...
-              </Text>
-            </View>
-          )}
+          <LoadMore
+            hasNext={hasNext}
+            isLoadingNext={isLoadingNext}
+            onLoadMore={handleLoadMore}
+          />
         </>
       )}
     </View>
@@ -304,7 +302,6 @@ function AdminRecipesContent() {
 function AdminRecipesLoading() {
   return (
     <View direction="column" gap={4}>
-      <Text variant="title-2">Manage Recipes</Text>
       <View padding={4}>
         <Text>Loading recipes...</Text>
       </View>
@@ -332,14 +329,8 @@ export default function AdminRecipesPage() {
   }
 
   return (
-    <div style={{ background: '#fff', minHeight: '100vh', width: '100%' }}>
-      <View direction="column" gap={6} padding={8}>
-        <Card padding={6}>
-          <Suspense fallback={<AdminRecipesLoading />}>
-            <AdminRecipesContent />
-          </Suspense>
-        </Card>
-      </View>
-    </div>
+    <Suspense fallback={<AdminRecipesLoading />}>
+      <AdminRecipesContent />
+    </Suspense>
   );
 } 

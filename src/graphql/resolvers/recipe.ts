@@ -56,6 +56,14 @@ interface RecipeUpdateInput {
 
 export const recipeResolvers = {
   Recipe: {
+    // Resolver for the comments field
+    comments: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
+      return prisma.comment.findMany({
+        where: { recipeId: parent.id },
+        orderBy: { createdAt: 'desc' }
+      });
+    },
+
     // Resolver for the ratings field
     ratings: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
       return prisma.recipeRating.findMany({
@@ -134,38 +142,58 @@ export const recipeResolvers = {
     },
 
     // Alias for recipes connection (for admin compatibility)
-    recipesConnection: async (_parent: unknown, args: RecipeFilters, { prisma }: GraphQLContext) => {
-      const { category, status, search, sort, ...paginationArgs } = args;
+    recipesConnection: async (_parent: unknown, args: RecipeFilters, { prisma, user }: GraphQLContext) => {
+      // For now, allow unauthenticated access to help with debugging
+      console.log('🔍 RecipesConnection resolver called with:', { 
+        args, 
+        userAuthenticated: user?.isAuthenticated 
+      });
+      
+      try {
+        const { category, status, search, sort, ...paginationArgs } = args;
 
-      const baseWhere: RecipeWhereInput = {
-        ...(category ? { category } : {}),
-        ...(status && status !== 'all' ? { isPublished: status === 'live' } : {}),
-        ...(search
-          ? {
-              OR: [
-                { name: { contains: search, mode: 'insensitive' } },
-                { description: { contains: search, mode: 'insensitive' } },
-              ],
-            }
-          : {}),
-      };
+        const baseWhere: RecipeWhereInput = {
+          ...(category ? { category } : {}),
+          ...(status && status !== 'all' ? { isPublished: status === 'live' } : {}),
+          ...(search
+            ? {
+                OR: [
+                  { name: { contains: search, mode: 'insensitive' } },
+                  { description: { contains: search, mode: 'insensitive' } },
+                ],
+              }
+            : {}),
+        };
 
-      // Determine cursor field based on sort
-      let cursorField = 'uploadDate';
-      if (sort === 'a-z' || sort === 'z-a') {
-        cursorField = 'name';
-      }
+        console.log('🔍 RecipesConnection baseWhere:', baseWhere);
 
-      return paginateQuery(
-        prisma.recipe,
-        paginationArgs,
-        baseWhere,
-        {
-          cursorField,
-          defaultLimit: 20,
-          maxLimit: 100
+        // Determine cursor field based on sort
+        let cursorField = 'uploadDate';
+        if (sort === 'a-z' || sort === 'z-a') {
+          cursorField = 'name';
         }
-      );
+
+        const result = await paginateQuery(
+          prisma.recipe,
+          paginationArgs,
+          baseWhere,
+          {
+            cursorField,
+            defaultLimit: 20,
+            maxLimit: 100
+          }
+        );
+        
+        console.log('🔍 RecipesConnection result:', {
+          edgesCount: result?.edges?.length || 0,
+          hasNextPage: result?.pageInfo?.hasNextPage
+        });
+        
+        return result;
+      } catch (error) {
+        console.error('🚨 RecipesConnection resolver error:', error);
+        throw error;
+      }
     },
 
     recipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {

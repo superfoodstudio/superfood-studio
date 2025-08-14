@@ -60,22 +60,191 @@ function HeroVideoLoading() {
 
 export function HomeContent() {
   return (
-    <View as="main" direction="column" padding={4} paddingTop={0} gap={2}>
+    <View 
+      as="main" 
+      direction="column" 
+      padding={{ s: 4, m: 0 }} 
+      paddingTop={0} 
+      gap={2}
+      width="100%"
+      attributes={{
+        style: {
+          maxWidth: '1280px',
+          margin: '0 auto'
+        }
+      }}
+    >
       {/* Hero Video Section */}
-      <Suspense fallback={<HeroVideoLoading />}>
-        <HeroVideoSection />
-      </Suspense>
+      <View padding={{ s: 0, m: 4 }}>
+        <Suspense fallback={<HeroVideoLoading />}>
+          <HeroVideoSection />
+        </Suspense>
+      </View>
+
+      {/* Your Culinary Playhouse Section */}
+      <View padding={{ s: 0, m: 4 }}>
+        <View 
+          as="section"
+          padding={8}
+        attributes={{
+          style: {
+            backgroundColor: 'var(--rs-color-lime-green)',
+            borderRadius: '24px'
+          }
+        }}
+      >
+        <View direction="column" align="center" gap={6}>
+          {/* Title */}
+          <View direction="column" align="center" gap={0}>
+            <Text
+              variant="title-1"
+              attributes={{
+                style: {
+                  fontFamily: 'var(--font-midruns-sans)',
+                  color: 'var(--rs-color-forest-green)',
+                  fontSize: '3.5rem',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  lineHeight: '1.1',
+                  marginBottom: '-10px'
+                }
+              }}
+            >
+              YOUR
+            </Text>
+            <Text
+              variant="title-1"
+              attributes={{
+                style: {
+                  fontFamily: 'var(--font-midruns-script)',
+                  color: 'var(--rs-color-forest-green)',
+                  fontSize: '4rem',
+                  fontWeight: '400',
+                  lineHeight: '1.1',
+                  marginBottom: '-8px'
+                }
+              }}
+            >
+              Culinary
+            </Text>
+            <Text
+              variant="title-1"
+              attributes={{
+                style: {
+                  fontFamily: 'var(--font-midruns-sans)',
+                  color: 'var(--rs-color-forest-green)',
+                  fontSize: '3.5rem',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '2px',
+                  lineHeight: '1.1'
+                }
+              }}
+            >
+              PLAYHOUSE
+            </Text>
+          </View>
+
+        </View>
+        </View>
+      </View>
+
+      {/* Become a Superfoodie Section */}
+      <View padding={{ s: 0, m: 4 }}>
+        <View 
+          as="section"
+          direction={{ s: "column", m: "row" }}
+        gap={0}
+        attributes={{
+          style: {
+            borderRadius: '24px',
+            overflow: 'hidden'
+          }
+        }}
+      >
+        {/* Left Section - Beige */}
+        <View 
+          direction="column" 
+          gap={4} 
+          padding={8}
+          attributes={{ 
+            style: { 
+              flex: 1,
+              backgroundColor: 'var(--rs-color-beige)'
+            } 
+          }}
+        >
+          <Text
+            variant="body-1"
+            attributes={{
+              style: {
+                fontSize: '2.2rem',
+                fontWeight: '600',
+                lineHeight: '1.2',
+                color: 'var(--rs-color-forest-green)'
+              }
+            }}
+          >
+            Become a<br />Superfoodie
+          </Text>
+          <Text
+            variant="body-2"
+            color="neutral-faded"
+            attributes={{
+              style: {
+                fontSize: '1rem',
+                lineHeight: '1.6',
+                marginBottom: '1rem'
+              }
+            }}
+          >
+            Learn the craft of building a plant-forward plate.
+          </Text>
+          <Text
+            variant="body-2"
+            color="neutral"
+            attributes={{
+              style: {
+                fontSize: '0.95rem',
+                lineHeight: '1.5'
+              }
+            }}
+          >
+            Unlock access to weekly recipes, special offers on our small-batch goods, quarterly master-classes with top culinary artists and member rates on our in-person garden-to-table activations.
+          </Text>
+        </View>
+
+        {/* Right Section - Light Blue */}
+        <View
+          padding={8}
+          attributes={{
+            style: {
+              flex: 1,
+              backgroundColor: 'var(--rs-color-light-blue)',
+              minHeight: '320px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }
+          }}
+        >
+          {/* Empty light blue section as shown in image */}
+        </View>
+        </View>
+      </View>
 
       {/* From the Founders Section */}
-      <View
-        as="section"
-        direction="column"
+      <View padding={{ s: 0, m: 4 }}>
+        <View
+          as="section"
+          direction="column"
         align="center"
         gap={4}
         padding={8}
         attributes={{
           style: {
-            backgroundColor: "#e7dfb9",
+            backgroundColor: "var(--rs-color-coral-red)",
             borderRadius: "24px",
           },
         }}
@@ -113,38 +282,13 @@ export function HomeContent() {
           </View>
         </View>
         <Button variant="outline">LEARN MORE</Button>
+        </View>
       </View>
 
-      {/* Become a Superfoodie Section */}
-      <View as="section" direction="column" align="center" gap={4} padding={8}>
-        <Text
-          variant="featured-2"
-          align="center"
-          attributes={{
-            style: {
-              fontFamily: "var(--font-midruns-sans)",
-              textTransform: "uppercase",
-            },
-          }}
-        >
-          Become a Superfoodie
-        </Text>
-
-        <Text variant="body-2" align="center" color="neutral">
-          Your membership includes weekly recipe videos with prompts to
-          reconnect with your food, special offers on our products and in-person
-          activations, masterclasses with top culinary artists and quarterly
-          sampling gift boxes shipped to your door with small batch goods from
-          Superfood Studio and like-minded makers.
-        </Text>
-
-        <Button variant="solid" color="primary">
-          LET'S GET COOKING
-        </Button>
-      </View>
 
       {/* Newsletter Section */}
-      <View as="section" direction="column" align="center" gap={4} padding={8}>
+      <View padding={{ s: 0, m: 4 }}>
+        <View as="section" direction="column" align="center" gap={4} padding={8}>
         <Text variant="body-2">subscribe</Text>
         <View direction="row" gap={2} maxWidth={400}>
           <input
@@ -171,12 +315,14 @@ export function HomeContent() {
             understood our privacy policy.
           </label>
         </View>
+        </View>
       </View>
 
       {/* Footer links */}
-      <View
-        as="section"
-        direction="row"
+      <View padding={{ s: 0, m: 4 }}>
+        <View
+          as="section"
+          direction="row"
         justify="space-between"
         padding={6}
         attributes={{
@@ -208,6 +354,7 @@ export function HomeContent() {
           <Link href="/terms">
             <Text variant="caption-1">t & c</Text>
           </Link>
+        </View>
         </View>
       </View>
     </View>

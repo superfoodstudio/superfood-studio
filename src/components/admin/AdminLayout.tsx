@@ -40,7 +40,18 @@ export function AdminLayout({ children, title, backUrl = '/admin', actions }: Ad
                 ← Back
               </Button>
             )}
-            <Text variant="title-2">{title}</Text>
+            <Text 
+              variant="body-1" 
+              weight="medium"
+              attributes={{
+                style: {
+                  fontFamily: 'var(--font-midruns-sans)',
+                  fontSize: '1.25rem'
+                }
+              }}
+            >
+              {title}
+            </Text>
           </View>
 
           {actions && (
