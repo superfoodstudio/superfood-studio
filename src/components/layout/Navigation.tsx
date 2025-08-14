@@ -87,7 +87,7 @@ export function Navigation() {
         as="header"
         direction="row"
         align="center"
-        padding={4}
+        padding={6}
         backgroundColor="page"
         width="100%"
         attributes={{
@@ -109,18 +109,53 @@ export function Navigation() {
           }}
         >
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <Text
-              variant="featured-1"
+            <View
               attributes={{
                 style: {
-                  fontFamily: 'var(--font-midruns-script)',
-                  color: 'forestgreen',
-                  textAlign: 'center'
+                  position: 'relative',
+                  width: '160px',
+                  height: '60px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }
               }}
             >
-              Superfood Studio
-            </Text>
+              {/* Superfood - Top left, larger */}
+              <Text
+                variant="featured-1"
+                attributes={{
+                  style: {
+                    fontFamily: 'var(--font-midruns-script)',
+                    color: 'var(--rs-color-forest-green)',
+                    fontSize: '2.6rem',
+                    position: 'absolute',
+                    top: '0px',
+                    left: '0px',
+                    lineHeight: '1.2'
+                  }
+                }}
+              >
+                Superfood
+              </Text>
+              {/* Studio - Bottom right, with proper spacing */}
+              <Text
+                variant="featured-1"
+                attributes={{
+                  style: {
+                    fontFamily: 'var(--font-midruns-sans)',
+                    color: 'var(--rs-color-forest-green)',
+                    fontSize: '1.8rem',
+                    position: 'absolute',
+                    bottom: '-8px',
+                    right: '-4px',
+                    lineHeight: '1.2'
+                  }
+                }}
+              >
+                Studio
+              </Text>
+            </View>
           </Link>
         </View>
 
