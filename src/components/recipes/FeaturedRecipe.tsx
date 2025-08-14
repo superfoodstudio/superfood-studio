@@ -5,6 +5,7 @@ import { View, Text, Card, Button } from 'reshaped';
 import { useLazyLoadQuery } from 'react-relay';
 import { useRouter } from 'next/navigation';
 import { FeaturedRecipeQuery } from '@/graphql/queries/FeaturedRecipeQuery';
+import { stripHtml } from '@/lib/textUtils';
 import type { FeaturedRecipeQueryQuery } from '@/__generated__/FeaturedRecipeQueryQuery.graphql';
 
 function FeaturedRecipeContent() {
@@ -115,7 +116,7 @@ function FeaturedRecipeContent() {
               }
             }}
           >
-            {recipe.description}
+            {stripHtml(recipe.description, 150)}
           </Text>
 
           <View direction="row" justify="space-between" align="center">

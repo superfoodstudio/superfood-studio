@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
+import { stripHtml } from '@/lib/textUtils';
 
 // Define the query that includes the fragment
 const AdminProductsPageQuery = graphql`
@@ -243,9 +244,7 @@ function AdminProductsContent() {
                       <Text weight="medium">{product.name}</Text>
                       {product.description && (
                         <Text variant="caption-1" color="neutral-faded">
-                          {product.description.length > 50 
-                            ? `${product.description.substring(0, 50)}...`
-                            : product.description}
+                          {stripHtml(product.description, 50)}
                         </Text>
                       )}
                     </View>

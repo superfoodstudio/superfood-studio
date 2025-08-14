@@ -159,7 +159,6 @@ function DashboardContent() {
           {/* Content Section */}
           <View
             direction="column"
-            gap={4}
             align={{ s: "center", m: "start" }}
             attributes={{ style: { flex: 1 } }}
           >
@@ -191,27 +190,15 @@ function DashboardContent() {
               a curated collection of recipes and step by step tutorials
             </Text>
 
-            <View
-              direction={{ s: "column", m: "row" }}
-              gap={3}
-              attributes={{ style: { marginTop: "16px", width: "100%" } }}
-            >
+            <View direction={{ s: "column", m: "row" }}>
               <Button
                 variant="solid"
                 size="large"
+                color="primary"
+                rounded={true}
                 onClick={() => router.push("/dashboard/grocery-list")}
-                attributes={{
-                  style: {
-                    backgroundColor: "#6b4c7a",
-                    borderRadius: "25px",
-                    padding: "12px 32px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    letterSpacing: "0.5px",
-                  },
-                }}
               >
-                GET GROCERY LIST
+                Get Grocery List
               </Button>
             </View>
           </View>
@@ -219,9 +206,9 @@ function DashboardContent() {
 
         {/* Featured Recipe */}
         <View padding={4}>
-          <View direction="column" gap={3} paddingBottom={2}>
+          <View direction="column" gap={3}>
             <Text
-              variant="title-3"
+              variant="featured-1"
               attributes={{
                 style: {
                   fontFamily: "var(--font-big-caslon)",
@@ -230,10 +217,7 @@ function DashboardContent() {
               }}
             >
               featured recipe
-            </Text>
-            <Text variant="body-2" color="neutral-faded">
-              Discover this week's highlighted superfood creation
-            </Text>
+            </Text>now
           </View>
           <FeaturedRecipe />
         </View>

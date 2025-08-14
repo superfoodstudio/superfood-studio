@@ -18,6 +18,7 @@ import { MediaDisplay } from '@/components/recipes/MediaDisplay';
 import { RecipeComments } from '@/components/recipes/RecipeComments';
 import { StarRating } from '@/components/ratings/StarRating';
 import { RecipeDetailSkeleton } from '@/components/ui/RecipeDetailSkeleton';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 
 // LazyLoad component that will only fetch data when it's needed
 function RecipeDetailLazy({ slug }: { slug: string }) {
@@ -139,7 +140,7 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
         </View>
         
         {/* Recipe Description */}
-        <Text variant="body-1">{recipe.description}</Text>
+        <RichTextDisplay content={recipe.description} />
         
         {/* Rating Section */}
         <View direction="column" gap={2}>
@@ -170,7 +171,7 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
             <View as="ul" direction="column" gap={2} attributes={{ style: { paddingLeft: '20px' } }}>
               {recipe.ingredients && recipe.ingredients.map((ingredient: string, index: number) => (
                 <View as="li" key={index}>
-                  <Text variant="body-1">{ingredient}</Text>
+                  <RichTextDisplay content={ingredient} />
                 </View>
               ))}
             </View>
@@ -199,7 +200,7 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
                 >
                   <Text variant="body-1">{index + 1}</Text>
                 </View>
-                <Text variant="body-1">{instruction}</Text>
+                <RichTextDisplay content={instruction} />
               </View>
             ))}
           </View>

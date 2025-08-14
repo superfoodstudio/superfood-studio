@@ -5,6 +5,7 @@ import { graphql, useFragment } from 'react-relay';
 import Link from 'next/link';
 import { View, Text, Button } from 'reshaped';
 import { StarRating } from '@/components/ratings/StarRating';
+import { stripHtml } from '@/lib/textUtils';
 
 // Use a unique name with proper module prefix
 export const recipeCardFragment = graphql`
@@ -109,7 +110,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden'
           }}>
-            <Text variant="body-3">{data.description}</Text>
+            <Text variant="body-3">{stripHtml(data.description, 120)}</Text>
           </div>
           
           {/* Rating Display */}

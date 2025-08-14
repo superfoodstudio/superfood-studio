@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { View, Button, Text, TextArea, TextField, NumberField, Switch } from 'reshaped';
+import { View, Button, Text, TextField, NumberField, Switch } from 'reshaped';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -19,6 +20,10 @@ export default function NewProductPage() {
     tags: '',
     inventory: 0,
   });
+  
+  const setDescription = (value: string) => {
+    setFormData(prev => ({ ...prev, description: value }));
+  };
   
   const [uploading, setUploading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -157,10 +162,9 @@ export default function NewProductPage() {
 
       <View gap={2}>
         <Text>Description *</Text>
-        <TextArea
-          name="description"
+        <RichTextEditor
           value={formData.description}
-          onChange={({ value }) => setFormData(prev => ({ ...prev, description: value }))}
+          onChange={setDescription}
           placeholder="Product description"
         />
       </View>

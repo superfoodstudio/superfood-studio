@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { View, Button, Text, TextArea } from 'reshaped';
+import { View, Button, Text } from 'reshaped';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { FormField } from '@/components/admin/FormField';
 import { FormError } from '@/components/admin/FormError';

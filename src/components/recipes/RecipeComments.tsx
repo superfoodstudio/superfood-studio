@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { View, Text, TextArea, Button, Divider } from 'reshaped';
+import { View, Text, Button, Divider } from 'reshaped';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { RecipeCommentsQuery, CreateCommentMutation } from '@/graphql/queries/CommentQueries';
@@ -30,16 +30,15 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
 
   const [createComment] = useMutation<CommentQueriesCreateMutation>(CreateCommentMutation);
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<CommentFormInputs>();
-  const contentValue = watch('content', '');
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CommentFormInputs>();
 
   const onSubmit: SubmitHandler<CommentFormInputs> = (formData) => {
-    if (formData.content.trim().length === 0) {
+    if (!formData.content.trim()) {
       setError('Comment cannot be empty');
       return;
     }
 
-    if (formData.content.length > 500) {
+    if (formData.content.trim().length > 500) {
       setError('Comment cannot exceed 500 characters');
       return;
     }
@@ -150,17 +149,9 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
         </View>
 
         <View>
-          <View direction="row" justify="space-between" align="center">
-            <Text variant="body-2" weight="medium">Comment *</Text>
-            <Text variant="caption-1" color={contentValue.length > 500 ? "critical" : "neutral-faded"}>
-              {contentValue.length}/500
-            </Text>
-          </View>
+          <Text variant="body-2" weight="medium">Comment *</Text>
           <textarea
-            {...register('content', { 
-              required: 'Comment is required',
-              maxLength: { value: 500, message: 'Comment cannot exceed 500 characters' }
-            })}
+            {...register('content', { required: 'Comment is required', maxLength: 500 })}
             placeholder="Share your thoughts about this recipe..."
             rows={4}
             style={{
@@ -181,7 +172,7 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
         <Button 
           type="submit" 
           variant="solid" 
-          disabled={submitting || contentValue.length > 500}
+          disabled={submitting}
         >
           {submitting ? 'Posting...' : 'Post Comment'}
         </Button>

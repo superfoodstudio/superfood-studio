@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { View, TextArea, TextField, Switch } from 'reshaped';
+import { View, TextField, Switch } from 'reshaped';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -10,6 +10,7 @@ import { FormError } from '@/components/admin/FormError';
 import { AdminFormActions } from '@/components/admin/AdminFormActions';
 import { VideoUpload } from '@/components/admin/VideoUpload';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 interface Recipe {
   id: string;
@@ -49,6 +50,18 @@ export default function EditRecipePage() {
   // React Hook Form
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<RecipeFormInputs>();
   const formValues = watch();
+  
+  const setDescription = (value: string) => {
+    setValue('description', value);
+  };
+  
+  const setIngredients = (value: string) => {
+    setValue('ingredients', value);
+  };
+  
+  const setInstructions = (value: string) => {
+    setValue('instructions', value);
+  };
   
   useEffect(() => {
     async function fetchRecipe() {
@@ -257,12 +270,10 @@ export default function EditRecipePage() {
           </FormField>
           
           <FormField label="Description" error={errors.description?.message}>
-            <TextArea 
-              name="description"
+            <RichTextEditor
               value={formValues.description || ''}
-              onChange={({ value }) => setValue('description', value)}
+              onChange={setDescription}
               placeholder="Describe your recipe..."
-              disabled={saving}
             />
           </FormField>
           
@@ -284,19 +295,17 @@ export default function EditRecipePage() {
           </FormField>
           
           <FormField label="Ingredients" required error={errors.ingredients?.message}>
-            <TextArea 
-              name="ingredients"
+            <RichTextEditor
               value={formValues.ingredients || ''}
-              onChange={({ value }) => setValue('ingredients', value)}
+              onChange={setIngredients}
               placeholder="Enter one ingredient per line"
             />
           </FormField>
           
           <FormField label="Instructions" required error={errors.instructions?.message}>
-            <TextArea 
-              name="instructions"
+            <RichTextEditor
               value={formValues.instructions || ''}
-              onChange={({ value }) => setValue('instructions', value)}
+              onChange={setInstructions}
               placeholder="Enter one instruction step per line"
             />
           </FormField>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'reshaped';
+import styles from './RichTextEditor.module.css';
 
 // Dynamic import to avoid SSR issues
 import dynamic from 'next/dynamic';
@@ -59,27 +60,7 @@ export function RichTextEditor({
   }
 
   return (
-    <View
-      attributes={{
-        style: {
-          '.ql-editor': {
-            minHeight: '200px',
-            fontSize: '14px',
-            lineHeight: '1.5'
-          },
-          '.ql-toolbar': {
-            borderTopLeftRadius: '4px',
-            borderTopRightRadius: '4px',
-            borderBottom: '1px solid #e5e5e5'
-          },
-          '.ql-container': {
-            borderBottomLeftRadius: '4px',
-            borderBottomRightRadius: '4px',
-            borderTop: 'none'
-          }
-        }
-      }}
-    >
+    <div className={styles.richTextEditor}>
       <ReactQuill
         theme="snow"
         value={value}
@@ -92,6 +73,6 @@ export function RichTextEditor({
           backgroundColor: disabled ? '#f5f5f5' : '#fff'
         }}
       />
-    </View>
+    </div>
   );
 }

@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { View, TextArea, TextField, NumberField, Switch } from 'reshaped';
+import { View, TextField, NumberField, Switch } from 'reshaped';
 import { useParams, useRouter } from 'next/navigation';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { FormField } from '@/components/admin/FormField';
 import { FormError } from '@/components/admin/FormError';
 import { AdminFormActions } from '@/components/admin/AdminFormActions';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { usePrivy } from '@privy-io/react-auth';
 
 export default function EditProductPage() {
@@ -137,8 +138,8 @@ export default function EditProductPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setSaving(true);
     setError(null);
 
@@ -312,10 +313,9 @@ export default function EditProductPage() {
           </FormField>
 
           <FormField label="Description" required>
-            <TextArea
-              name="description"
+            <RichTextEditor
               value={description}
-              onChange={({ value }) => setDescription(value)}
+              onChange={setDescription}
               placeholder="Product description"
             />
           </FormField>
@@ -408,7 +408,7 @@ export default function EditProductPage() {
           isNew={isNew}
           isSaving={saving}
           isDeleting={deleting}
-          onSave={() => handleSubmit({} as React.FormEvent)}
+          onSave={() => handleSubmit()}
           onCancel={() => router.push('/admin/products')}
           onDelete={!isNew ? handleDelete : undefined}
           disabled={!name || !category || !description || !photoUrl || price <= 0}

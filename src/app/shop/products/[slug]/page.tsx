@@ -16,6 +16,7 @@ import { AppContainer } from '@/components/layout/AppContainer';
 import { useParams, useRouter } from 'next/navigation';
 import { StarRating } from '@/components/ratings/StarRating';
 import { ProductDetailSkeleton } from '@/components/ui/ProductDetailSkeleton';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 
 // LazyLoad component that will only fetch data when it's needed
 function ProductDetailLazy({ slug }: { slug: string }) {
@@ -146,7 +147,7 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
           
           <Divider />
           
-          <Text variant="body-1" align="start">{product.description}</Text>
+          <RichTextDisplay content={product.description} />
           
           {/* Rating Section */}
           <View direction="column" gap={2}>

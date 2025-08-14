@@ -8,6 +8,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { LoadMore } from '@/components/ui/LoadMore';
+import { stripHtml } from '@/lib/textUtils';
 
 // Format date for display
 function formatDate(dateString: string): string {
@@ -244,9 +245,7 @@ function AdminRecipesContent() {
                       <Text weight="medium">{recipe.name}</Text>
                       {recipe.description && (
                         <Text variant="caption-1" color="neutral-faded">
-                          {recipe.description.length > 50 
-                            ? `${recipe.description.substring(0, 50)}...`
-                            : recipe.description}
+                          {stripHtml(recipe.description, 50)}
                         </Text>
                       )}
                     </View>
