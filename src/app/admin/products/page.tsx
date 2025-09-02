@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { View, Text, Table, Button, Card } from 'reshaped';
+import { LoadMore } from '@/components/ui/LoadMore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
@@ -75,7 +76,6 @@ function AdminProductsContent() {
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [sortFilter, setSortFilter] = useState<string>('newest');
-  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const queryData = useLazyLoadQuery<pageProductsPageQuery>(
     AdminProductsPageQuery,
@@ -101,22 +101,11 @@ function AdminProductsContent() {
 
   const products = data.productsConnection?.edges?.map(edge => edge.node) || [];
   
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    if (!loadMoreRef.current || !hasNext || isLoadingNext) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNext && !isLoadingNext) {
-          loadNext(20);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasNext, isLoadingNext, loadNext]);
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingNext && hasNext) {
+      loadNext(20);
+    }
+  }, [loadNext, isLoadingNext, hasNext]);
 
   const handleStatusFilter = (status: string) => {
     setStatusFilter(status);
@@ -281,22 +270,11 @@ function AdminProductsContent() {
             </Table.Body>
           </Table>
           
-          {/* Infinite scroll trigger */}
-          {hasNext && (
-            <div 
-              ref={loadMoreRef}
-              style={{ height: '10px', visibility: 'hidden' }}
-            />
-          )}
-          
-          {/* Loading indicator */}
-          {isLoadingNext && (
-            <View direction="column" align="center" padding={4}>
-              <Text variant="caption-1" color="neutral-faded">
-                Loading more products...
-              </Text>
-            </View>
-          )}
+          <LoadMore
+            hasNext={hasNext}
+            isLoadingNext={isLoadingNext}
+            onLoadMore={handleLoadMore}
+          />
         </>
       )}
     </View>

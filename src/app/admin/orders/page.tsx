@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { Button, View, Text, Card } from 'reshaped';
+import { LoadMore } from '@/components/ui/LoadMore';
 import { graphql } from 'relay-runtime';
 // Helper function to format date
 function formatDate(dateString: string): string {
@@ -80,7 +81,6 @@ import type { pageOrdersPaginationFragment$key } from '@/__generated__/pageOrder
 
 function AdminOrdersContent() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const queryData = useLazyLoadQuery<pageOrdersPageQuery>(
     AdminOrdersPageQuery,
@@ -103,22 +103,11 @@ function AdminOrdersContent() {
 
   const orders = data.adminOrdersConnection?.edges?.map(edge => edge.node) || [];
   
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    if (!loadMoreRef.current || !hasNext || isLoadingNext) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNext && !isLoadingNext) {
-          loadNext(20);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasNext, isLoadingNext, loadNext]);
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingNext && hasNext) {
+      loadNext(20);
+    }
+  }, [loadNext, isLoadingNext, hasNext]);
   
   const handleStatusFilter = (status: string | null) => {
     setStatusFilter(status);
@@ -239,22 +228,11 @@ function AdminOrdersContent() {
             </View>
           ))}
           
-          {/* Infinite scroll trigger */}
-          {hasNext && (
-            <div 
-              ref={loadMoreRef}
-              style={{ height: '10px', visibility: 'hidden' }}
-            />
-          )}
-          
-          {/* Loading indicator */}
-          {isLoadingNext && (
-            <View direction="column" align="center" padding={4}>
-              <Text variant="caption-1" color="neutral-faded">
-                Loading more orders...
-              </Text>
-            </View>
-          )}
+          <LoadMore
+            hasNext={hasNext}
+            isLoadingNext={isLoadingNext}
+            onLoadMore={handleLoadMore}
+          />
         </>
       )}
     </View>

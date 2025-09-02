@@ -33,6 +33,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.55.0",
+    "react-intersection-observer": "^9.16.0",
     "react-player": "^3.3.1",
     "react-quill": "^2.0.0",
     "react-relay": "14.0.0",
@@ -40,13 +41,14 @@
     "reshaped": "^3.4.5",
     "sharp": "^0.34.1",
     "stripe": "^18.0.0",
-    "usehooks-ts": "^3.1.1"
+    "usehooks-ts": "^3.1.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/plugin-syntax-import-attributes": "^7.26.0",
     "@babel/preset-typescript": "^7.27.0",
     "@eslint/eslintrc": "^3",
-    "@faker-js/faker": "^9.8.0",
+    "@faker-js/faker": "^9.9.0",
     "@prisma/client": "^6.5.0",
     "@types/form-data": "^2.5.2",
     "@types/node": "^20.17.30",

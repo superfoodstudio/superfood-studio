@@ -121,7 +121,10 @@ export function createCursorWhere(
   if (!cursor) return baseWhere;
 
   const { field, value } = cursor;
-  const operator = direction === 'forward' ? 'gt' : 'lt';
+  // For date fields ordered desc, we want 'lt' (less than) to get older items
+  // For regular fields ordered asc, we want 'gt' (greater than) to get next items
+  const operator = direction === 'forward' ? 'lt' : 'gt';
+
 
   return {
     ...baseWhere,
@@ -140,9 +143,12 @@ export function createConnection<T>(
   const { cursorField = 'id' } = config;
   const { limit, direction } = validatePaginationArgs(args, config);
   
-  // Remove the extra record we fetched for pagination info
-  const hasMore = records.length > (limit - 1);
-  const nodes = hasMore ? records.slice(0, -1) : records;
+  // The limit from validatePaginationArgs is already +1 for pagination detection
+  // So we need to check if we have more than the original requested limit
+  const requestedLimit = args.first || args.last || config.defaultLimit || 20;
+  const hasMore = records.length > requestedLimit;
+  const nodes = hasMore ? records.slice(0, requestedLimit) : records;
+  
   
   // Reverse if backward pagination
   if (direction === 'backward') {
@@ -184,8 +190,8 @@ export async function paginateQuery<T>(
   // Build where clause
   const where = createCursorWhere(cursor, direction, baseWhere);
 
-  // Build order by
-  const orderBy = { [cursorField]: direction === 'forward' ? 'asc' : 'desc' };
+  // Build order by - for date fields, we typically want newest first (desc)
+  const orderBy = { [cursorField]: direction === 'forward' ? 'desc' : 'asc' };
 
   // Execute query
   const records = await prismaQuery.findMany({

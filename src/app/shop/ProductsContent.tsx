@@ -1,29 +1,12 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
-import { useQueryLoader } from 'react-relay';
-import { ProductsQuery } from '@/graphql/queries/ProductQueries';
+import { Suspense } from 'react';
 import ProductList from './ProductList';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { Grid } from 'reshaped';
 
 export default function ProductsContent() {
-  const [queryRef, loadQuery] = useQueryLoader(ProductsQuery);
-
-  useEffect(() => {
-    loadQuery({ 
-      category: null,
-      status: "active",
-      search: null,
-      sort: "newest"
-    });
-  }, [loadQuery]);
-
-  return (
-    <Suspense fallback={<ProductListSkeleton />}>
-      {queryRef && <ProductList queryRef={queryRef} />}
-    </Suspense>
-  );
+  return <ProductList />;
 }
 
 function ProductListSkeleton() {

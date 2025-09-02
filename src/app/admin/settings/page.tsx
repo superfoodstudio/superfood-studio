@@ -12,6 +12,7 @@ import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { SiteSettingsQuery, UpdateSiteSettingsMutation } from '@/graphql/queries/SiteSettingsQueries';
 import type { SiteSettingsQueriesQuery } from '@/__generated__/SiteSettingsQueriesQuery.graphql';
 import type { SiteSettingsQueriesUpdateMutation } from '@/__generated__/SiteSettingsQueriesUpdateMutation.graphql';
+import { useAppToast } from '@/lib/toast';
 
 interface SiteSettingsFormInputs {
   homepageVideoUrl: string;
@@ -21,6 +22,7 @@ interface SiteSettingsFormInputs {
 function SiteSettingsContent() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showSuccess, showError } = useAppToast();
 
   const data = useLazyLoadQuery<SiteSettingsQueriesQuery>(
     SiteSettingsQuery,
@@ -54,10 +56,12 @@ function SiteSettingsContent() {
       onCompleted: () => {
         setSaving(false);
         setError(null);
+        showSuccess('Settings saved successfully!');
       },
       onError: (error) => {
         setSaving(false);
         setError(error.message);
+        showError('Failed to save settings. Please try again.');
       },
     });
   };

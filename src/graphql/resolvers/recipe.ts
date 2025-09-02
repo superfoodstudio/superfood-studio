@@ -211,7 +211,6 @@ export const recipeResolvers = {
     publicRecipes: async (_parent: unknown, args: PublicRecipeFilters, { prisma, user }: GraphQLContext) => {
       const { category, ...paginationArgs } = args;
       
-      // For public recipes, we only show published recipes
       const baseWhere = {
         isPublished: true,
         ...(category ? { category } : {}),

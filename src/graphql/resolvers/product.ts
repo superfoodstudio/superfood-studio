@@ -208,7 +208,7 @@ export const productResolvers = {
     // Products connection for infinite scrolling
     productsConnection: async (
       _parent: unknown, 
-      { first = 10, after, category, status, search, sort }: { 
+      { first, after, category, status, search, sort }: { 
         first?: number; 
         after?: string; 
         category?: string; 
@@ -218,84 +218,30 @@ export const productResolvers = {
       }, 
       { prisma }: GraphQLContext
     ) => {
-      try {
-        let orderBy: ProductOrderByWithRelationInput = {};
-        switch (sort) {
-          case 'a-z':
-            orderBy = { name: 'asc' };
-            break;
-          case 'z-a':
-            orderBy = { name: 'desc' };
-            break;
-          case 'price-low-high':
-            orderBy = { price: 'asc' };
-            break;
-          case 'price-high-low':
-            orderBy = { price: 'desc' };
-            break;
-          case 'oldest':
-            orderBy = { createdAt: 'asc' };
-            break;
-          default:
-            orderBy = { createdAt: 'desc' }; // newest
+      const { paginateQuery } = await import('@/lib/pagination');
+      
+      const baseWhere: any = {
+        isArchived: false,
+        ...(category ? { category } : {}),
+        ...(status && status !== 'all' ? { isActive: status === 'active' } : {}),
+        ...(search ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        } : {}),
+      };
+
+      return paginateQuery(
+        prisma.product,
+        { first, after },
+        baseWhere,
+        {
+          cursorField: 'createdAt',
+          defaultLimit: 12,
+          maxLimit: 50
         }
-
-        const where: any = {
-          isArchived: false, // Always filter out archived products
-          ...(category ? { category } : {}),
-          ...(status && status !== 'all'
-            ? { isActive: status === 'active' }
-            : {}),
-          ...(search
-            ? {
-                OR: [
-                  { name: { contains: search, mode: 'insensitive' } },
-                  { description: { contains: search, mode: 'insensitive' } },
-                ],
-              }
-            : {}),
-        };
-        
-        // Add cursor-based pagination
-        if (after) {
-          where.id = { lt: after }; // Use 'lt' for descending order (newest first)
-        }
-
-        const products = await prisma.product.findMany({
-          where,
-          take: first + 1, // Take one extra to check if there are more
-          orderBy,
-        });
-
-        const hasNextPage = products.length > first;
-        const nodes = hasNextPage ? products.slice(0, -1) : products;
-
-        const edges = nodes.map((product) => ({
-          cursor: product.id,
-          node: product
-        }));
-
-        return {
-          edges,
-          pageInfo: {
-            hasNextPage,
-            hasPreviousPage: !!after,
-            startCursor: edges.length > 0 ? edges[0].cursor : null,
-            endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null
-          }
-        };
-      } catch (error) {
-        console.error('Error fetching products connection:', error);
-        return {
-          edges: [],
-          pageInfo: {
-            hasNextPage: false,
-            hasPreviousPage: false,
-            startCursor: null,
-            endCursor: null
-          }
-        };
-      }
+      );
     },
   },
 

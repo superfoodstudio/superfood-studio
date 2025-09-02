@@ -34,9 +34,24 @@ export function Navigation() {
     if (authenticated) {
       const fetchUserRole = async () => {
         try {
-          const response = await fetch('/api/user/role');
+          const token = await getAccessToken();
+          if (!token) {
+            console.error('No access token available');
+            setUserRole('PUBLIC');
+            return;
+          }
+
+          const response = await fetch('/api/user/role', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           if (response.ok) {
             const data = await response.json();
+            console.log('DEBUG: User role response:', data);
+            console.log('DEBUG: userRole value:', data.role);
+            console.log('DEBUG: userRole type:', typeof data.role);
+            console.log('DEBUG: userRole === "ADMIN":', data.role === 'ADMIN');
             setUserRole(data.role);
           }
         } catch (error) {
@@ -48,7 +63,7 @@ export function Navigation() {
     } else {
       setUserRole(null);
     }
-  }, [authenticated]);
+  }, [authenticated, getAccessToken]);
 
   useEffect(() => {
     if (!ready || !authenticated || !user) return;
@@ -231,19 +246,6 @@ export function Navigation() {
                 <Link href="/dashboard/orders" style={{ textDecoration: 'none', color: 'black' }}>
                   <DropdownMenu.Item>Order History</DropdownMenu.Item>
                 </Link>
-                {userRole === 'ADMIN' && (
-                  <>
-                    <Link href="/admin/products" style={{ textDecoration: 'none', color: 'black' }}>
-                      <DropdownMenu.Item>Manage Products</DropdownMenu.Item>
-                    </Link>
-                    <Link href="/admin/recipes" style={{ textDecoration: 'none', color: 'black' }}>
-                      <DropdownMenu.Item>Manage Recipes</DropdownMenu.Item>
-                    </Link>
-                    <Link href="/admin/orders" style={{ textDecoration: 'none', color: 'black' }}>
-                      <DropdownMenu.Item>Manage Orders</DropdownMenu.Item>
-                    </Link>
-                  </>
-                )}
                 <DropdownMenu.Item onClick={() => logout()} attributes={{ style: { color: 'black' } }}>
                   Sign Out
                 </DropdownMenu.Item>

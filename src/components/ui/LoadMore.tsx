@@ -1,48 +1,27 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { View, Text } from 'reshaped';
+import { useEffect } from 'react';
 
 interface LoadMoreProps {
   hasNext: boolean;
   isLoadingNext: boolean;
   onLoadMore: () => void;
-  threshold?: number; // How close to the element before triggering (0-1)
-  rootMargin?: string; // CSS margin for the intersection observer root
 }
 
-export function LoadMore({ 
-  hasNext, 
-  isLoadingNext, 
-  onLoadMore, 
-  threshold = 0.1,
-  rootMargin = '100px' 
-}: LoadMoreProps) {
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+export function LoadMore({ hasNext, isLoadingNext, onLoadMore }: LoadMoreProps) {
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    rootMargin: '100px',
+  });
 
   useEffect(() => {
-    if (!hasNext || isLoadingNext) return;
+    if (inView && hasNext && !isLoadingNext) {
+      onLoadMore();
+    }
+  }, [inView, hasNext, isLoadingNext, onLoadMore]);
 
-    const element = loadMoreRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNext && !isLoadingNext) {
-          onLoadMore();
-        }
-      },
-      { 
-        threshold,
-        rootMargin 
-      }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [hasNext, isLoadingNext, onLoadMore, threshold, rootMargin]);
-
-  // Don't render anything if there's no more content
   if (!hasNext) return null;
 
   return (
@@ -50,10 +29,8 @@ export function LoadMore({
       padding={4} 
       align="center"
       attributes={{
-        ref: loadMoreRef,
-        style: {
-          minHeight: '60px' // Ensure it's tall enough to intersect
-        }
+        ref,
+        style: { minHeight: '60px' }
       }}
     >
       {isLoadingNext ? (

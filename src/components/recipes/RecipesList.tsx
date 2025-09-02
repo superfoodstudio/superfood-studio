@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useCallback } from 'react';
 import { graphql, useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { RecipeCard } from './RecipeCard';
 import { View, Text } from 'reshaped';
@@ -53,6 +53,12 @@ function RecipesListContent({ category }: RecipesListProps) {
     RecipesListPaginationFragment$key
   >(recipesListPaginationFragment, queryData);
 
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingNext && hasNext) {
+      loadNext(12);
+    }
+  }, [loadNext, isLoadingNext, hasNext]);
+
   if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
     return (
       <View padding={4}>
@@ -60,10 +66,6 @@ function RecipesListContent({ category }: RecipesListProps) {
       </View>
     );
   }
-
-  const handleLoadMore = () => {
-    loadNext(12);
-  };
 
   return (
     <View direction="column" gap={4}>

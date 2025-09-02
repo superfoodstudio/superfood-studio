@@ -2,7 +2,7 @@ const Stripe = require('stripe');
 const dotenv = require('dotenv');
 
 // Load environment variables
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env.local.local' });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-08-16' as any,

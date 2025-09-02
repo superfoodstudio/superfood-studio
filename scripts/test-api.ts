@@ -90,7 +90,7 @@ console.log(`${logStyles.stripe(' STRIPE API ')} ${STRIPE_KEY ? logStyles.succes
 if (!USE_REAL_CREDENTIALS) {
   console.log(logStyles.warning('⚠️  Using mock credentials - some tests may fail or return simulated responses'));
 } else {
-  console.log(logStyles.success('🔑 Using real test credentials from .env.test file'));
+  console.log(logStyles.success('🔑 Using real test credentials from .env.local.test file'));
 }
 
 // Create axios instance with common configuration
