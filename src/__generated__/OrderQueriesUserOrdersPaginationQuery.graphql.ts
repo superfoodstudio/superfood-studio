@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<875a3525577647f93c2e91acb6d970ef>>
+ * @generated SignedSource<<e26b372b24596537a902166c1bdd2869>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,30 +10,32 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type OrderQueriesUserOrdersQuery$variables = {
+export type OrderQueriesUserOrdersPaginationQuery$variables = {
   after?: string | null;
-  first: number;
+  first?: number | null;
 };
-export type OrderQueriesUserOrdersQuery$data = {
+export type OrderQueriesUserOrdersPaginationQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"OrderQueriesUserOrdersPaginationFragment">;
 };
-export type OrderQueriesUserOrdersQuery = {
-  response: OrderQueriesUserOrdersQuery$data;
-  variables: OrderQueriesUserOrdersQuery$variables;
+export type OrderQueriesUserOrdersPaginationQuery = {
+  response: OrderQueriesUserOrdersPaginationQuery$data;
+  variables: OrderQueriesUserOrdersPaginationQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "after"
-},
-v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "first"
-},
-v2 = [
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "after"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "first"
+  }
+],
+v1 = [
   {
     "kind": "Variable",
     "name": "after",
@@ -45,7 +47,7 @@ v2 = [
     "variableName": "first"
   }
 ],
-v3 = {
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -54,13 +56,10 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "OrderQueriesUserOrdersQuery",
+    "name": "OrderQueriesUserOrdersPaginationQuery",
     "selections": [
       {
         "args": null,
@@ -73,16 +72,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "OrderQueriesUserOrdersQuery",
+    "name": "OrderQueriesUserOrdersPaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "OrderConnection",
         "kind": "LinkedField",
         "name": "userOrders",
@@ -104,7 +100,7 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
+                  (v2/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -134,7 +130,7 @@ return {
                     "name": "items",
                     "plural": true,
                     "selections": [
-                      (v3/*: any*/),
+                      (v2/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -171,7 +167,7 @@ return {
                             "name": "photoUrl",
                             "storageKey": null
                           },
-                          (v3/*: any*/)
+                          (v2/*: any*/)
                         ],
                         "storageKey": null
                       }
@@ -228,7 +224,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v1/*: any*/),
         "filters": null,
         "handle": "connection",
         "key": "UserOrdersList_userOrders",
@@ -238,16 +234,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1f6306973da01263de5354274222c0d5",
+    "cacheID": "4bbe5878df501d5764a74e76ee4ff89d",
     "id": null,
     "metadata": {},
-    "name": "OrderQueriesUserOrdersQuery",
+    "name": "OrderQueriesUserOrdersPaginationQuery",
     "operationKind": "query",
-    "text": "query OrderQueriesUserOrdersQuery(\n  $first: Int!\n  $after: String\n) {\n  ...OrderQueriesUserOrdersPaginationFragment\n}\n\nfragment OrderQueriesUserOrdersPaginationFragment on Query {\n  userOrders(first: $first, after: $after) {\n    edges {\n      node {\n        id\n        total\n        status\n        createdAt\n        items {\n          id\n          quantity\n          price\n          product {\n            name\n            photoUrl\n            id\n          }\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query OrderQueriesUserOrdersPaginationQuery(\n  $after: String\n  $first: Int\n) {\n  ...OrderQueriesUserOrdersPaginationFragment\n}\n\nfragment OrderQueriesUserOrdersPaginationFragment on Query {\n  userOrders(first: $first, after: $after) {\n    edges {\n      node {\n        id\n        total\n        status\n        createdAt\n        items {\n          id\n          quantity\n          price\n          product {\n            name\n            photoUrl\n            id\n          }\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "92d4490e8c28b40e1310335b9102178a";
+(node as any).hash = "3c229e9b61966c3946786c8dc950d2b3";
 
 export default node;

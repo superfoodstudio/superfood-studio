@@ -40,8 +40,8 @@ model Recipe {
   isPublished     Boolean  @default(false)
   mediaUrl        String   // IPFS URL from Pinata
   previewImageUrl String?  // Optional preview image for recipe cards
-  ingredients     String[] // List of ingredients
-  instructions    String[] // List of preparation steps
+  ingredients     String?   // Rich text HTML content for ingredients
+  instructions    String?   // Rich text HTML content for instructions
   uploadDate      DateTime @default(now())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

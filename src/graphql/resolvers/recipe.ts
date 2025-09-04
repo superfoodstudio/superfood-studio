@@ -39,8 +39,8 @@ interface RecipeCreateInput {
   isPublished: boolean;
   mediaUrl: string;
   uploadDate: Date;
-  ingredients?: string[];
-  instructions?: string[];
+  ingredients?: string;
+  instructions?: string;
 }
 
 interface RecipeUpdateInput {
@@ -50,8 +50,8 @@ interface RecipeUpdateInput {
   category?: string;
   isPublished?: boolean;
   mediaUrl?: string;
-  ingredients?: string[];
-  instructions?: string[];
+  ingredients?: string;
+  instructions?: string;
 }
 
 export const recipeResolvers = {
@@ -226,6 +226,23 @@ export const recipeResolvers = {
           maxLimit: 50
         }
       );
+    },
+
+    recipeCategories: async (_parent: unknown, _args: unknown, { prisma }: GraphQLContext) => {
+      const categories = await prisma.recipe.findMany({
+        select: { category: true },
+        distinct: ['category'],
+        where: {
+          category: {
+            not: ''
+          }
+        }
+      });
+
+      return categories
+        .map(r => r.category)
+        .filter(Boolean)
+        .sort();
     },
 
   },

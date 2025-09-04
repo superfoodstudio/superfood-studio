@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { View, Text, Button, Modal, useToggle, Skeleton } from 'reshaped';
 import { useLazyLoadQuery } from 'react-relay';
 import { SiteSettingsQuery } from '@/graphql/queries/SiteSettingsQueries';
+import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 import type { SiteSettingsQueriesQuery } from '@/__generated__/SiteSettingsQueriesQuery.graphql';
 
 function WeeklyGroceryListContent() {
@@ -25,28 +26,40 @@ function WeeklyGroceryListContent() {
     <>
       <Button
         variant="solid"
+        size="large"
+        color="primary"
+        rounded={true}
         onClick={() => groceryModal.activate()}
-        attributes={{
-          style: {
-            backgroundColor: '#6b4c7a',
-            borderRadius: '8px',
-            fontWeight: '600',
-            letterSpacing: '0.5px'
-          }
-        }}
       >
-        View Weekly Grocery List
+        Get Grocery List
       </Button>
 
       <Modal
         active={groceryModal.active}
         onClose={groceryModal.deactivate}
-        size="medium"
+        position="bottom"
       >
-        <View padding={6}>
-          <View gap={4}>
+        <View padding={6} gap={4}>
+            {/* Handle bar for visual indication it's a bottom sheet */}
+            <View 
+              align="center"
+              paddingBottom={2}
+            >
+              <View
+                attributes={{
+                  style: {
+                    width: '40px',
+                    height: '4px',
+                    backgroundColor: '#e2e8f0',
+                    borderRadius: '2px'
+                  }
+                }}
+              />
+            </View>
+
             <Text
               variant="title-3"
+              align="center"
               attributes={{
                 style: {
                   fontFamily: 'var(--font-big-caslon)',
@@ -60,26 +73,36 @@ function WeeklyGroceryListContent() {
             <View
               attributes={{
                 style: {
-                  fontSize: '14px',
-                  lineHeight: '1.6',
-                  color: '#4a5568',
-                  maxHeight: '60vh',
+                  maxHeight: '50vh',
                   overflowY: 'auto',
-                  whiteSpace: 'pre-wrap'
+                  padding: '16px',
+                  backgroundColor: '#f7fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0'
                 }
               }}
             >
-              {groceryListContent}
+              <RichTextDisplay 
+                content={groceryListContent} 
+                className="grocery-list-content"
+              />
             </View>
 
-            <View direction="row" justify="end" paddingTop={4}>
+            <View direction="row" justify="center" paddingTop={2}>
               <Button
-                variant="ghost"
+                variant="outline"
+                size="large"
                 onClick={groceryModal.deactivate}
+                attributes={{
+                  style: {
+                    borderRadius: '25px',
+                    paddingLeft: '24px',
+                    paddingRight: '24px'
+                  }
+                }}
               >
                 Close
               </Button>
-            </View>
           </View>
         </View>
       </Modal>

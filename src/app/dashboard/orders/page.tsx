@@ -2,15 +2,31 @@
 
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
-import { useLazyLoadQuery } from 'react-relay';
-import { Suspense, useEffect } from 'react';
+import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
+import { Suspense, useEffect, useCallback } from 'react';
 import { View, Text, Button, Card } from 'reshaped';
-import { UserOrdersQuery } from './OrderQueries';
+import { UserOrdersQuery, UserOrdersPaginationFragment } from './OrderQueries';
+import { LoadMore } from '@/components/ui/LoadMore';
 import type { OrderQueriesUserOrdersQuery } from '@/__generated__/OrderQueriesUserOrdersQuery.graphql';
+import type { OrderQueriesUserOrdersPaginationFragment$key } from '@/__generated__/OrderQueriesUserOrdersPaginationFragment.graphql';
 
 function OrdersContent() {
-  const data = useLazyLoadQuery<OrderQueriesUserOrdersQuery>(UserOrdersQuery, {});
+  const queryData = useLazyLoadQuery<OrderQueriesUserOrdersQuery>(UserOrdersQuery, {
+    first: 10
+  });
+  
+  const { data, loadNext, hasNext, isLoadingNext } = usePaginationFragment<
+    OrderQueriesUserOrdersQuery,
+    OrderQueriesUserOrdersPaginationFragment$key
+  >(UserOrdersPaginationFragment, queryData);
+  
   const router = useRouter();
+
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingNext && hasNext) {
+      loadNext(10);
+    }
+  }, [loadNext, isLoadingNext, hasNext]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -191,6 +207,13 @@ function OrdersContent() {
               ))}
             </View>
           )}
+
+          {/* Load More Component */}
+          <LoadMore
+            hasNext={hasNext}
+            isLoadingNext={isLoadingNext}
+            onLoadMore={handleLoadMore}
+          />
 
           {/* Navigation Buttons */}
           <View

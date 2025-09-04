@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
         category: 'food',
         isPublished: false,
         uploadDate: new Date(),
+        ingredients: '',
+        instructions: '',
       },
     });
 

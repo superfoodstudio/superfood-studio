@@ -11,6 +11,7 @@ import { AdminFormActions } from '@/components/admin/AdminFormActions';
 import { VideoUpload } from '@/components/admin/VideoUpload';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { CategoryInput } from '@/components/admin/CategoryInput';
 
 interface RecipeFormInputs {
   name: string;
@@ -83,9 +84,9 @@ export default function NewRecipePage() {
               description: data.description,
               mediaUrl: data.mediaUrl,
               previewImageUrl: data.previewImageUrl,
-              // Convert newline-separated strings to arrays for ingredients and instructions
-              ingredients: data.ingredients.split('\n').filter(Boolean),
-              instructions: data.instructions.split('\n').filter(Boolean),
+              // Store as rich text content instead of arrays
+              ingredients: data.ingredients,
+              instructions: data.instructions,
             },
           },
         }),
@@ -133,11 +134,12 @@ export default function NewRecipePage() {
           </FormField>
           
           <FormField label="Category" required error={errors.category?.message}>
-            <TextField 
-              name="category"
+            <CategoryInput
               value={formValues.category || ''}
-              onChange={({ value }) => setValue('category', value)}
-              placeholder="e.g. smoothie, dessert, main"
+              onChange={(value) => setValue('category', value)}
+              placeholder="Select or create a category..."
+              disabled={saving}
+              entityType="recipe"
             />
           </FormField>
           

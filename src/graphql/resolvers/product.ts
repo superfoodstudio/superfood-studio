@@ -243,6 +243,24 @@ export const productResolvers = {
         }
       );
     },
+
+    productCategories: async (_parent: unknown, _args: unknown, { prisma }: GraphQLContext) => {
+      const categories = await prisma.product.findMany({
+        select: { category: true },
+        distinct: ['category'],
+        where: {
+          category: {
+            not: ''
+          },
+          isArchived: false
+        }
+      });
+
+      return categories
+        .map(p => p.category)
+        .filter(Boolean)
+        .sort();
+    },
   },
 
   Mutation: {

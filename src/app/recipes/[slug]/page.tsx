@@ -168,41 +168,23 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
               }
             }}
           >
-            <View as="ul" direction="column" gap={2} attributes={{ style: { paddingLeft: '20px' } }}>
-              {recipe.ingredients && recipe.ingredients.map((ingredient: string, index: number) => (
-                <View as="li" key={index}>
-                  <RichTextDisplay content={ingredient} />
-                </View>
-              ))}
-            </View>
+            <RichTextDisplay content={recipe.ingredients || ''} />
           </View>
         </View>
         
         {/* Instructions */}
         <View direction="column" gap={2}>
           <Text variant="title-2">Instructions</Text>
-          <View direction="column" gap={4}>
-            {recipe.instructions && recipe.instructions.map((instruction: string, index: number) => (
-              <View key={index} direction="row" gap={2} align="start">
-                <View 
-                  backgroundColor="primary"
-                  attributes={{
-                    style: {
-                      minWidth: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white'
-                    }
-                  }}
-                >
-                  <Text variant="body-1">{index + 1}</Text>
-                </View>
-                <RichTextDisplay content={instruction} />
-              </View>
-            ))}
+          <View 
+            backgroundColor="neutral-faded"
+            padding={4}
+            attributes={{
+              style: {
+                borderRadius: '8px'
+              }
+            }}
+          >
+            <RichTextDisplay content={recipe.instructions || ''} />
           </View>
         </View>
 

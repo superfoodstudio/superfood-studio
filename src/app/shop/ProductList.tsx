@@ -21,6 +21,7 @@ const productListPaginationFragment = graphql`
     @connection(key: "ProductList_productsConnection") {
       edges {
         node {
+          id
           ...ProductCardFragment
         }
       }

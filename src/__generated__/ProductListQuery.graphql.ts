@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4a485d2e8a2d9ce9428f3ecc575bd7b2>>
+ * @generated SignedSource<<f0d2585b5adf0a986ce3b8bad7190ff3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -291,12 +291,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e7640ff810b59f710b52fc25965382a5",
+    "cacheID": "87add55006773f469071e669a2a7a6d2",
     "id": null,
     "metadata": {},
     "name": "ProductListQuery",
     "operationKind": "query",
-    "text": "query ProductListQuery(\n  $category: String\n  $first: Int!\n  $after: String\n  $status: String\n  $search: String\n  $sort: String\n) {\n  ...ProductListPaginationFragment\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n}\n\nfragment ProductListPaginationFragment on Query {\n  productsConnection(category: $category, first: $first, after: $after, status: $status, search: $search, sort: $sort) {\n    edges {\n      node {\n        ...ProductCardFragment\n        id\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query ProductListQuery(\n  $category: String\n  $first: Int!\n  $after: String\n  $status: String\n  $search: String\n  $sort: String\n) {\n  ...ProductListPaginationFragment\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n}\n\nfragment ProductListPaginationFragment on Query {\n  productsConnection(category: $category, first: $first, after: $after, status: $status, search: $search, sort: $sort) {\n    edges {\n      node {\n        id\n        ...ProductCardFragment\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();

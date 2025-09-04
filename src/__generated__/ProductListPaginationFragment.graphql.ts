@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b4b35941899b5491d5fa4a07d309f410>>
+ * @generated SignedSource<<9bcb30f860893d2a1c5c3656b62d5cae>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,6 +14,7 @@ export type ProductListPaginationFragment$data = {
   readonly productsConnection: {
     readonly edges: ReadonlyArray<{
       readonly node: {
+        readonly id: string;
         readonly " $fragmentSpreads": FragmentRefs<"ProductCardFragment">;
       };
     }>;
@@ -131,6 +132,13 @@ return {
               "plural": false,
               "selections": [
                 {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
+                {
                   "args": null,
                   "kind": "FragmentSpread",
                   "name": "ProductCardFragment"
@@ -189,6 +197,6 @@ return {
 };
 })();
 
-(node as any).hash = "1b0bc7aa1f658111d590ad724cd28276";
+(node as any).hash = "02d1545f68a3e10920c097c3f76de41c";
 
 export default node;

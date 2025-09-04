@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5973aa492016a5d6a0560bb82893e02f>>
+ * @generated SignedSource<<0295af7b9c408a947648243599502da6>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,8 +16,8 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
   readonly createdAt: any;
   readonly description: string;
   readonly id: string;
-  readonly ingredients: ReadonlyArray<string> | null;
-  readonly instructions: ReadonlyArray<string> | null;
+  readonly ingredients: string | null;
+  readonly instructions: string | null;
   readonly mediaUrl: string;
   readonly name: string;
   readonly ratings: ReadonlyArray<{

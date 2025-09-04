@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c1508a8b89c080cff561da961e9948cd>>
+ * @generated SignedSource<<ae35383df9d5ab1083cd849aef22d3d2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -279,16 +279,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8234218e274411be1c2117b10ccdc533",
+    "cacheID": "3f687fe4d69149b38ab95f6e5ca05aba",
     "id": null,
     "metadata": {},
     "name": "ProductListPaginationQuery",
     "operationKind": "query",
-    "text": "query ProductListPaginationQuery(\n  $after: String\n  $category: String\n  $first: Int\n  $search: String\n  $sort: String\n  $status: String\n) {\n  ...ProductListPaginationFragment\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n}\n\nfragment ProductListPaginationFragment on Query {\n  productsConnection(category: $category, first: $first, after: $after, status: $status, search: $search, sort: $sort) {\n    edges {\n      node {\n        ...ProductCardFragment\n        id\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query ProductListPaginationQuery(\n  $after: String\n  $category: String\n  $first: Int\n  $search: String\n  $sort: String\n  $status: String\n) {\n  ...ProductListPaginationFragment\n}\n\nfragment ProductCardFragment on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n}\n\nfragment ProductListPaginationFragment on Query {\n  productsConnection(category: $category, first: $first, after: $after, status: $status, search: $search, sort: $sort) {\n    edges {\n      node {\n        id\n        ...ProductCardFragment\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "1b0bc7aa1f658111d590ad724cd28276";
+(node as any).hash = "02d1545f68a3e10920c097c3f76de41c";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6b484af693adb20841a16d198e288249>>
+ * @generated SignedSource<<2bd832331c0dd2bf05bd3903edec6095>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -29,8 +29,8 @@ export type AdminQueriesRecipesConnectionQuery$data = {
         readonly createdAt: any;
         readonly description: string;
         readonly id: string;
-        readonly ingredients: ReadonlyArray<string> | null;
-        readonly instructions: ReadonlyArray<string> | null;
+        readonly ingredients: string | null;
+        readonly instructions: string | null;
         readonly isPublished: boolean;
         readonly mediaUrl: string;
         readonly name: string;

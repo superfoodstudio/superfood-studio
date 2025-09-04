@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { View, Text, Grid, Select, Button } from 'reshaped';
 import { useLazyLoadQuery, usePaginationFragment, graphql } from 'react-relay';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
@@ -9,14 +9,11 @@ import { LoadMore } from '@/components/ui/LoadMore';
 import type { RecipeQueriesRecipeListQuery } from '@/__generated__/RecipeQueriesRecipeListQuery.graphql';
 import type { AllRecipesSectionPaginationFragment$key } from '@/__generated__/AllRecipesSectionPaginationFragment.graphql';
 
-const categories = [
-  { value: '', label: 'all' },
-  { value: 'breakfast', label: 'breakfast' },
-  { value: 'lunch', label: 'lunch' },
-  { value: 'dinner', label: 'dinner' },
-  { value: 'snacks', label: 'snacks' },
-  { value: 'wellness', label: 'wellness' }
-];
+const recipeCategoriesQuery = graphql`
+  query AllRecipesSectionCategoriesQuery {
+    recipeCategories
+  }
+`;
 
 const sortOptions = [
   { value: 'newest', label: 'newest to oldest' },
@@ -25,14 +22,20 @@ const sortOptions = [
   { value: 'z-a', label: 'z to a' }
 ];
 
+interface CategoryOption {
+  value: string;
+  label: string;
+}
+
 interface RecipeFiltersProps {
   selectedCategory: string;
   selectedSort: string;
   onCategoryChange: (category: string) => void;
   onSortChange: (sort: string) => void;
+  categories: CategoryOption[];
 }
 
-function RecipeFilters({ selectedCategory, selectedSort, onCategoryChange, onSortChange }: RecipeFiltersProps) {
+function RecipeFilters({ selectedCategory, selectedSort, onCategoryChange, onSortChange, categories }: RecipeFiltersProps) {
   return (
     <View direction="column" gap={4} padding={4}>
       <View direction="column" gap={3}>
@@ -196,6 +199,17 @@ export function AllRecipesSection() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSort, setSelectedSort] = useState('newest');
 
+  // Load categories using GraphQL
+  const categoriesData = useLazyLoadQuery<any>(recipeCategoriesQuery, {});
+  
+  const categories = [
+    { value: '', label: 'all' },
+    ...(categoriesData?.recipeCategories || []).map((cat: string) => ({
+      value: cat,
+      label: cat.toLowerCase()
+    }))
+  ];
+
   return (
     <View direction="column" gap={4}>
       {/* Section Title */}
@@ -227,6 +241,7 @@ export function AllRecipesSection() {
             selectedSort={selectedSort}
             onCategoryChange={setSelectedCategory}
             onSortChange={setSelectedSort}
+            categories={categories}
           />
         </View>
 

@@ -8,6 +8,7 @@ import { useLazyLoadQuery } from "react-relay";
 import { AppContainer } from "@/components/layout/AppContainer";
 import { Calendar, ShoppingBag, Receipt } from "phosphor-react";
 import { FeaturedRecipe } from "@/components/recipes/FeaturedRecipe";
+import { WeeklyGroceryList } from "@/components/dashboard/WeeklyGroceryList";
 import { CurrentUserQuery } from "@/graphql/queries/UserQueries";
 import type { UserQueriesCurrentUserQuery } from "@/__generated__/UserQueriesCurrentUserQuery.graphql";
 
@@ -191,15 +192,7 @@ function DashboardContent() {
             </Text>
 
             <View direction={{ s: "column", m: "row" }}>
-              <Button
-                variant="solid"
-                size="large"
-                color="primary"
-                rounded={true}
-                onClick={() => router.push("/dashboard/grocery-list")}
-              >
-                Get Grocery List
-              </Button>
+              <WeeklyGroceryList />
             </View>
           </View>
         </View>

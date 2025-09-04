@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<eae3caa83529bdf7e2e1e9f0e8ba50b4>>
+ * @generated SignedSource<<64c2f94f5ac1fc5cd87933170e9f49fb>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -22,8 +22,8 @@ export type pageRecipesPaginationFragment$data = {
         readonly createdAt: any;
         readonly description: string;
         readonly id: string;
-        readonly ingredients: ReadonlyArray<string> | null;
-        readonly instructions: ReadonlyArray<string> | null;
+        readonly ingredients: string | null;
+        readonly instructions: string | null;
         readonly isPublished: boolean;
         readonly mediaUrl: string;
         readonly name: string;

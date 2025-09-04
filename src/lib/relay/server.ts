@@ -25,8 +25,8 @@ type Recipe {
   uploadDate: DateTime!
   createdAt: DateTime!
   updatedAt: DateTime!
-  ingredients: [String!]
-  instructions: [String!]
+  ingredients: String
+  instructions: String
   comments: [Comment!]!
   ratings: [RecipeRating!]!
   averageRating: Float
@@ -81,8 +81,8 @@ input CreateRecipeInput {
   category: String!
   mediaUrl: String!
   previewImageUrl: String
-  ingredients: [String!]
-  instructions: [String!]
+  ingredients: String
+  instructions: String
 }
 
 input UpdateRecipeInput {
@@ -92,8 +92,8 @@ input UpdateRecipeInput {
   mediaUrl: String
   previewImageUrl: String
   isPublished: Boolean
-  ingredients: [String!]
-  instructions: [String!]
+  ingredients: String
+  instructions: String
 }
 
 # Product schema
@@ -425,6 +425,10 @@ type Query {
   
   # Site Settings queries
   siteSettings: SiteSettings
+  
+  # Category queries
+  recipeCategories: [String!]!
+  productCategories: [String!]!
 }
 
 type Mutation {

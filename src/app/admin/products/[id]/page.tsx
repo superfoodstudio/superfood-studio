@@ -8,6 +8,7 @@ import { FormField } from '@/components/admin/FormField';
 import { FormError } from '@/components/admin/FormError';
 import { AdminFormActions } from '@/components/admin/AdminFormActions';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { CategoryInput } from '@/components/admin/CategoryInput';
 import { usePrivy } from '@privy-io/react-auth';
 
 export default function EditProductPage() {
@@ -304,11 +305,12 @@ export default function EditProductPage() {
           </FormField>
           
           <FormField label="Category" required>
-            <TextField
-              name="category"
+            <CategoryInput
               value={category}
-              onChange={({ value }) => setCategory(value)}
-              placeholder="e.g. superfoods, wellness, teas"
+              onChange={setCategory}
+              placeholder="Select or create a category..."
+              disabled={saving}
+              entityType="product"
             />
           </FormField>
 

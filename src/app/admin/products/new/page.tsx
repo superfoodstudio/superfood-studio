@@ -5,6 +5,7 @@ import { View, Button, Text, TextField, NumberField, Switch } from 'reshaped';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { CategoryInput } from '@/components/admin/CategoryInput';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -152,11 +153,12 @@ export default function NewProductPage() {
       
       <View gap={2}>
         <Text>Category *</Text>
-        <TextField
-          name="category"
+        <CategoryInput
           value={formData.category}
-          onChange={({ value }) => setFormData(prev => ({ ...prev, category: value }))}
-          placeholder="e.g. superfoods, wellness, teas"
+          onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+          placeholder="Select or create a category..."
+          disabled={creating}
+          entityType="product"
         />
       </View>
 
