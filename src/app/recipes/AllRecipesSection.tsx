@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState } from 'react';
 import { View, Text, Grid, Select, Button } from 'reshaped';
 import { useLazyLoadQuery, usePaginationFragment, graphql } from 'react-relay';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
@@ -94,7 +94,7 @@ function RecipeFilters({ selectedCategory, selectedSort, onCategoryChange, onSor
 }
 
 const allRecipesSectionQuery = graphql`
-  query AllRecipesSectionQuery($category: String, $first: Int!, $after: String) {
+  query AllRecipesSectionQuery($category: String, $first: Int!, $after: String, $sort: String) {
     ...AllRecipesSectionPaginationFragment
   }
 `;
@@ -102,7 +102,7 @@ const allRecipesSectionQuery = graphql`
 const allRecipesSectionPaginationFragment = graphql`
   fragment AllRecipesSectionPaginationFragment on Query
   @refetchable(queryName: "AllRecipesSectionPaginationQuery") {
-    publicRecipes(category: $category, first: $first, after: $after)
+    publicRecipes(category: $category, first: $first, after: $after, sort: $sort)
     @connection(key: "AllRecipesSection_publicRecipes") {
       edges {
         node {
@@ -129,7 +129,8 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
     allRecipesSectionQuery,
     { 
       category: category || null,
-      first: 12
+      first: 12,
+      sort: sort || 'newest'
     }
   );
 
@@ -146,24 +147,8 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
     );
   }
   
-  // Sort recipes if needed (since GraphQL might not handle all sort options)
-  let sortedRecipes = data.publicRecipes.edges.map((edge: any) => edge.node).filter(Boolean);
-  
-  switch (sort) {
-    case 'a-z':
-      sortedRecipes.sort((a: any, b: any) => a.name.localeCompare(b.name));
-      break;
-    case 'z-a':
-      sortedRecipes.sort((a: any, b: any) => b.name.localeCompare(a.name));
-      break;
-    case 'oldest':
-      sortedRecipes.sort((a: any, b: any) => new Date(a.uploadDate).getTime() - new Date(b.uploadDate).getTime());
-      break;
-    case 'newest':
-    default:
-      sortedRecipes.sort((a: any, b: any) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
-      break;
-  }
+  // Recipes are already sorted by the GraphQL resolver
+  const recipes = data.publicRecipes.edges.map((edge: any) => edge.node).filter(Boolean);
 
   const handleLoadMore = () => {
     loadNext(12);
@@ -172,7 +157,7 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
   return (
     <View direction="column" gap={4}>
       <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
-        {sortedRecipes.map((recipe: any) => (
+        {recipes.map((recipe: any) => (
           <RecipeCard key={recipe.id} recipe={recipe} />
         ))}
       </Grid>
@@ -258,7 +243,10 @@ export function AllRecipesSection() {
             }}
           >
             <Suspense fallback={<RecipeGridSkeleton />}>
-              <RecipeGridContent category={selectedCategory} sort={selectedSort} />
+              <RecipeGridContent 
+                category={selectedCategory} 
+                sort={selectedSort} 
+              />
             </Suspense>
           </View>
         </View>

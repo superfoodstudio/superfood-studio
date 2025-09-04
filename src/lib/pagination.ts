@@ -32,6 +32,7 @@ export interface PaginationConfig {
   maxLimit?: number;
   defaultLimit?: number;
   cursorField?: string; // Default: 'id'
+  sortOrder?: 'asc' | 'desc'; // Custom sort order
 }
 
 /**
@@ -44,25 +45,48 @@ export function createCursor(record: any, field = 'id'): string {
   // Convert dates to ISO strings for consistent cursor format
   const serializedValue = value instanceof Date ? value.toISOString() : value;
   
-  return Buffer.from(`${field}:${serializedValue}`).toString('base64');
+  // Always include the id as a tiebreaker for duplicate values
+  const cursorData = field === 'id' ? 
+    `${field}:${serializedValue}` : 
+    `${field}:${serializedValue}|id:${record.id}`;
+  
+  return Buffer.from(cursorData).toString('base64');
 }
 
 /**
  * Parses a cursor to extract field and value
  */
-export function parseCursor(cursor: string): { field: string; value: any } {
+export function parseCursor(cursor: string): { field: string; value: any; id?: string } {
   try {
     const decoded = Buffer.from(cursor, 'base64').toString();
-    const [field, ...valueParts] = decoded.split(':');
-    const value = valueParts.join(':'); // Handle values that might contain colons
     
-    // Try to parse as date for common date fields
-    if (field === 'uploadDate' || field === 'createdAt' || field === 'updatedAt') {
-      const dateValue = new Date(value);
-      return { field, value: dateValue };
+    // Check if this is a compound cursor with id tiebreaker
+    if (decoded.includes('|id:')) {
+      const [mainPart, idPart] = decoded.split('|id:');
+      const [field, ...valueParts] = mainPart.split(':');
+      const value = valueParts.join(':');
+      const id = idPart;
+      
+      // Try to parse as date for common date fields
+      if (field === 'uploadDate' || field === 'createdAt' || field === 'updatedAt') {
+        const dateValue = new Date(value);
+        return { field, value: dateValue, id };
+      }
+      
+      return { field, value, id };
+    } else {
+      // Simple cursor
+      const [field, ...valueParts] = decoded.split(':');
+      const value = valueParts.join(':');
+      
+      // Try to parse as date for common date fields
+      if (field === 'uploadDate' || field === 'createdAt' || field === 'updatedAt') {
+        const dateValue = new Date(value);
+        return { field, value: dateValue };
+      }
+      
+      return { field, value };
     }
-    
-    return { field, value };
   } catch (error) {
     throw new Error('Invalid cursor format');
   }
@@ -114,17 +138,47 @@ export function validatePaginationArgs(
  * Creates Prisma where clause for cursor pagination
  */
 export function createCursorWhere(
-  cursor: { field: string; value: string } | undefined,
+  cursor: { field: string; value: any; id?: string } | undefined,
   direction: 'forward' | 'backward',
-  baseWhere: any = {}
+  baseWhere: any = {},
+  sortOrder: 'asc' | 'desc' = 'desc'
 ): any {
   if (!cursor) return baseWhere;
 
-  const { field, value } = cursor;
-  // For date fields ordered desc, we want 'lt' (less than) to get older items
-  // For regular fields ordered asc, we want 'gt' (greater than) to get next items
-  const operator = direction === 'forward' ? 'lt' : 'gt';
-
+  const { field, value, id } = cursor;
+  
+  // If we have a compound cursor with id, use OR condition for proper handling
+  if (id) {
+    let primaryOperator: string;
+    let secondaryOperator: string;
+    
+    if (sortOrder === 'desc') {
+      primaryOperator = direction === 'forward' ? 'lt' : 'gt';
+      secondaryOperator = direction === 'forward' ? 'gt' : 'lt'; // Reverse for id
+    } else {
+      primaryOperator = direction === 'forward' ? 'gt' : 'lt';
+      secondaryOperator = direction === 'forward' ? 'gt' : 'lt';
+    }
+    
+    return {
+      ...baseWhere,
+      OR: [
+        { [field]: { [primaryOperator]: value } },
+        { 
+          [field]: value,
+          id: { [secondaryOperator]: id }
+        }
+      ]
+    };
+  }
+  
+  // Simple cursor without compound logic
+  let operator: string;
+  if (sortOrder === 'desc') {
+    operator = direction === 'forward' ? 'lt' : 'gt';
+  } else {
+    operator = direction === 'forward' ? 'gt' : 'lt';
+  }
 
   return {
     ...baseWhere,
@@ -184,14 +238,20 @@ export async function paginateQuery<T>(
   baseWhere: any = {},
   config: PaginationConfig = {}
 ): Promise<Connection<T>> {
-  const { cursorField = 'id', defaultLimit = 20 } = config;
+  const { cursorField = 'id', defaultLimit = 20, sortOrder } = config;
   const { limit, cursor, direction } = validatePaginationArgs(args, config);
 
-  // Build where clause
-  const where = createCursorWhere(cursor, direction, baseWhere);
+  // Determine actual sort order
+  const actualSortOrder = sortOrder || (direction === 'forward' ? 'desc' : 'asc');
 
-  // Build order by - for date fields, we typically want newest first (desc)
-  const orderBy = { [cursorField]: direction === 'forward' ? 'desc' : 'asc' };
+  // Build where clause using compound cursor logic
+  const where = createCursorWhere(cursor, direction, baseWhere, actualSortOrder);
+
+  // Build order by with secondary sort by id for stability
+  const orderBy = [
+    { [cursorField]: actualSortOrder },
+    { id: 'asc' } // Always sort by id as tiebreaker
+  ];
 
   // Execute query
   const records = await prismaQuery.findMany({

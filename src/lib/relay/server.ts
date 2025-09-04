@@ -349,6 +349,7 @@ type Query {
     last: Int
     before: String
     category: String
+    sort: String
   ): RecipeConnection!
 
   # Product queries

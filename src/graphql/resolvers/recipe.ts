@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { GraphQLContext } from '../context';
 import { generateSlug } from '@/lib/utils';
-import { paginateQuery, CursorPaginationArgs } from '@/lib/pagination';
+import { paginateQuery, CursorPaginationArgs, validatePaginationArgs, createCursorWhere, createConnection, createCursor, parseCursor } from '@/lib/pagination';
 
 interface RecipeFilters extends CursorPaginationArgs {
   category?: string;
@@ -12,6 +12,7 @@ interface RecipeFilters extends CursorPaginationArgs {
 
 interface PublicRecipeFilters extends CursorPaginationArgs {
   category?: string;
+  sort?: string;
 }
 
 // Define our own types for Prisma queries
@@ -209,20 +210,45 @@ export const recipeResolvers = {
     },
     
     publicRecipes: async (_parent: unknown, args: PublicRecipeFilters, { prisma, user }: GraphQLContext) => {
-      const { category, ...paginationArgs } = args;
+      const { category, sort, ...paginationArgs } = args;
       
       const baseWhere = {
         isPublished: true,
         ...(category ? { category } : {}),
       };
       
+      // Determine cursor field and order based on sort
+      let cursorField = 'uploadDate';
+      let sortOrder: 'asc' | 'desc' = 'desc';
+      
+      switch (sort) {
+        case 'a-z':
+          cursorField = 'name';
+          sortOrder = 'asc';
+          break;
+        case 'z-a':
+          cursorField = 'name';
+          sortOrder = 'desc';
+          break;
+        case 'oldest':
+          cursorField = 'uploadDate';
+          sortOrder = 'asc';
+          break;
+        case 'newest':
+        default:
+          cursorField = 'uploadDate';
+          sortOrder = 'desc';
+          break;
+      }
+      
       return paginateQuery(
         prisma.recipe,
         paginationArgs,
         baseWhere,
         {
-          cursorField: 'uploadDate',
-          defaultLimit: 10,
+          cursorField,
+          sortOrder,
+          defaultLimit: 12,
           maxLimit: 50
         }
       );

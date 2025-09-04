@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<eb8ca2f5e5b8c06229b7bb31fe5bc43c>>
+ * @generated SignedSource<<967e00f35eb37815ce9236136e6931bb>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -53,6 +53,10 @@ return {
     {
       "kind": "RootArgument",
       "name": "first"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "sort"
     }
   ],
   "kind": "Fragment",
@@ -87,6 +91,11 @@ return {
           "kind": "Variable",
           "name": "category",
           "variableName": "category"
+        },
+        {
+          "kind": "Variable",
+          "name": "sort",
+          "variableName": "sort"
         }
       ],
       "concreteType": "RecipeConnection",
@@ -220,6 +229,6 @@ return {
 };
 })();
 
-(node as any).hash = "40f695e3faa2c5d96f25eb3bed806862";
+(node as any).hash = "c869769fc39ab77bfb7f0b4a64d2fbe3";
 
 export default node;

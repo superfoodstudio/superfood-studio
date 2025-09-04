@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7a758bf421895b9e16e9454552c2f8f5>>
+ * @generated SignedSource<<d6fd8ecf9f1db84a2b02ec0549d922f3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,6 +14,7 @@ export type AllRecipesSectionQuery$variables = {
   after?: string | null;
   category?: string | null;
   first: number;
+  sort?: string | null;
 };
 export type AllRecipesSectionQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"AllRecipesSectionPaginationFragment">;
@@ -39,7 +40,12 @@ v2 = {
   "kind": "LocalArgument",
   "name": "first"
 },
-v3 = [
+v3 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "sort"
+},
+v4 = [
   {
     "kind": "Variable",
     "name": "after",
@@ -54,6 +60,11 @@ v3 = [
     "kind": "Variable",
     "name": "first",
     "variableName": "first"
+  },
+  {
+    "kind": "Variable",
+    "name": "sort",
+    "variableName": "sort"
   }
 ];
 return {
@@ -61,7 +72,8 @@ return {
     "argumentDefinitions": [
       (v0/*: any*/),
       (v1/*: any*/),
-      (v2/*: any*/)
+      (v2/*: any*/),
+      (v3/*: any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -81,14 +93,15 @@ return {
     "argumentDefinitions": [
       (v1/*: any*/),
       (v2/*: any*/),
-      (v0/*: any*/)
+      (v0/*: any*/),
+      (v3/*: any*/)
     ],
     "kind": "Operation",
     "name": "AllRecipesSectionQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v4/*: any*/),
         "concreteType": "RecipeConnection",
         "kind": "LinkedField",
         "name": "publicRecipes",
@@ -216,9 +229,10 @@ return {
       },
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v4/*: any*/),
         "filters": [
-          "category"
+          "category",
+          "sort"
         ],
         "handle": "connection",
         "key": "AllRecipesSection_publicRecipes",
@@ -228,16 +242,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "026c13a9fa162654a96f97a40760a8c9",
+    "cacheID": "6dd894074308585df505f3da88361f4b",
     "id": null,
     "metadata": {},
     "name": "AllRecipesSectionQuery",
     "operationKind": "query",
-    "text": "query AllRecipesSectionQuery(\n  $category: String\n  $first: Int!\n  $after: String\n) {\n  ...AllRecipesSectionPaginationFragment\n}\n\nfragment AllRecipesSectionPaginationFragment on Query {\n  publicRecipes(category: $category, first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        previewImageUrl\n        uploadDate\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query AllRecipesSectionQuery(\n  $category: String\n  $first: Int!\n  $after: String\n  $sort: String\n) {\n  ...AllRecipesSectionPaginationFragment\n}\n\nfragment AllRecipesSectionPaginationFragment on Query {\n  publicRecipes(category: $category, first: $first, after: $after, sort: $sort) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        previewImageUrl\n        uploadDate\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "466a5facd0f182738aa19c86e8f76a44";
+(node as any).hash = "68e912eed6edc48c18268dedd502ca6b";
 
 export default node;
