@@ -4,6 +4,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrivyClient } from '@privy-io/server-auth';
 import sharp from 'sharp';
 
+// Check if Pinata credentials are available
+if (!process.env.PINATA_API_KEY || !process.env.PINATA_SECRET_API_KEY) {
+  console.error('Missing Pinata credentials:', {
+    hasApiKey: !!process.env.PINATA_API_KEY,
+    hasSecretKey: !!process.env.PINATA_SECRET_API_KEY
+  });
+}
+
 const pinata = new pinataSDK(
   process.env.PINATA_API_KEY,
   process.env.PINATA_SECRET_API_KEY
@@ -31,6 +39,11 @@ function bufferToStream(buffer: Buffer): Readable {
 }
 
 async function uploadToIPFS(buffer: Buffer, filename: string): Promise<string> {
+  // Early check for credentials
+  if (!process.env.PINATA_API_KEY || !process.env.PINATA_SECRET_API_KEY) {
+    throw new Error('Pinata API credentials are not configured. Please set PINATA_API_KEY and PINATA_SECRET_API_KEY in your environment variables.');
+  }
+
   const fileStream = bufferToStream(buffer);
   const options = {
     pinataMetadata: { name: filename },
@@ -38,11 +51,19 @@ async function uploadToIPFS(buffer: Buffer, filename: string): Promise<string> {
   };
 
   try {
+    console.log('Attempting to upload to IPFS:', { filename, bufferSize: buffer.length });
     const result = await pinata.pinFileToIPFS(fileStream, options);
+    console.log('Successfully uploaded to IPFS:', { hash: result.IpfsHash });
     return `https://ipfs.io/ipfs/${result.IpfsHash}`;
   } catch (error) {
-    console.error('Failed to upload to IPFS:', error);
-    throw new Error('Failed to upload file.');
+    console.error('Failed to upload to IPFS:', {
+      error: error instanceof Error ? error.message : error,
+      filename,
+      bufferSize: buffer.length,
+      hasApiKey: !!process.env.PINATA_API_KEY,
+      hasSecretKey: !!process.env.PINATA_SECRET_API_KEY
+    });
+    throw new Error(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 

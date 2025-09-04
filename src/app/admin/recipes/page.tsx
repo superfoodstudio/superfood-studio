@@ -88,7 +88,8 @@ function AdminRecipesContent() {
       status: statusFilter === 'all' ? null : statusFilter,
       search: searchFilter || null,
       sort: sortFilter,
-    }
+    },
+    { fetchPolicy: 'store-and-network' } // Force refetch when variables change
   );
 
   const {
@@ -96,10 +97,23 @@ function AdminRecipesContent() {
     loadNext,
     hasNext,
     isLoadingNext,
+    refetch,
   } = usePaginationFragment<pageRecipesPageQuery, pageRecipesPaginationFragment$key>(
     AdminRecipesPaginationFragment, 
     queryData
   );
+
+  // Refetch when filters change
+  useEffect(() => {
+    refetch({
+      first: 20,
+      after: null,
+      category: categoryFilter || null,
+      status: statusFilter === 'all' ? null : statusFilter,
+      search: searchFilter || null,
+      sort: sortFilter,
+    });
+  }, [statusFilter, categoryFilter, searchFilter, sortFilter, refetch]);
 
   const recipes = data.recipesConnection?.edges?.map(edge => edge.node) || [];
   

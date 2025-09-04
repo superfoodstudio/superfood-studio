@@ -35,12 +35,19 @@ const productListPaginationFragment = graphql`
 
 interface ProductListProps {
   category?: string;
+  sort?: string;
 }
 
-function ProductListContent({ category }: ProductListProps) {
+function ProductListContent({ category, sort }: ProductListProps) {
   const queryData = useLazyLoadQuery<ProductListQuery>(
     productListQuery,
-    { category, first: 4, status: "active", search: null, sort: "newest" }
+    { 
+      category: category || null, 
+      first: 12, 
+      status: "active", 
+      search: null, 
+      sort: sort || "newest" 
+    }
   );
 
   const { data, loadNext, hasNext, isLoadingNext } = usePaginationFragment<
@@ -50,7 +57,7 @@ function ProductListContent({ category }: ProductListProps) {
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingNext && hasNext) {
-      loadNext(4);
+      loadNext(12);
     }
   }, [loadNext, isLoadingNext, hasNext]);
 

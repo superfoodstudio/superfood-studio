@@ -17,6 +17,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { StarRating } from '@/components/ratings/StarRating';
 import { ProductDetailSkeleton } from '@/components/ui/ProductDetailSkeleton';
 import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
+import { useCart } from '@/hooks/useCart';
+import { ShoppingCartSimple } from 'phosphor-react';
 
 // LazyLoad component that will only fetch data when it's needed
 function ProductDetailLazy({ slug }: { slug: string }) {
@@ -70,6 +72,8 @@ type ProductDetailViewProps = {
 
 function ProductDetailView({ productRef }: ProductDetailViewProps) {
   const router = useRouter();
+  const [isAdding, setIsAdding] = useState(false);
+  const { addToCart } = useCart();
   
   // Use the fragment to access product data with type safety
   const product: ProductQueriesProductDetail_product$data = useFragment(
@@ -86,8 +90,22 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
   };
   
   const handleAddToCart = () => {
-    // Will implement with Relay mutation
-    alert('Added to cart!');
+    if (isAdding || product.inventory <= 0) {
+      return;
+    }
+    
+    setIsAdding(true);
+    
+    try {
+      addToCart(product.id, 1, product.price, {
+        name: product.name,
+        photoUrl: product.photoUrl
+      });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setIsAdding(false);
+    }
   };
   
   return (
@@ -182,10 +200,14 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
             <Button 
               variant="solid" 
               size="large"
+              disabled={isAdding || product.inventory <= 0}
               onClick={handleAddToCart}
               attributes={{ style: { width: '100%' } }}
             >
-              Add to Cart
+              <View direction="row" gap={2} align="center">
+                <ShoppingCartSimple size={20} />
+                <Text>{isAdding ? 'Adding...' : 'Add to Cart'}</Text>
+              </View>
             </Button>
             
             {product.inventory <= 10 && product.inventory > 0 && (

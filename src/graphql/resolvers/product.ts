@@ -232,12 +232,45 @@ export const productResolvers = {
         } : {}),
       };
 
+      // Determine cursor field and sort order based on sort parameter
+      let cursorField = 'createdAt';
+      let sortOrder: 'asc' | 'desc' = 'desc';
+
+      switch (sort) {
+        case 'a-z':
+          cursorField = 'name';
+          sortOrder = 'asc';
+          break;
+        case 'z-a':
+          cursorField = 'name';
+          sortOrder = 'desc';
+          break;
+        case 'price-low-high':
+          cursorField = 'price';
+          sortOrder = 'asc';
+          break;
+        case 'price-high-low':
+          cursorField = 'price';
+          sortOrder = 'desc';
+          break;
+        case 'oldest':
+          cursorField = 'createdAt';
+          sortOrder = 'asc';
+          break;
+        case 'newest':
+        default:
+          cursorField = 'createdAt';
+          sortOrder = 'desc';
+          break;
+      }
+
       return paginateQuery(
         prisma.product,
         { first, after },
         baseWhere,
         {
-          cursorField: 'createdAt',
+          cursorField,
+          sortOrder,
           defaultLimit: 12,
           maxLimit: 50
         }

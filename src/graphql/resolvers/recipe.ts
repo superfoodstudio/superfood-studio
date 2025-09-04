@@ -144,57 +144,56 @@ export const recipeResolvers = {
 
     // Alias for recipes connection (for admin compatibility)
     recipesConnection: async (_parent: unknown, args: RecipeFilters, { prisma, user }: GraphQLContext) => {
-      // For now, allow unauthenticated access to help with debugging
-      console.log('🔍 RecipesConnection resolver called with:', { 
-        args, 
-        userAuthenticated: user?.isAuthenticated 
-      });
+      const { category, status, search, sort, ...paginationArgs } = args;
+
+      const baseWhere: RecipeWhereInput = {
+        ...(category ? { category } : {}),
+        ...(status && status !== 'all' ? { isPublished: status === 'live' } : {}),
+        ...(search
+          ? {
+              OR: [
+                { name: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
+      };
+
+      // Determine cursor field and order based on sort (same logic as publicRecipes)
+      let cursorField = 'uploadDate';
+      let sortOrder: 'asc' | 'desc' = 'desc';
       
-      try {
-        const { category, status, search, sort, ...paginationArgs } = args;
-
-        const baseWhere: RecipeWhereInput = {
-          ...(category ? { category } : {}),
-          ...(status && status !== 'all' ? { isPublished: status === 'live' } : {}),
-          ...(search
-            ? {
-                OR: [
-                  { name: { contains: search, mode: 'insensitive' } },
-                  { description: { contains: search, mode: 'insensitive' } },
-                ],
-              }
-            : {}),
-        };
-
-        console.log('🔍 RecipesConnection baseWhere:', baseWhere);
-
-        // Determine cursor field based on sort
-        let cursorField = 'uploadDate';
-        if (sort === 'a-z' || sort === 'z-a') {
+      switch (sort) {
+        case 'a-z':
           cursorField = 'name';
-        }
-
-        const result = await paginateQuery(
-          prisma.recipe,
-          paginationArgs,
-          baseWhere,
-          {
-            cursorField,
-            defaultLimit: 20,
-            maxLimit: 100
-          }
-        );
-        
-        console.log('🔍 RecipesConnection result:', {
-          edgesCount: result?.edges?.length || 0,
-          hasNextPage: result?.pageInfo?.hasNextPage
-        });
-        
-        return result;
-      } catch (error) {
-        console.error('🚨 RecipesConnection resolver error:', error);
-        throw error;
+          sortOrder = 'asc';
+          break;
+        case 'z-a':
+          cursorField = 'name';
+          sortOrder = 'desc';
+          break;
+        case 'oldest':
+          cursorField = 'uploadDate';
+          sortOrder = 'asc';
+          break;
+        case 'newest':
+        default:
+          cursorField = 'uploadDate';
+          sortOrder = 'desc';
+          break;
       }
+
+      return paginateQuery(
+        prisma.recipe,
+        paginationArgs,
+        baseWhere,
+        {
+          cursorField,
+          sortOrder,
+          defaultLimit: 20,
+          maxLimit: 100
+        }
+      );
     },
 
     recipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
