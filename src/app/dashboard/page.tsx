@@ -6,22 +6,32 @@ import { useEffect, useState, Suspense } from "react";
 import { View, Text, Button, Card, Skeleton, Grid } from "reshaped";
 import { useLazyLoadQuery } from "react-relay";
 import { AppContainer } from "@/components/layout/AppContainer";
-import { Calendar, ShoppingBag, Receipt } from "phosphor-react";
 import { FeaturedRecipe } from "@/components/recipes/FeaturedRecipe";
 import { WeeklyGroceryList } from "@/components/dashboard/WeeklyGroceryList";
+import { ProductCard } from "@/components/products/ProductCard";
 import { CurrentUserQuery } from "@/graphql/queries/UserQueries";
+import { ProductsConnectionQuery } from "@/graphql/queries/ProductQueries";
 import type { UserQueriesCurrentUserQuery } from "@/__generated__/UserQueriesCurrentUserQuery.graphql";
+import type { ProductQueriesProductsConnectionQuery } from "@/__generated__/ProductQueriesProductsConnectionQuery.graphql";
 
 function DashboardContent() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("dashboard");
 
-  const data = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
+  const userData = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
     CurrentUserQuery,
     {}
   );
 
-  const user = data.currentUser;
+  const productsData = useLazyLoadQuery<ProductQueriesProductsConnectionQuery>(
+    ProductsConnectionQuery,
+    {
+      first: 3,
+      sort: "newest"
+    }
+  );
+
+  const user = userData.currentUser;
   const username =
     user?.firstName ||
     (user?.email ? user.email.split("@")[0] : null) ||
@@ -210,155 +220,37 @@ function DashboardContent() {
               }}
             >
               featured recipe
-            </Text>now
+            </Text>
           </View>
           <FeaturedRecipe />
         </View>
 
-        {/* Featured Sections */}
-        <View direction="column" gap={6} padding={4}>
-          {/* Membership Status Card */}
-          <Card
-            padding={6}
-            attributes={{
-              style: {
-                backgroundColor: "#FEF7E6",
-                border: "1px solid #F5D565",
-                borderRadius: "12px",
-              },
-            }}
-          >
-            <View direction="row" justify="space-between" align="center">
-              <View direction="column" gap={2}>
-                <Text
-                  variant="title-4"
-                  attributes={{
-                    style: {
-                      fontFamily: "var(--font-big-caslon)",
-                      textTransform: "lowercase",
-                    },
-                  }}
-                >
-                  membership status
-                </Text>
-                <View direction="row" align="center" gap={2}>
-                  <Calendar size={16} />
-                  <Text variant="body-2" color="neutral-faded">
-                    Active • Premium access
-                  </Text>
-                </View>
-                <Text variant="body-2" color="neutral">
-                  Access premium recipes, personalized recommendations, and
-                  priority support.
-                </Text>
-                <Button
-                  variant="outline"
-                  size="small"
-                  onClick={() => router.push("/dashboard/membership")}
-                  attributes={{
-                    style: {
-                      marginTop: "8px",
-                      width: "fit-content",
-                      borderRadius: "15px",
-                      fontSize: "10px",
-                      fontWeight: "600",
-                      letterSpacing: "0.5px",
-                    },
-                  }}
-                >
-                  MANAGE
-                </Button>
-              </View>
-              <View
-                width="80px"
-                height="80px"
-                borderRadius="circular"
-                backgroundColor="primary"
-                attributes={{
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  },
-                }}
-              >
-                <ShoppingBag size={32} color="white" />
-              </View>
+        {/* Latest Products */}
+        <View padding={4}>
+          <View direction="column" gap={4}>
+            <Text
+              variant="featured-1"
+              attributes={{
+                style: {
+                  fontFamily: "var(--font-big-caslon)",
+                  textTransform: "lowercase",
+                },
+              }}
+            >
+              latest products
+            </Text>
+            <View direction="row" gap={4}>
+              {productsData.productsConnection.edges.map((edge, i) => (
+                <View.Item key={i} columns={{ s: 12, m: 4 }}>
+                  <ProductCard
+                    product={edge.node}
+                  />
+                </View.Item>
+              ))}
             </View>
-          </Card>
-
-          {/* Quick Actions Grid */}
-          <View direction="row" gap={4}>
-            <Card
-              padding={4}
-              attributes={{
-                style: {
-                  flex: 1,
-                  textAlign: "center",
-                  cursor: "pointer",
-                },
-              }}
-              onClick={() => router.push("/dashboard/orders")}
-            >
-              <View direction="column" align="center" gap={3}>
-                <Receipt size={24} />
-                <Text variant="featured-3">order history</Text>
-                <Text variant="body-2" color="neutral-faded">
-                  View your past purchases
-                </Text>
-                <Button
-                  variant="outline"
-                  size="small"
-                  attributes={{
-                    style: {
-                      borderRadius: "15px",
-                      fontSize: "10px",
-                      fontWeight: "600",
-                      letterSpacing: "0.5px",
-                    },
-                  }}
-                >
-                  VIEW
-                </Button>
-              </View>
-            </Card>
-
-            <Card
-              padding={4}
-              attributes={{
-                style: {
-                  flex: 1,
-                  textAlign: "center",
-                  cursor: "pointer",
-                },
-              }}
-              onClick={() => router.push("/shop")}
-            >
-              <View direction="column" align="center" gap={3}>
-                <ShoppingBag size={24} />
-                <Text variant="featured-3">shop superfoods</Text>
-                <Text variant="body-2" color="neutral-faded">
-                  Discover premium products
-                </Text>
-                <Button
-                  variant="solid"
-                  size="small"
-                  attributes={{
-                    style: {
-                      borderRadius: "15px",
-                      fontSize: "10px",
-                      fontWeight: "600",
-                      letterSpacing: "0.5px",
-                    },
-                  }}
-                >
-                  SHOP
-                </Button>
-              </View>
-            </Card>
           </View>
         </View>
+
       </View>
     </AppContainer>
   );

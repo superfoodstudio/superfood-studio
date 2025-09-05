@@ -9,6 +9,7 @@ import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { LoadMore } from '@/components/ui/LoadMore';
 import { stripHtml } from '@/lib/textUtils';
+import { FeaturedRecipeQuery } from '@/graphql/queries/FeaturedRecipeQuery';
 
 // Format date for display
 function formatDate(dateString: string): string {
@@ -71,6 +72,7 @@ const AdminRecipesPaginationFragment = graphql`
 
 import type { pageRecipesPageQuery } from '@/__generated__/pageRecipesPageQuery.graphql';
 import type { pageRecipesPaginationFragment$key } from '@/__generated__/pageRecipesPaginationFragment.graphql';
+import type { FeaturedRecipeQueryQuery } from '@/__generated__/FeaturedRecipeQueryQuery.graphql';
 
 function AdminRecipesContent() {
   const router = useRouter();
@@ -90,6 +92,11 @@ function AdminRecipesContent() {
       sort: sortFilter,
     },
     { fetchPolicy: 'store-and-network' } // Force refetch when variables change
+  );
+
+  const featuredData = useLazyLoadQuery<FeaturedRecipeQueryQuery>(
+    FeaturedRecipeQuery,
+    {}
   );
 
   const {
@@ -232,6 +239,74 @@ function AdminRecipesContent() {
           </Button>
         </View>
       </View>
+
+      {/* Featured Recipe */}
+      {featuredData.featuredRecipe && (
+        <View direction="column" gap={3}>
+          <Text variant="title-4" weight="medium">Featured Recipe</Text>
+          <Card padding={4} attributes={{ style: { backgroundColor: '#fff8e1', border: '2px solid #ffcc02' } }}>
+            <Table>
+              <Table.Head>
+                <Table.Row>
+                  <Table.Heading>Name</Table.Heading>
+                  <Table.Heading>Category</Table.Heading>
+                  <Table.Heading>Published</Table.Heading>
+                  <Table.Heading>Upload Date</Table.Heading>
+                  <Table.Heading>Actions</Table.Heading>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell>
+                    <View direction="column" gap={1}>
+                      <Text weight="medium">⭐ {featuredData.featuredRecipe.name}</Text>
+                      {featuredData.featuredRecipe.description && (
+                        <Text variant="caption-1" color="neutral-faded">
+                          {stripHtml(featuredData.featuredRecipe.description, 50)}
+                        </Text>
+                      )}
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>{featuredData.featuredRecipe.category}</Table.Cell>
+                  <Table.Cell>
+                    <span 
+                      style={{ 
+                        color: '#2e7d32',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: '#e8f5e9',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Published
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1">{formatDate(featuredData.featuredRecipe.uploadDate)}</Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <View direction="row" gap={2}>
+                      <Button 
+                        variant="outline" 
+                        size="small" 
+                        onClick={() => handleEditClick(featuredData.featuredRecipe.id)}
+                      >
+                        Edit
+                      </Button>
+                      <Link href={`/recipes/${featuredData.featuredRecipe.slug}`}>
+                        <Button variant="ghost" size="small">
+                          View
+                        </Button>
+                      </Link>
+                    </View>
+                  </Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
+          </Card>
+        </View>
+      )}
 
       {/* Recipes Table */}
       {recipes.length === 0 ? (

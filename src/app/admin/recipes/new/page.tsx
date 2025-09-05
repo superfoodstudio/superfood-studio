@@ -20,6 +20,7 @@ interface RecipeFormInputs {
   ingredients: string;
   instructions: string;
   isPublished: boolean;
+  isFeatured: boolean;
   mediaUrl: string;
   previewImageUrl: string;
 }
@@ -38,6 +39,7 @@ export default function NewRecipePage() {
       ingredients: '',
       instructions: '',
       isPublished: false,
+      isFeatured: false,
       mediaUrl: '',
       previewImageUrl: ''
     }
@@ -61,6 +63,7 @@ export default function NewRecipePage() {
     setError(null);
     
     try {
+      // First create the recipe
       const response = await fetch('/api/graphql', {
         method: 'POST',
         headers: {
@@ -97,9 +100,38 @@ export default function NewRecipePage() {
       if (result.errors) {
         setError(`Failed to create: ${result.errors[0]?.message || 'Unknown error'}`);
         return; // Stay on form when there's an error
-      } else {
-        router.push('/admin/recipes');
       }
+
+      // If featured is checked, set this recipe as featured
+      if (data.isFeatured && result.data?.createRecipe?.id) {
+        const featuredResponse = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: `
+              mutation SetFeaturedRecipe($id: ID!) {
+                setFeaturedRecipe(id: $id) {
+                  id
+                  isFeatured
+                }
+              }
+            `,
+            variables: {
+              id: result.data.createRecipe.id,
+            },
+          }),
+        });
+        
+        const featuredResult = await featuredResponse.json();
+        if (featuredResult.errors) {
+          console.error('Failed to set featured:', featuredResult.errors);
+          // Don't fail the whole operation, just log the error
+        }
+      }
+
+      router.push('/admin/recipes');
     } catch (e) {
       console.error("Failed to create recipe:", e);
       setError("Failed to create. See console for details.");
@@ -191,6 +223,16 @@ export default function NewRecipePage() {
               onChange={(e) => setValue('isPublished', e.checked)}
             >
               {formValues.isPublished ? 'Published' : 'Draft'}
+            </Switch>
+          </FormField>
+          
+          <FormField label="Featured">
+            <Switch 
+              name="isFeatured"
+              checked={formValues.isFeatured} 
+              onChange={(e) => setValue('isFeatured', e.checked)}
+            >
+              {formValues.isFeatured ? 'Featured' : 'Not Featured'}
             </Switch>
           </FormField>
         </View>

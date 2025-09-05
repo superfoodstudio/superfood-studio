@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" dir="ltr" data-rs-theme="superfood" data-rs-color-mode="light">
       <head>
         <link 
           rel="preload" 

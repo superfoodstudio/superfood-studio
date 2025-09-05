@@ -270,6 +270,12 @@ export const recipeResolvers = {
         .sort();
     },
 
+    featuredRecipe: async (_parent: unknown, _args: unknown, { prisma }: GraphQLContext) => {
+      return prisma.recipe.findFirst({
+        where: { isFeatured: true, isPublished: true },
+      });
+    },
+
   },
 
   Mutation: {
@@ -419,6 +425,22 @@ export const recipeResolvers = {
           isPublished: !recipe.isPublished,
         },
       });
+    },
+
+    setFeaturedRecipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+      // First, unfeatured any currently featured recipe
+      await prisma.recipe.updateMany({
+        where: { isFeatured: true },
+        data: { isFeatured: false },
+      });
+
+      // Then set the new recipe as featured
+      const recipe = await prisma.recipe.update({
+        where: { id },
+        data: { isFeatured: true },
+      });
+
+      return recipe;
     },
   },
 }; 

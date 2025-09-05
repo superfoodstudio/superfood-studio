@@ -18,6 +18,7 @@ interface Recipe {
   name: string;
   category: string;
   isPublished: boolean;
+  isFeatured: boolean;
   uploadDate: string;
   description?: string;
   ingredients?: string[];
@@ -33,6 +34,7 @@ interface RecipeFormInputs {
   ingredients: string;
   instructions: string;
   isPublished: boolean;
+  isFeatured: boolean;
   mediaUrl: string;
   previewImageUrl: string;
 }
@@ -80,6 +82,7 @@ export default function EditRecipePage() {
                   name
                   category
                   isPublished
+                  isFeatured
                   uploadDate
                   description
                   ingredients
@@ -106,6 +109,7 @@ export default function EditRecipePage() {
           setValue('ingredients', recipeData.ingredients || '');
           setValue('instructions', recipeData.instructions || '');
           setValue('isPublished', recipeData.isPublished || false);
+          setValue('isFeatured', recipeData.isFeatured || false);
           setValue('mediaUrl', recipeData.mediaUrl || '');
           setValue('previewImageUrl', recipeData.previewImageUrl || '');
           
@@ -130,6 +134,7 @@ export default function EditRecipePage() {
     setError(null);
     
     try {
+      // First update the recipe
       const response = await fetch('/api/graphql', {
         method: 'POST',
         headers: {
@@ -143,6 +148,7 @@ export default function EditRecipePage() {
                 name
                 category
                 isPublished
+                isFeatured
               }
             }
           `,
@@ -168,9 +174,43 @@ export default function EditRecipePage() {
       if (result.errors) {
         setError(`Failed to update: ${result.errors[0]?.message || 'Unknown error'}`);
         return; // Stay on form when there's an error
-      } else {
-        router.push('/admin/recipes');
       }
+
+      // Handle featured toggle - check if it changed from current state
+      const currentIsFeatured = recipe?.isFeatured || false;
+      if (data.isFeatured !== currentIsFeatured) {
+        if (data.isFeatured) {
+          // Set as featured
+          const featuredResponse = await fetch('/api/graphql', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              query: `
+                mutation SetFeaturedRecipe($id: ID!) {
+                  setFeaturedRecipe(id: $id) {
+                    id
+                    isFeatured
+                  }
+                }
+              `,
+              variables: { id },
+            }),
+          });
+          
+          const featuredResult = await featuredResponse.json();
+          if (featuredResult.errors) {
+            console.error('Failed to set featured:', featuredResult.errors);
+            // Don't fail the whole operation, just log the error
+          }
+        }
+        // Note: We don't need to handle "unfeaturing" explicitly since setFeaturedRecipe
+        // automatically unfeatured other recipes, and if this one isn't featured,
+        // it will just remain unfeatured
+      }
+
+      router.push('/admin/recipes');
     } catch (e) {
       console.error("Failed to update recipe:", e);
       setError("Failed to update. See console for details.");
@@ -319,6 +359,16 @@ export default function EditRecipePage() {
               onChange={(e) => setValue('isPublished', e.checked)}
             >
               {formValues.isPublished ? 'Published' : 'Draft'}
+            </Switch>
+          </FormField>
+          
+          <FormField label="Featured">
+            <Switch 
+              name="isFeatured"
+              checked={formValues.isFeatured} 
+              onChange={(e) => setValue('isFeatured', e.checked)}
+            >
+              {formValues.isFeatured ? 'Featured' : 'Not Featured'}
             </Switch>
           </FormField>
         </View>

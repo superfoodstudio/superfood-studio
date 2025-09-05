@@ -1,7 +1,8 @@
 
-			[data-rs-theme="superfood"] {
+			[data-rs-theme="superfood"],[data-rs-theme*=" superfood "] {
 					--rs-font-family-title: var(--font-midruns-script);
 --rs-font-family-body: var(--font-nunito);
+--rs-font-family-monospace: Geist Mono, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
 --rs-font-weight-regular: 400;
 --rs-font-weight-medium: 500;
 --rs-font-weight-semibold: 600;
@@ -102,15 +103,15 @@
 --rs-color-forest-green: #18540b;
 --rs-color-burgundy: #77122f;
 --rs-color-cream: #fef3dc;
---rs-color-on-background-primary: #ffffff;
---rs-color-rgb-background-primary: 24, 84, 11;
---rs-color-on-background-critical: #ffffff;
---rs-color-on-background-warning: #000000;
---rs-color-on-background-positive: #ffffff;
+--rs-color-on-background-primary: oklch(1 0 0);
+--rs-color-rgb-background-primary: 23.9955, 83.997, 10.990499999999999;
+--rs-color-on-background-critical: oklch(1 0 0);
+--rs-color-on-background-warning: oklch(0 0 0);
+--rs-color-on-background-positive: oklch(1 0 0);
 --rs-color-rgb-background-elevation-base: 255, 255, 255;
---rs-color-rgb-background-page: 254, 243, 220;
---rs-color-rgb-background-page-faded: 245, 237, 218;
---rs-color-on-brand: #ffffff;
+--rs-color-rgb-background-page: 254.00549999999998, 242.9895, 219.98850000000002;
+--rs-color-rgb-background-page-faded: 245.004, 236.997, 217.9995;
+--rs-color-on-brand: oklch(1 0 0);
 --rs-color-rgb-white: 255, 255, 255;
 --rs-color-rgb-black: 0, 0, 0;
 --rs-duration-rapid: 100ms;
@@ -125,9 +126,12 @@
 --rs-viewport-m-min: 660;
 --rs-viewport-l-min: 900;
 --rs-viewport-xl-min: 1280;
+--rs-z-index-relative: 10;
+--rs-z-index-absolute: 100;
+--rs-z-index-fixed: 200;
 			}
 		
-			[data-rs-theme="superfood"][data-rs-color-mode="light"] {
+			[data-rs-theme="superfood"][data-rs-color-mode="light"],[data-rs-theme*=" superfood "][data-rs-color-mode="light"] {
 					--rs-color-background-primary-faded: #ecebfe;
 --rs-color-border-primary-faded: #dedcfb;
 --rs-color-background-critical: #e22c2c;
@@ -157,23 +161,23 @@
 --rs-color-foreground-disabled: #c6ccda;
 --rs-color-background-elevation-raised: #ffffff;
 --rs-color-background-elevation-overlay: #ffffff;
---rs-color-rgb-background-primary-faded: 236, 235, 254;
---rs-color-rgb-background-critical: 226, 44, 44;
---rs-color-rgb-background-critical-faded: 253, 237, 237;
---rs-color-rgb-background-warning: 250, 204, 21;
---rs-color-rgb-background-warning-faded: 255, 250, 233;
---rs-color-rgb-background-positive: 17, 136, 80;
---rs-color-rgb-background-positive-faded: 237, 253, 245;
---rs-color-on-background-neutral: #000000;
---rs-color-rgb-background-neutral: 223, 226, 234;
---rs-color-rgb-background-neutral-faded: 243, 243, 245;
---rs-color-rgb-background-disabled: 236, 238, 242;
---rs-color-rgb-background-disabled-faded: 245, 246, 249;
+--rs-color-rgb-background-primary-faded: 236.0025, 235.00799999999998, 254.00549999999998;
+--rs-color-rgb-background-critical: 226.0065, 43.9875, 43.9875;
+--rs-color-rgb-background-critical-faded: 253.011, 236.997, 236.997;
+--rs-color-rgb-background-warning: 250.002, 204, 21.012;
+--rs-color-rgb-background-warning-faded: 255, 250.002, 232.99349999999998;
+--rs-color-rgb-background-positive: 17.008499999999998, 135.9915, 79.9935;
+--rs-color-rgb-background-positive-faded: 236.997, 253.011, 245.004;
+--rs-color-on-background-neutral: oklch(0 0 0);
+--rs-color-rgb-background-neutral: 222.9975, 226.0065, 233.988;
+--rs-color-rgb-background-neutral-faded: 242.9895, 242.9895, 245.004;
+--rs-color-rgb-background-disabled: 236.0025, 237.9915, 241.99499999999998;
+--rs-color-rgb-background-disabled-faded: 245.004, 245.9985, 249.00750000000002;
 --rs-color-rgb-background-elevation-raised: 255, 255, 255;
 --rs-color-rgb-background-elevation-overlay: 255, 255, 255;
 			}
 		
-			[data-rs-theme="superfood"][data-rs-color-mode="dark"] {
+			[data-rs-theme="superfood"][data-rs-color-mode="dark"],[data-rs-theme*=" superfood "][data-rs-color-mode="dark"] {
 					--rs-color-background-primary-faded: #252544;
 --rs-color-border-primary-faded: #323164;
 --rs-color-background-critical: #d02626;
@@ -203,19 +207,19 @@
 --rs-color-foreground-disabled: #434959;
 --rs-color-background-elevation-raised: #191b23;
 --rs-color-background-elevation-overlay: #1c1f28;
---rs-color-rgb-background-primary-faded: 37, 37, 68;
---rs-color-rgb-background-critical: 208, 38, 38;
---rs-color-rgb-background-critical-faded: 62, 31, 31;
---rs-color-rgb-background-warning: 241, 197, 18;
---rs-color-rgb-background-warning-faded: 44, 39, 31;
---rs-color-rgb-background-positive: 20, 120, 74;
---rs-color-rgb-background-positive-faded: 31, 42, 35;
---rs-color-on-background-neutral: #ffffff;
---rs-color-rgb-background-neutral: 73, 79, 96;
---rs-color-rgb-background-neutral-faded: 34, 40, 53;
---rs-color-rgb-background-disabled: 30, 33, 42;
---rs-color-rgb-background-disabled-faded: 23, 25, 33;
---rs-color-rgb-background-elevation-raised: 25, 27, 35;
---rs-color-rgb-background-elevation-overlay: 28, 31, 40;
+--rs-color-rgb-background-primary-faded: 37.0005, 37.0005, 68.0085;
+--rs-color-rgb-background-critical: 208.0035, 37.995, 37.995;
+--rs-color-rgb-background-critical-faded: 61.990500000000004, 31.008, 31.008;
+--rs-color-rgb-background-warning: 241.00050000000002, 196.98749999999998, 18.003;
+--rs-color-rgb-background-warning-faded: 43.9875, 38.9895, 31.008;
+--rs-color-rgb-background-positive: 19.992, 120.003, 74.001;
+--rs-color-rgb-background-positive-faded: 31.008, 41.9985, 35.0115;
+--rs-color-on-background-neutral: oklch(1 0 0);
+--rs-color-rgb-background-neutral: 73.0065, 78.99900000000001, 96.00750000000001;
+--rs-color-rgb-background-neutral-faded: 33.9915, 40.0095, 52.989000000000004;
+--rs-color-rgb-background-disabled: 29.988, 32.997, 41.9985;
+--rs-color-rgb-background-disabled-faded: 23.001, 24.990000000000002, 32.997;
+--rs-color-rgb-background-elevation-raised: 24.990000000000002, 27.0045, 35.0115;
+--rs-color-rgb-background-elevation-overlay: 27.999, 31.008, 40.0095;
 			}
 		

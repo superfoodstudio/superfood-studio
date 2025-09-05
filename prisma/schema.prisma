@@ -38,6 +38,7 @@ model Recipe {
   description     String
   category        String   // food, beauty, wellness
   isPublished     Boolean  @default(false)
+  isFeatured      Boolean  @default(false)
   mediaUrl        String   // IPFS URL from Pinata
   previewImageUrl String?  // Optional preview image for recipe cards
   ingredients     String?   // Rich text HTML content for ingredients
@@ -82,6 +83,7 @@ model Product {
   inventory       Int       @default(0)
   isActive        Boolean   @default(true)
   isArchived      Boolean   @default(false)  // Soft delete flag
+  isFeatured      Boolean   @default(false)
   // Stripe integration
   stripeProductId String?   @unique  // ID of the corresponding product in Stripe
   stripePriceId   String?   // ID of the default price in Stripe

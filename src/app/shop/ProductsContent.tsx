@@ -6,6 +6,7 @@ import { useLazyLoadQuery, usePaginationFragment, graphql } from 'react-relay';
 import ProductList from './ProductList';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { Grid } from 'reshaped';
+import { FeaturedProduct } from '@/components/products/FeaturedProduct';
 
 const productCategoriesQuery = graphql`
   query ProductsContentCategoriesQuery {
@@ -109,7 +110,29 @@ function AllProductsSection() {
   ];
 
   return (
-    <View direction="column" gap={4}>
+    <View direction="column" gap={6}>
+      {/* Featured Product */}
+      <View
+        attributes={{
+          style: { paddingLeft: '1rem', paddingRight: '1rem' }
+        }}
+      >
+        <View direction="column" gap={3}>
+          <Text
+            variant="featured-1"
+            attributes={{
+              style: {
+                fontFamily: "var(--font-big-caslon)",
+                textTransform: "lowercase",
+              },
+            }}
+          >
+            featured product
+          </Text>
+          <FeaturedProduct />
+        </View>
+      </View>
+
       {/* Section Title */}
       <View
         attributes={{

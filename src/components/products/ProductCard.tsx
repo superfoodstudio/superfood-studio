@@ -71,42 +71,54 @@ export function ProductCard({ product }: Props) {
   };
 
   return (
-    <Link href={`/shop/products/${data.slug}`} style={{ textDecoration: 'none' }}>
+    <Link
+      href={`/shop/products/${data.slug}`}
+      style={{ textDecoration: "none" }}
+    >
       <Card>
         <View direction="column" gap={2}>
-          <div style={{ position: 'relative', width: '100%', height: '200px' }}>
-            <img 
-              src={data.photoUrl} 
+          <div style={{ position: "relative", width: "100%", height: "200px" }}>
+            <img
+              src={data.photoUrl}
               alt={data.name}
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                objectFit: 'cover', 
-                borderRadius: '8px' 
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "8px",
               }}
             />
             {data.inventory <= 0 && (
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '8px'
-              }}>
-                <Text variant="title-3" attributes={{ style: { color: 'white' } }}>Sold Out</Text>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "8px",
+                }}
+              >
+                <Text
+                  variant="title-3"
+                  attributes={{ style: { color: "white" } }}
+                >
+                  Sold Out
+                </Text>
               </div>
             )}
           </div>
           <View direction="column" gap={1} padding={2}>
             <Text variant="title-3">{data.name}</Text>
             <Text variant="title-4">{formattedPrice}</Text>
-            <Text variant="body-2" color="neutral-faded">{data.category}</Text>
-            
+            <Text variant="body-2" color="neutral-faded">
+              {data.category}
+            </Text>
+
             {/* Rating Display */}
             <StarRating
               itemId={data.id}
@@ -117,37 +129,38 @@ export function ProductCard({ product }: Props) {
               readonly={true}
             />
             <View direction="row" gap={1} wrap>
-              {data.tags && data.tags.map((tag: string) => (
-                <View 
-                  key={tag}
-                  backgroundColor="neutral-faded"
-                  attributes={{
-                    style: {
-                      padding: '2px 8px',
-                      borderRadius: '4px'
-                    }
-                  }}
-                >
-                  <Text variant="caption-1">{tag}</Text>
-                </View>
-              ))}
+              {data.tags &&
+                data.tags.map((tag: string) => (
+                  <View
+                    key={tag}
+                    backgroundColor="neutral-faded"
+                    attributes={{
+                      style: {
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                      },
+                    }}
+                  >
+                    <Text variant="caption-1">{tag}</Text>
+                  </View>
+                ))}
             </View>
-            
-            <Button 
-              variant="solid" 
+
+            <Button
+              variant="solid"
               size="small"
               fullWidth
               disabled={isAdding || data.inventory <= 0}
               onClick={handleAddToCart}
               attributes={{
                 style: {
-                  marginTop: '8px'
-                }
+                  marginTop: "8px",
+                },
               }}
             >
               <View direction="row" gap={1} align="center">
                 <ShoppingCartSimple size={16} />
-                <Text>{isAdding ? 'Adding...' : 'Add to Cart'}</Text>
+                <Text>{isAdding ? "Adding..." : "Add to Cart"}</Text>
               </View>
             </Button>
           </View>

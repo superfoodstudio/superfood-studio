@@ -20,6 +20,7 @@ type Recipe {
   description: String!
   category: String!
   isPublished: Boolean!
+  isFeatured: Boolean!
   mediaUrl: String!
   previewImageUrl: String
   uploadDate: DateTime!
@@ -109,6 +110,7 @@ type Product {
   tags: [String!]!
   inventory: Int!
   isActive: Boolean!
+  isFeatured: Boolean!
   stripeProductId: String
   stripePriceId: String
   ratings: [ProductRating!]!
@@ -430,6 +432,10 @@ type Query {
   # Category queries
   recipeCategories: [String!]!
   productCategories: [String!]!
+  
+  # Featured queries
+  featuredRecipe: Recipe
+  featuredProduct: Product
 }
 
 type Mutation {
@@ -438,12 +444,14 @@ type Mutation {
   updateRecipe(id: ID!, input: UpdateRecipeInput!): Recipe!
   deleteRecipe(id: ID!): DeleteRecipeResponse!
   toggleRecipeStatus(id: ID!): Recipe!
+  setFeaturedRecipe(id: ID!): Recipe!
 
   # Product mutations
   createProduct(input: CreateProductInput!): Product!
   updateProduct(id: ID!, input: UpdateProductInput!): Product!
   deleteProduct(id: ID!): DeleteProductResponse!
   toggleProductStatus(id: ID!): Product!
+  setFeaturedProduct(id: ID!): Product!
   
   # Cart mutations
   addToCart(input: AddToCartInput!): Cart!

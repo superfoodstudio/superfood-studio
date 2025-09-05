@@ -9,6 +9,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { stripHtml } from '@/lib/textUtils';
+import { FeaturedProductQuery } from '@/graphql/queries/FeaturedProductQuery';
 
 // Define the query that includes the fragment
 const AdminProductsPageQuery = graphql`
@@ -87,6 +88,11 @@ function AdminProductsContent() {
       search: searchFilter || null,
       sort: sortFilter,
     }
+  );
+
+  const featuredData = useLazyLoadQuery<any>(
+    FeaturedProductQuery,
+    {}
   );
 
   const {
@@ -205,6 +211,70 @@ function AdminProductsContent() {
           </Button>
         </View>
       </View>
+
+      {/* Featured Product */}
+      {featuredData.featuredProduct && (
+        <View direction="column" gap={3}>
+          <Text variant="title-4" weight="medium">Featured Product</Text>
+          <Card padding={4} attributes={{ style: { backgroundColor: '#fff8e1', border: '2px solid #ffcc02' } }}>
+            <Table>
+              <Table.Head>
+                <Table.Row>
+                  <Table.Heading>Name</Table.Heading>
+                  <Table.Heading>Category</Table.Heading>
+                  <Table.Heading>Price</Table.Heading>
+                  <Table.Heading>Active</Table.Heading>
+                  <Table.Heading>Actions</Table.Heading>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell>
+                    <View direction="column" gap={1}>
+                      <Text weight="medium">⭐ {featuredData.featuredProduct.name}</Text>
+                      {featuredData.featuredProduct.description && (
+                        <Text variant="caption-1" color="neutral-faded">
+                          {stripHtml(featuredData.featuredProduct.description, 50)}
+                        </Text>
+                      )}
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>{featuredData.featuredProduct.category}</Table.Cell>
+                  <Table.Cell>${featuredData.featuredProduct.price.toFixed(2)}</Table.Cell>
+                  <Table.Cell>
+                    <span 
+                      style={{ 
+                        color: '#2e7d32',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: '#e8f5e9',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Active
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <View direction="row" gap={2}>
+                      <Link href={`/admin/products/${featuredData.featuredProduct.id}`}>
+                        <Button variant="outline" size="small">
+                          Edit
+                        </Button>
+                      </Link>
+                      <Link href={`/shop/products/${featuredData.featuredProduct.slug}`}>
+                        <Button variant="ghost" size="small">
+                          View
+                        </Button>
+                      </Link>
+                    </View>
+                  </Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
+          </Card>
+        </View>
+      )}
 
       {/* Products Table */}
       {products.length === 0 ? (

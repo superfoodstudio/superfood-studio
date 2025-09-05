@@ -4,32 +4,24 @@ import { Suspense } from 'react';
 import { View, Text, Card, Button } from 'reshaped';
 import { useLazyLoadQuery } from 'react-relay';
 import { useRouter } from 'next/navigation';
-import { FeaturedRecipeQuery } from '@/graphql/queries/FeaturedRecipeQuery';
+import { FeaturedProductQuery } from '@/graphql/queries/FeaturedProductQuery';
 import { stripHtml } from '@/lib/textUtils';
-import type { FeaturedRecipeQueryQuery } from '@/__generated__/FeaturedRecipeQueryQuery.graphql';
+import type { FeaturedProductQueryQuery } from '@/__generated__/FeaturedProductQueryQuery.graphql';
 
-function FeaturedRecipeContent() {
+function FeaturedProductContent() {
   const router = useRouter();
 
-  const data = useLazyLoadQuery<FeaturedRecipeQueryQuery>(
-    FeaturedRecipeQuery,
+  const data = useLazyLoadQuery<FeaturedProductQueryQuery>(
+    FeaturedProductQuery,
     {}
   );
 
-  // Get the featured recipe
-  const recipe = data.featuredRecipe;
+  // Get the featured product
+  const product = data.featuredProduct;
 
-  if (!recipe) {
+  if (!product) {
     return null;
   }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
   return (
     <Card
@@ -42,10 +34,10 @@ function FeaturedRecipeContent() {
           cursor: 'pointer'
         }
       }}
-      onClick={() => router.push(`/recipes/${recipe.slug}`)}
+      onClick={() => router.push(`/shop/products/${product.slug}`)}
     >
       <View direction="row" height="300px">
-        {/* Recipe Image */}
+        {/* Product Image */}
         <View
           attributes={{
             style: {
@@ -55,8 +47,8 @@ function FeaturedRecipeContent() {
           }}
         >
           <img
-            src={recipe.previewImageUrl || recipe.mediaUrl}
-            alt={recipe.name}
+            src={product.photoUrl}
+            alt={product.name}
             style={{
               width: '100%',
               height: '100%',
@@ -65,7 +57,7 @@ function FeaturedRecipeContent() {
           />
         </View>
 
-        {/* Recipe Content */}
+        {/* Product Content */}
         <View
           direction="column"
           gap={3}
@@ -89,7 +81,7 @@ function FeaturedRecipeContent() {
             }}
           >
             <Text variant="caption-1" color="primary">
-              {recipe.category.toUpperCase()}
+              {product.category.toUpperCase()}
             </Text>
           </View>
 
@@ -101,7 +93,7 @@ function FeaturedRecipeContent() {
               }
             }}
           >
-            {recipe.name}
+            {product.name}
           </Text>
 
           <Text
@@ -116,12 +108,12 @@ function FeaturedRecipeContent() {
               }
             }}
           >
-            {stripHtml(recipe.description, 150)}
+            {stripHtml(product.description, 150)}
           </Text>
 
           <View direction="row" justify="space-between" align="center">
-            <Text variant="caption-1" color="neutral-faded">
-              {formatDate(recipe.uploadDate)}
+            <Text variant="title-4">
+              ${product.price.toFixed(2)}
             </Text>
             <Button
               variant="solid"
@@ -136,7 +128,7 @@ function FeaturedRecipeContent() {
                 }
               }}
             >
-              VIEW RECIPE
+              VIEW PRODUCT
             </Button>
           </View>
         </View>
@@ -145,7 +137,7 @@ function FeaturedRecipeContent() {
   );
 }
 
-function FeaturedRecipeLoading() {
+function FeaturedProductLoading() {
   return (
     <Card
       padding={6}
@@ -159,17 +151,17 @@ function FeaturedRecipeLoading() {
     >
       <View direction="column" align="center" justify="center" height="100%">
         <Text variant="body-2" color="neutral-faded">
-          Loading featured recipe...
+          Loading featured product...
         </Text>
       </View>
     </Card>
   );
 }
 
-export function FeaturedRecipe() {
+export function FeaturedProduct() {
   return (
-    <Suspense fallback={<FeaturedRecipeLoading />}>
-      <FeaturedRecipeContent />
+    <Suspense fallback={<FeaturedProductLoading />}>
+      <FeaturedProductContent />
     </Suspense>
   );
 }

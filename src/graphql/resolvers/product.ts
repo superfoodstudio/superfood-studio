@@ -294,6 +294,12 @@ export const productResolvers = {
         .filter(Boolean)
         .sort();
     },
+
+    featuredProduct: async (_parent: unknown, _args: unknown, { prisma }: GraphQLContext) => {
+      return prisma.product.findFirst({
+        where: { isFeatured: true, isActive: true, isArchived: false },
+      });
+    },
   },
 
   Mutation: {
@@ -570,6 +576,22 @@ export const productResolvers = {
         console.error('Error toggling product status:', error);
         throw new Error('Failed to toggle product status');
       }
+    },
+
+    setFeaturedProduct: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+      // First, unfeatured any currently featured product
+      await prisma.product.updateMany({
+        where: { isFeatured: true },
+        data: { isFeatured: false },
+      });
+
+      // Then set the new product as featured
+      const product = await prisma.product.update({
+        where: { id },
+        data: { isFeatured: true },
+      });
+
+      return product;
     },
   },
 }; 

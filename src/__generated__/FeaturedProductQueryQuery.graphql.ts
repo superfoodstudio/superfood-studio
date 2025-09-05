@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<992b36620d6f6051e3b1010dedacb69b>>
+ * @generated SignedSource<<0995f8e48913426f7c5ffcce54245d1e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,22 +9,21 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
-export type FeaturedRecipeQueryQuery$variables = {};
-export type FeaturedRecipeQueryQuery$data = {
-  readonly featuredRecipe: {
+export type FeaturedProductQueryQuery$variables = {};
+export type FeaturedProductQueryQuery$data = {
+  readonly featuredProduct: {
     readonly category: string;
     readonly description: string;
     readonly id: string;
-    readonly mediaUrl: string;
     readonly name: string;
-    readonly previewImageUrl: string | null;
+    readonly photoUrl: string;
+    readonly price: number;
     readonly slug: string;
-    readonly uploadDate: any;
   } | null;
 };
-export type FeaturedRecipeQueryQuery = {
-  response: FeaturedRecipeQueryQuery$data;
-  variables: FeaturedRecipeQueryQuery$variables;
+export type FeaturedProductQueryQuery = {
+  response: FeaturedProductQueryQuery$data;
+  variables: FeaturedProductQueryQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -32,9 +31,9 @@ var v0 = [
   {
     "alias": null,
     "args": null,
-    "concreteType": "Recipe",
+    "concreteType": "Product",
     "kind": "LinkedField",
-    "name": "featuredRecipe",
+    "name": "featuredProduct",
     "plural": false,
     "selections": [
       {
@@ -69,28 +68,21 @@ var v0 = [
         "alias": null,
         "args": null,
         "kind": "ScalarField",
+        "name": "photoUrl",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "price",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
         "name": "category",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "mediaUrl",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "previewImageUrl",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "uploadDate",
         "storageKey": null
       }
     ],
@@ -102,7 +94,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "FeaturedRecipeQueryQuery",
+    "name": "FeaturedProductQueryQuery",
     "selections": (v0/*: any*/),
     "type": "Query",
     "abstractKey": null
@@ -111,20 +103,20 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "FeaturedRecipeQueryQuery",
+    "name": "FeaturedProductQueryQuery",
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "5692bc78babb967a0c6e9c1fb0c1c6c1",
+    "cacheID": "1c40ee4eb647a324a125ea8e06e90ce0",
     "id": null,
     "metadata": {},
-    "name": "FeaturedRecipeQueryQuery",
+    "name": "FeaturedProductQueryQuery",
     "operationKind": "query",
-    "text": "query FeaturedRecipeQueryQuery {\n  featuredRecipe {\n    id\n    name\n    slug\n    description\n    category\n    mediaUrl\n    previewImageUrl\n    uploadDate\n  }\n}\n"
+    "text": "query FeaturedProductQueryQuery {\n  featuredProduct {\n    id\n    name\n    slug\n    description\n    photoUrl\n    price\n    category\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "8473c9997397a379311fb5e6eeb67473";
+(node as any).hash = "d369ec80340b036a1d26ce53d5d6d915";
 
 export default node;

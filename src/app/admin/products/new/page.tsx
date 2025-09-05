@@ -20,6 +20,7 @@ export default function NewProductPage() {
     category: '',
     tags: '',
     inventory: 0,
+    isFeatured: false,
   });
   
   const setDescription = (value: string) => {
@@ -120,6 +121,36 @@ export default function NewProductPage() {
       
       if (result.errors) {
         throw new Error(result.errors[0].message || 'Failed to create product');
+      }
+
+      // If featured is checked, set this product as featured
+      if (formData.isFeatured && result.data?.createProduct?.id) {
+        const featuredResponse = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            query: `
+              mutation SetFeaturedProduct($id: ID!) {
+                setFeaturedProduct(id: $id) {
+                  id
+                  isFeatured
+                }
+              }
+            `,
+            variables: {
+              id: result.data.createProduct.id,
+            },
+          }),
+        });
+        
+        const featuredResult = await featuredResponse.json();
+        if (featuredResult.errors) {
+          console.error('Failed to set featured:', featuredResult.errors);
+          // Don't fail the whole operation, just log the error
+        }
       }
       
       // Navigate back to products list
@@ -243,6 +274,16 @@ export default function NewProductPage() {
           onChange={({ value }) => setFormData(prev => ({ ...prev, videoUrl: value }))}
           placeholder="https://example.com/video.mp4"
         />
+      </View>
+      
+      <View gap={2}>
+        <Switch 
+          name="isFeatured"
+          checked={formData.isFeatured} 
+          onChange={({ checked }) => setFormData(prev => ({ ...prev, isFeatured: checked }))}
+        >
+          {formData.isFeatured ? 'Featured' : 'Not Featured'}
+        </Switch>
       </View>
 
       <Button 

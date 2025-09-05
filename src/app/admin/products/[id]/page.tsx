@@ -35,6 +35,7 @@ export default function EditProductPage() {
   const [inventory, setInventory] = useState(0);
   const [tags, setTags] = useState('');
   const [isActive, setIsActive] = useState(true);
+  const [isFeatured, setIsFeatured] = useState(false);
 
   // Fetch product data if editing an existing product
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function EditProductPage() {
                   inventory
                   tags
                   isActive
+                  isFeatured
                   stripeProductId
                   stripePriceId
                   createdAt
@@ -95,6 +97,7 @@ export default function EditProductPage() {
           setInventory(product.inventory);
           setTags(product.tags ? product.tags.join(', ') : '');
           setIsActive(product.isActive);
+          setIsFeatured(product.isFeatured || false);
         }
         
         setLoading(false);
@@ -215,6 +218,33 @@ export default function EditProductPage() {
 
       if (result.errors) {
         throw new Error(result.errors[0].message || 'Error saving product');
+      }
+
+      // Handle featured toggle for editing existing products
+      if (!isNew && isFeatured) {
+        const featuredResponse = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: `
+              mutation SetFeaturedProduct($id: ID!) {
+                setFeaturedProduct(id: $id) {
+                  id
+                  isFeatured
+                }
+              }
+            `,
+            variables: { id: productId },
+          }),
+        });
+        
+        const featuredResult = await featuredResponse.json();
+        if (featuredResult.errors) {
+          console.error('Failed to set featured:', featuredResult.errors);
+          // Don't fail the whole operation, just log the error
+        }
       }
 
       // Navigate back to products list on success
@@ -404,6 +434,16 @@ export default function EditProductPage() {
               </Switch>
             </FormField>
           )}
+          
+          <FormField label="Featured">
+            <Switch 
+              name="isFeatured"
+              checked={isFeatured} 
+              onChange={({ checked }) => setIsFeatured(checked)}
+            >
+              {isFeatured ? 'Featured' : 'Not Featured'}
+            </Switch>
+          </FormField>
         </View>
         
         <AdminFormActions 

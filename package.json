@@ -62,6 +62,7 @@
     "eslint": "^9",
     "eslint-config-next": "14.0.4",
     "graphql": "^16.10.0",
+    "postcss-custom-media": "^11.0.6",
     "prisma": "^6.5.0",
     "relay-compiler": "14.0.0",
     "ts-node": "^10.9.1",
