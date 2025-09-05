@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, Suspense } from 'react';
 import { View, Text, Table, Button, Card } from 'reshaped';
 import Link from 'next/link';
@@ -290,15 +292,17 @@ function AdminRecipesContent() {
                       <Button 
                         variant="outline" 
                         size="small" 
-                        onClick={() => handleEditClick(featuredData.featuredRecipe.id)}
+                        onClick={() => featuredData.featuredRecipe && handleEditClick(featuredData.featuredRecipe.id)}
                       >
                         Edit
                       </Button>
-                      <Link href={`/recipes/${featuredData.featuredRecipe.slug}`}>
+                      {featuredData.featuredRecipe && (
+                        <Link href={`/recipes/${featuredData.featuredRecipe.slug}`}>
                         <Button variant="ghost" size="small">
                           View
                         </Button>
-                      </Link>
+                        </Link>
+                      )}
                     </View>
                   </Table.Cell>
                 </Table.Row>

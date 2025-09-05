@@ -15,6 +15,10 @@ export const recipeCardFragment = graphql`
     slug
     description
     category
+    servingSize
+    totalTime
+    prepTime
+    cookTime
     mediaUrl
     previewImageUrl
     uploadDate
@@ -30,6 +34,10 @@ type RecipeData = {
   slug: string;
   description: string;
   category: string;
+  servingSize?: string | null;
+  totalTime?: number | null;
+  prepTime?: number | null;
+  cookTime?: number | null;
   mediaUrl: string;
   previewImageUrl?: string | null;
   uploadDate: string;
@@ -122,6 +130,20 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             size="small"
             readonly={true}
           />
+
+          {/* Recipe Info */}
+          <View direction="row" gap={3} wrap>
+            {data.servingSize && (
+              <Text variant="caption-1" color="neutral-faded">
+                🍽️ {data.servingSize}
+              </Text>
+            )}
+            {data.totalTime && (
+              <Text variant="caption-1" color="neutral-faded">
+                ⏱️ {data.totalTime}min
+              </Text>
+            )}
+          </View>
         </View>
         <Link href={`/recipes/${data.slug}`} passHref>
           <Button fullWidth>View Recipe</Button>

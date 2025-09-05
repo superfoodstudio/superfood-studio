@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0ad6e59780c79a3ddc8595d7834f9b3f>>
+ * @generated SignedSource<<95191a298b385f8c1c3748bc0e72a9c5>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -18,13 +18,19 @@ export type RecipeQueriesRecipeListQuery$data = {
   readonly publicRecipes: {
     readonly edges: ReadonlyArray<{
       readonly node: {
+        readonly averageRating: number | null;
         readonly category: string;
+        readonly cookTime: number | null;
         readonly description: string;
         readonly id: string;
         readonly mediaUrl: string;
         readonly name: string;
+        readonly prepTime: number | null;
         readonly previewImageUrl: string | null;
+        readonly servingSize: string | null;
         readonly slug: string;
+        readonly totalRatings: number;
+        readonly totalTime: number | null;
         readonly uploadDate: any;
       };
     }>;
@@ -135,6 +141,34 @@ v3 = [
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
+                "name": "servingSize",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "totalTime",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "prepTime",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "cookTime",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
                 "name": "mediaUrl",
                 "storageKey": null
               },
@@ -150,6 +184,20 @@ v3 = [
                 "args": null,
                 "kind": "ScalarField",
                 "name": "uploadDate",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "averageRating",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "totalRatings",
                 "storageKey": null
               }
             ],
@@ -213,16 +261,16 @@ return {
     "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "a92e5020c2612618d0fc2effea2a1035",
+    "cacheID": "95548f39fe2bb466846eb3fe9a638331",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeListQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeListQuery(\n  $category: String\n  $first: Int\n  $after: String\n) {\n  publicRecipes(category: $category, first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        previewImageUrl\n        uploadDate\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeListQuery(\n  $category: String\n  $first: Int\n  $after: String\n) {\n  publicRecipes(category: $category, first: $first, after: $after) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        servingSize\n        totalTime\n        prepTime\n        cookTime\n        mediaUrl\n        previewImageUrl\n        uploadDate\n        averageRating\n        totalRatings\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "797b068a4fd24a8ce48322b315c2fcd4";
+(node as any).hash = "71e1725c3520ec5739e523649ab59980";
 
 export default node;

@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { View, Text, Button, Modal, Card, useToggle } from 'reshaped';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { Suspense, useState, useEffect } from 'react';

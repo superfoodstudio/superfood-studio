@@ -25,9 +25,15 @@ export const RecipeListQuery = graphql`
           slug
           description
           category
+          servingSize
+          totalTime
+          prepTime
+          cookTime
           mediaUrl
           previewImageUrl
           uploadDate
+          averageRating
+          totalRatings
         }
       }
       pageInfo {
@@ -61,6 +67,10 @@ export const RecipeDetailFragment = graphql`
     slug
     description
     category
+    servingSize
+    totalTime
+    prepTime
+    cookTime
     mediaUrl
     ingredients
     instructions

@@ -142,6 +142,66 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
         {/* Recipe Description */}
         <RichTextDisplay content={recipe.description} />
         
+        {/* Recipe Info Section */}
+        {(recipe.servingSize || recipe.totalTime || recipe.prepTime || recipe.cookTime) && (
+          <View
+            backgroundColor="neutral-faded"
+            padding={4}
+            attributes={{
+              style: {
+                borderRadius: '8px',
+                border: '1px solid var(--rs-color-border-neutral-faded)'
+              }
+            }}
+          >
+            <View direction="column" gap={3}>
+              <Text variant="title-3">Recipe Info</Text>
+              <View direction="row" gap={6} wrap>
+                {recipe.servingSize && (
+                  <View direction="column" gap={1}>
+                    <Text variant="caption-1" weight="medium" color="neutral-faded">
+                      SERVES
+                    </Text>
+                    <Text variant="body-2">
+                      🍽️ {recipe.servingSize}
+                    </Text>
+                  </View>
+                )}
+                {recipe.totalTime && (
+                  <View direction="column" gap={1}>
+                    <Text variant="caption-1" weight="medium" color="neutral-faded">
+                      TOTAL TIME
+                    </Text>
+                    <Text variant="body-2">
+                      ⏱️ {recipe.totalTime} min
+                    </Text>
+                  </View>
+                )}
+                {recipe.prepTime && (
+                  <View direction="column" gap={1}>
+                    <Text variant="caption-1" weight="medium" color="neutral-faded">
+                      PREP TIME
+                    </Text>
+                    <Text variant="body-2">
+                      🥄 {recipe.prepTime} min
+                    </Text>
+                  </View>
+                )}
+                {recipe.cookTime && (
+                  <View direction="column" gap={1}>
+                    <Text variant="caption-1" weight="medium" color="neutral-faded">
+                      COOK TIME
+                    </Text>
+                    <Text variant="body-2">
+                      🔥 {recipe.cookTime} min
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+        )}
+        
         {/* Rating Section */}
         <View direction="column" gap={2}>
           <Text variant="title-3">Rate this recipe</Text>

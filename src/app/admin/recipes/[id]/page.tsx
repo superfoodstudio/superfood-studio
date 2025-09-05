@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { View, TextField, Switch } from 'reshaped';
 import { useRouter, useParams } from 'next/navigation';
@@ -17,6 +19,10 @@ interface Recipe {
   id: string;
   name: string;
   category: string;
+  servingSize?: string;
+  totalTime?: number;
+  prepTime?: number;
+  cookTime?: number;
   isPublished: boolean;
   isFeatured: boolean;
   uploadDate: string;
@@ -31,6 +37,10 @@ interface RecipeFormInputs {
   name: string;
   category: string;
   description: string;
+  servingSize: string;
+  totalTime: string;
+  prepTime: string;
+  cookTime: string;
   ingredients: string;
   instructions: string;
   isPublished: boolean;
@@ -81,6 +91,10 @@ export default function EditRecipePage() {
                   id
                   name
                   category
+                  servingSize
+                  totalTime
+                  prepTime
+                  cookTime
                   isPublished
                   isFeatured
                   uploadDate
@@ -106,6 +120,10 @@ export default function EditRecipePage() {
           setValue('name', recipeData.name || '');
           setValue('category', recipeData.category || '');
           setValue('description', recipeData.description || '');
+          setValue('servingSize', recipeData.servingSize || '');
+          setValue('totalTime', recipeData.totalTime ? recipeData.totalTime.toString() : '');
+          setValue('prepTime', recipeData.prepTime ? recipeData.prepTime.toString() : '');
+          setValue('cookTime', recipeData.cookTime ? recipeData.cookTime.toString() : '');
           setValue('ingredients', recipeData.ingredients || '');
           setValue('instructions', recipeData.instructions || '');
           setValue('isPublished', recipeData.isPublished || false);
@@ -159,6 +177,10 @@ export default function EditRecipePage() {
               category: data.category,
               isPublished: data.isPublished,
               description: data.description,
+              servingSize: data.servingSize || null,
+              totalTime: data.totalTime ? parseInt(data.totalTime) : null,
+              prepTime: data.prepTime ? parseInt(data.prepTime) : null,
+              cookTime: data.cookTime ? parseInt(data.cookTime) : null,
               mediaUrl: data.mediaUrl,
               previewImageUrl: data.previewImageUrl,
               // Store as rich text content instead of arrays
@@ -318,6 +340,58 @@ export default function EditRecipePage() {
               placeholder="Describe your recipe..."
             />
           </FormField>
+          
+          {/* Recipe Info Fields */}
+          <View direction="column" gap={4}>
+            <View direction="row" gap={4}>
+              <View width="50%">
+                <FormField label="Serving Size" error={errors.servingSize?.message}>
+                  <TextField 
+                    name="servingSize"
+                    value={formValues.servingSize || ''}
+                    onChange={({ value }) => setValue('servingSize', value)}
+                    placeholder="e.g. 4 servings, 2 cups"
+                  />
+                </FormField>
+              </View>
+              <View width="50%">
+                <FormField label="Total Time (minutes)" error={errors.totalTime?.message}>
+                  <TextField 
+                    name="totalTime"
+                    value={formValues.totalTime || ''}
+                    onChange={({ value }) => setValue('totalTime', value)}
+                    placeholder="e.g. 30"
+                    inputAttributes={{ type: "number" }}
+                  />
+                </FormField>
+              </View>
+            </View>
+            
+            <View direction="row" gap={4}>
+              <View width="50%">
+                <FormField label="Prep Time (minutes)" error={errors.prepTime?.message}>
+                  <TextField 
+                    name="prepTime"
+                    value={formValues.prepTime || ''}
+                    onChange={({ value }) => setValue('prepTime', value)}
+                    placeholder="e.g. 15"
+                    inputAttributes={{ type: "number" }}
+                  />
+                </FormField>
+              </View>
+              <View width="50%">
+                <FormField label="Cook Time (minutes)" error={errors.cookTime?.message}>
+                  <TextField 
+                    name="cookTime"
+                    value={formValues.cookTime || ''}
+                    onChange={({ value }) => setValue('cookTime', value)}
+                    placeholder="e.g. 15"
+                    inputAttributes={{ type: "number" }}
+                  />
+                </FormField>
+              </View>
+            </View>
+          </View>
           
           <FormField label="Video/Audio Content" required error={errors.mediaUrl?.message}>
             <VideoUpload

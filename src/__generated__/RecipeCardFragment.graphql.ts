@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<e418c3679b14b22d84be31ca24ea6752>>
+ * @generated SignedSource<<2a28cc5e0c91b8e39b295d83b6b5124c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,13 +13,17 @@ import { FragmentRefs } from "relay-runtime";
 export type RecipeCardFragment$data = {
   readonly averageRating: number | null;
   readonly category: string;
+  readonly cookTime: number | null;
   readonly description: string;
   readonly id: string;
   readonly mediaUrl: string;
   readonly name: string;
+  readonly prepTime: number | null;
   readonly previewImageUrl: string | null;
+  readonly servingSize: string | null;
   readonly slug: string;
   readonly totalRatings: number;
+  readonly totalTime: number | null;
   readonly uploadDate: any;
   readonly " $fragmentType": "RecipeCardFragment";
 };
@@ -73,6 +77,34 @@ const node: ReaderFragment = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
+      "name": "servingSize",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "totalTime",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "prepTime",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "cookTime",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
       "name": "mediaUrl",
       "storageKey": null
     },
@@ -109,6 +141,6 @@ const node: ReaderFragment = {
   "abstractKey": null
 };
 
-(node as any).hash = "66debdc13f3d8703950707162bab62de";
+(node as any).hash = "0a20133d486f06792a943dac576e0bcf";
 
 export default node;

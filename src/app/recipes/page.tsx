@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { View, Text } from 'reshaped';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { FeaturedRecipe } from '@/components/recipes/FeaturedRecipe';

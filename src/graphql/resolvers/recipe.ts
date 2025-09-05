@@ -37,6 +37,10 @@ interface RecipeCreateInput {
   slug: string;
   description: string;
   category: string;
+  servingSize?: string;
+  totalTime?: number;
+  prepTime?: number;
+  cookTime?: number;
   isPublished: boolean;
   mediaUrl: string;
   uploadDate: Date;
@@ -49,6 +53,10 @@ interface RecipeUpdateInput {
   slug?: string;
   description?: string;
   category?: string;
+  servingSize?: string;
+  totalTime?: number;
+  prepTime?: number;
+  cookTime?: number;
   isPublished?: boolean;
   mediaUrl?: string;
   ingredients?: string;

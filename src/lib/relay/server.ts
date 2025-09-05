@@ -19,6 +19,10 @@ type Recipe {
   slug: String!
   description: String!
   category: String!
+  servingSize: String
+  totalTime: Int
+  prepTime: Int
+  cookTime: Int
   isPublished: Boolean!
   isFeatured: Boolean!
   mediaUrl: String!
@@ -80,6 +84,10 @@ input CreateRecipeInput {
   name: String!
   description: String!
   category: String!
+  servingSize: String
+  totalTime: Int
+  prepTime: Int
+  cookTime: Int
   mediaUrl: String!
   previewImageUrl: String
   ingredients: String
@@ -90,6 +98,10 @@ input UpdateRecipeInput {
   name: String
   description: String
   category: String
+  servingSize: String
+  totalTime: Int
+  prepTime: Int
+  cookTime: Int
   mediaUrl: String
   previewImageUrl: String
   isPublished: Boolean

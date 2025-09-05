@@ -1,6 +1,6 @@
 
 			[data-rs-theme="superfood"],[data-rs-theme*=" superfood "] {
-					--rs-font-family-title: var(--font-midruns-script);
+					--rs-font-family-title: var(--font-nunito);
 --rs-font-family-body: var(--font-nunito);
 --rs-font-family-monospace: Geist Mono, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
 --rs-font-weight-regular: 400;

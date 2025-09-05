@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { View, Text, Table, Button, Card } from 'reshaped';
 import { LoadMore } from '@/components/ui/LoadMore';

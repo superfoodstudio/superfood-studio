@@ -37,6 +37,10 @@ model Recipe {
   slug            String   @unique
   description     String
   category        String   // food, beauty, wellness
+  servingSize     String?  // e.g. "4 servings", "2 cups", etc.
+  totalTime       Int?     // Total time in minutes
+  prepTime        Int?     // Prep time in minutes  
+  cookTime        Int?     // Cook time in minutes
   isPublished     Boolean  @default(false)
   isFeatured      Boolean  @default(false)
   mediaUrl        String   // IPFS URL from Pinata

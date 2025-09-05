@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, Suspense } from 'react';
 import { View, Button, Text } from 'reshaped';
 import { AdminLayout } from '@/components/admin/AdminLayout';

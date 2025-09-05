@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { View, Button, Text, TextField, NumberField, Switch } from 'reshaped';
 import { useRouter } from 'next/navigation';

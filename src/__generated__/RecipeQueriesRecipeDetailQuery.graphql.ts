@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2a3fcf081fab4591987ff2231b91ca32>>
+ * @generated SignedSource<<000b12797a4f4715f62c8bd2acab5c49>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -126,6 +126,34 @@ return {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "servingSize",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "totalTime",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "prepTime",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "cookTime",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "mediaUrl",
             "storageKey": null
           },
@@ -217,12 +245,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "54a7bae4601fba65bded72592b58c823",
+    "cacheID": "487882387e3b07f5bde1df2b4218329f",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeDetailQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
   }
 };
 })();

@@ -14,15 +14,7 @@ import { ProductsConnectionQuery } from "@/graphql/queries/ProductQueries";
 import type { UserQueriesCurrentUserQuery } from "@/__generated__/UserQueriesCurrentUserQuery.graphql";
 import type { ProductQueriesProductsConnectionQuery } from "@/__generated__/ProductQueriesProductsConnectionQuery.graphql";
 
-function DashboardContent() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState("dashboard");
-
-  const userData = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
-    CurrentUserQuery,
-    {}
-  );
-
+function LatestProducts() {
   const productsData = useLazyLoadQuery<ProductQueriesProductsConnectionQuery>(
     ProductsConnectionQuery,
     {
@@ -31,7 +23,29 @@ function DashboardContent() {
     }
   );
 
-  const user = userData.currentUser;
+  return (
+    <View direction="row" gap={4}>
+      {productsData.productsConnection.edges.map((edge, i) => (
+        <View.Item key={i} columns={{ s: 12, m: 4 }}>
+          <ProductCard
+            product={edge.node}
+          />
+        </View.Item>
+      ))}
+    </View>
+  );
+}
+
+function DashboardContent() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  const data = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
+    CurrentUserQuery,
+    {}
+  );
+
+  const user = data.currentUser;
   const username =
     user?.firstName ||
     (user?.email ? user.email.split("@")[0] : null) ||
@@ -239,15 +253,9 @@ function DashboardContent() {
             >
               latest products
             </Text>
-            <View direction="row" gap={4}>
-              {productsData.productsConnection.edges.map((edge, i) => (
-                <View.Item key={i} columns={{ s: 12, m: 4 }}>
-                  <ProductCard
-                    product={edge.node}
-                  />
-                </View.Item>
-              ))}
-            </View>
+            <Suspense fallback={<Text>Loading products...</Text>}>
+              <LatestProducts />
+            </Suspense>
           </View>
         </View>
 

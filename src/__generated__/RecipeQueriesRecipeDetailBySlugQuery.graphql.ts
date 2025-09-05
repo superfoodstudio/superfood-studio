@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<05523409d590269d31a9988256ecc0ee>>
+ * @generated SignedSource<<0f7be9ebf06f2ff9aa2e6598dbac2745>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -126,6 +126,34 @@ return {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "servingSize",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "totalTime",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "prepTime",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "cookTime",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "mediaUrl",
             "storageKey": null
           },
@@ -217,12 +245,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4e4fd55b756f65d5a70e27be0f7aa663",
+    "cacheID": "be7adca64f795f71a19a7d4bd0ef7a69",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeDetailBySlugQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeDetailBySlugQuery(\n  $slug: String!\n) {\n  recipeBySlug(slug: $slug) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeDetailBySlugQuery(\n  $slug: String!\n) {\n  recipeBySlug(slug: $slug) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
   }
 };
 })();

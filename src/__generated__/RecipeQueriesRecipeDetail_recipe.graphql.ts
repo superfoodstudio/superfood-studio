@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0295af7b9c408a947648243599502da6>>
+ * @generated SignedSource<<00a6c362ed1b27c6b689eac9033ef709>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,6 +13,7 @@ import { FragmentRefs } from "relay-runtime";
 export type RecipeQueriesRecipeDetail_recipe$data = {
   readonly averageRating: number | null;
   readonly category: string;
+  readonly cookTime: number | null;
   readonly createdAt: any;
   readonly description: string;
   readonly id: string;
@@ -20,6 +21,7 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
   readonly instructions: string | null;
   readonly mediaUrl: string;
   readonly name: string;
+  readonly prepTime: number | null;
   readonly ratings: ReadonlyArray<{
     readonly createdAt: any;
     readonly id: string;
@@ -30,8 +32,10 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
       readonly lastName: string | null;
     };
   }>;
+  readonly servingSize: string | null;
   readonly slug: string;
   readonly totalRatings: number;
+  readonly totalTime: number | null;
   readonly uploadDate: any;
   readonly " $fragmentType": "RecipeQueriesRecipeDetail_recipe";
 };
@@ -88,6 +92,34 @@ return {
       "args": null,
       "kind": "ScalarField",
       "name": "category",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "servingSize",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "totalTime",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "prepTime",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "cookTime",
       "storageKey": null
     },
     {
@@ -185,6 +217,6 @@ return {
 };
 })();
 
-(node as any).hash = "184ad585719ae1404d5d7c7087538fd4";
+(node as any).hash = "370dcd6cc313f2c090898eb2587eff89";
 
 export default node;

@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { View, TextField, Switch } from 'reshaped';
 import { useRouter } from 'next/navigation';
@@ -17,6 +19,10 @@ interface RecipeFormInputs {
   name: string;
   category: string;
   description: string;
+  servingSize: string;
+  totalTime: string;
+  prepTime: string;
+  cookTime: string;
   ingredients: string;
   instructions: string;
   isPublished: boolean;
@@ -36,6 +42,10 @@ export default function NewRecipePage() {
       name: '',
       category: '',
       description: '',
+      servingSize: '',
+      totalTime: '',
+      prepTime: '',
+      cookTime: '',
       ingredients: '',
       instructions: '',
       isPublished: false,
@@ -85,6 +95,10 @@ export default function NewRecipePage() {
               name: data.name,
               category: data.category,
               description: data.description,
+              servingSize: data.servingSize || null,
+              totalTime: data.totalTime ? parseInt(data.totalTime) : null,
+              prepTime: data.prepTime ? parseInt(data.prepTime) : null,
+              cookTime: data.cookTime ? parseInt(data.cookTime) : null,
               mediaUrl: data.mediaUrl,
               previewImageUrl: data.previewImageUrl,
               // Store as rich text content instead of arrays
@@ -182,6 +196,58 @@ export default function NewRecipePage() {
               placeholder="Describe your recipe..."
             />
           </FormField>
+          
+          {/* Recipe Info Fields */}
+          <View direction="column" gap={4}>
+            <View direction="row" gap={4}>
+              <View width="50%">
+                <FormField label="Serving Size" error={errors.servingSize?.message}>
+                  <TextField 
+                    name="servingSize"
+                    value={formValues.servingSize || ''}
+                    onChange={({ value }) => setValue('servingSize', value)}
+                    placeholder="e.g. 4 servings, 2 cups"
+                  />
+                </FormField>
+              </View>
+              <View width="50%">
+                <FormField label="Total Time (minutes)" error={errors.totalTime?.message}>
+                  <TextField 
+                    name="totalTime"
+                    value={formValues.totalTime || ''}
+                    onChange={({ value }) => setValue('totalTime', value)}
+                    placeholder="e.g. 30"
+                    inputAttributes={{ type: "number" }}
+                  />
+                </FormField>
+              </View>
+            </View>
+            
+            <View direction="row" gap={4}>
+              <View width="50%">
+                <FormField label="Prep Time (minutes)" error={errors.prepTime?.message}>
+                  <TextField 
+                    name="prepTime"
+                    value={formValues.prepTime || ''}
+                    onChange={({ value }) => setValue('prepTime', value)}
+                    placeholder="e.g. 15"
+                    inputAttributes={{ type: "number" }}
+                  />
+                </FormField>
+              </View>
+              <View width="50%">
+                <FormField label="Cook Time (minutes)" error={errors.cookTime?.message}>
+                  <TextField 
+                    name="cookTime"
+                    value={formValues.cookTime || ''}
+                    onChange={({ value }) => setValue('cookTime', value)}
+                    placeholder="e.g. 15"
+                    inputAttributes={{ type: "number" }}
+                  />
+                </FormField>
+              </View>
+            </View>
+          </View>
           
           <FormField label="Video/Audio Content" required error={errors.mediaUrl?.message}>
             <VideoUpload

@@ -3,7 +3,7 @@ const config = {
   themes: {
     superfood: {
       fontFamily: {
-        title: { family: "var(--font-midruns-script)" },
+        title: { family: "var(--font-nunito)" },
         body: { family: "var(--font-nunito)" }
       },
       color: {
