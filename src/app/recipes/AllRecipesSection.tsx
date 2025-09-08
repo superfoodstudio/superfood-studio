@@ -209,37 +209,44 @@ export function AllRecipesSection() {
       </View>
 
       {/* Main Content Area */}
-      <View direction="row" gap={6}>
-        {/* Filters Sidebar */}
-        <View
-          attributes={{
-            style: {
-              flex: '0 0 200px',
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-              border: '1px solid #e5e5e5'
-            }
-          }}
-        >
-          <RecipeFilters
-            selectedCategory={selectedCategory}
-            selectedSort={selectedSort}
-            onCategoryChange={setSelectedCategory}
-            onSortChange={setSelectedSort}
-            categories={categories}
-          />
-        </View>
-
-        {/* Recipe Grid */}
-        <View
-          direction="column"
-          attributes={{
-            style: { flex: 1 }
-          }}
-        >
+      <View
+        attributes={{
+          style: { 
+            paddingLeft: '1rem', 
+            paddingRight: '1rem'
+          }
+        }}
+      >
+        <View direction="row" gap={6}>
+          {/* Filters Sidebar - Sticky */}
           <View
             attributes={{
-              style: { paddingLeft: '1rem', paddingRight: '1rem' }
+              style: {
+                flex: '0 0 200px',
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+                border: '1px solid #e5e5e5',
+                position: 'sticky',
+                top: '80px',
+                alignSelf: 'flex-start',
+                height: 'fit-content'
+              }
+            }}
+          >
+            <RecipeFilters
+              selectedCategory={selectedCategory}
+              selectedSort={selectedSort}
+              onCategoryChange={setSelectedCategory}
+              onSortChange={setSelectedSort}
+              categories={categories}
+            />
+          </View>
+
+          {/* Recipe Grid */}
+          <View
+            direction="column"
+            attributes={{
+              style: { flex: 1 }
             }}
           >
             <Suspense fallback={<RecipeGridSkeleton />}>

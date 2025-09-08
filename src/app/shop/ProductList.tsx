@@ -64,16 +64,14 @@ function ProductListContent({ category, sort }: ProductListProps) {
   if (!data.productsConnection || data.productsConnection.edges.length === 0) {
     return (
       <View padding={4}>
-        <Grid columns={{ s: 1, m: 2, l: 3, xl: 4 }} gap={4}>
-          <View>No products found</View>
-        </Grid>
+        <View align="center">No products found</View>
       </View>
     );
   }
 
   return (
     <View direction="column" gap={4}>
-      <Grid columns={{ s: 1, m: 2, l: 3, xl: 4 }} gap={4}>
+      <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
         {data.productsConnection.edges.map(({ node: product }) => (
           <View key={product.id}>
             <ProductCard product={product} />
