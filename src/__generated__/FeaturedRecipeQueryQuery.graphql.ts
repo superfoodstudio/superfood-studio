@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<992b36620d6f6051e3b1010dedacb69b>>
+ * @generated SignedSource<<e6b8149f1fee3bfde8feb5c312bc0aa6>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,13 +12,18 @@ import { ConcreteRequest, Query } from 'relay-runtime';
 export type FeaturedRecipeQueryQuery$variables = {};
 export type FeaturedRecipeQueryQuery$data = {
   readonly featuredRecipe: {
+    readonly averageRating: number | null;
     readonly category: string;
+    readonly cookTime: number | null;
     readonly description: string;
     readonly id: string;
     readonly mediaUrl: string;
     readonly name: string;
+    readonly prepTime: number | null;
     readonly previewImageUrl: string | null;
     readonly slug: string;
+    readonly totalRatings: number;
+    readonly totalTime: number | null;
     readonly uploadDate: any;
   } | null;
 };
@@ -92,6 +97,41 @@ var v0 = [
         "kind": "ScalarField",
         "name": "uploadDate",
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "averageRating",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "totalRatings",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "cookTime",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "prepTime",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "totalTime",
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -115,16 +155,16 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "5692bc78babb967a0c6e9c1fb0c1c6c1",
+    "cacheID": "6010eb531610b9cf109ebeb7a3192314",
     "id": null,
     "metadata": {},
     "name": "FeaturedRecipeQueryQuery",
     "operationKind": "query",
-    "text": "query FeaturedRecipeQueryQuery {\n  featuredRecipe {\n    id\n    name\n    slug\n    description\n    category\n    mediaUrl\n    previewImageUrl\n    uploadDate\n  }\n}\n"
+    "text": "query FeaturedRecipeQueryQuery {\n  featuredRecipe {\n    id\n    name\n    slug\n    description\n    category\n    mediaUrl\n    previewImageUrl\n    uploadDate\n    averageRating\n    totalRatings\n    cookTime\n    prepTime\n    totalTime\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "8473c9997397a379311fb5e6eeb67473";
+(node as any).hash = "2f4e1a751afc2a0bab0854bc00d42330";
 
 export default node;

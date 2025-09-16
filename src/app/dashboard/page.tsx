@@ -9,6 +9,7 @@ import { AppContainer } from "@/components/layout/AppContainer";
 import { FeaturedRecipe } from "@/components/recipes/FeaturedRecipe";
 import { WeeklyGroceryList } from "@/components/dashboard/WeeklyGroceryList";
 import { ProductCard } from "@/components/products/ProductCard";
+import { StarRating } from "@/components/ratings/StarRating";
 import { CurrentUserQuery } from "@/graphql/queries/UserQueries";
 import { ProductsConnectionQuery } from "@/graphql/queries/ProductQueries";
 import type { UserQueriesCurrentUserQuery } from "@/__generated__/UserQueriesCurrentUserQuery.graphql";
@@ -19,17 +20,15 @@ function LatestProducts() {
     ProductsConnectionQuery,
     {
       first: 3,
-      sort: "newest"
-    }
+      sort: "newest",
+    },
   );
 
   return (
     <View direction="row" gap={4}>
       {productsData.productsConnection.edges.map((edge, i) => (
         <View.Item key={i} columns={{ s: 12, m: 4 }}>
-          <ProductCard
-            product={edge.node}
-          />
+          <ProductCard product={edge.node} />
         </View.Item>
       ))}
     </View>
@@ -42,7 +41,7 @@ function DashboardContent() {
 
   const data = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
     CurrentUserQuery,
-    {}
+    {},
   );
 
   const user = data.currentUser;
@@ -53,169 +52,67 @@ function DashboardContent() {
 
   return (
     <AppContainer>
-      <View direction="column" gap={6} paddingTop={4}>
-        {/* Navigation Component - Four-button tab bar */}
-        <View
-          direction="row"
-          justify="center"
-          paddingTop={4}
-          paddingInline={4}
-          gap={2}
-        >
-          <View width={{ s: "100%", m: "200px" }} maxWidth={"200px"}>
-            <Button
-              variant="outline"
-              size="large"
-              rounded={true}
-              fullWidth={true}
-              onClick={() => {
-                setActiveTab("recipes");
-                router.push("/recipes");
-              }}
-            >
-              <Text
-                variant="body-2"
-                attributes={{
-                  style: {
-                    fontWeight: 300,
-                    color: "var(--rs-color-forest-green)",
-                    textTransform: "uppercase",
-                    fontFamily: "var(--font-midruns-sans)",
-                    letterSpacing: "1.2px",
-                  },
-                }}
-              >
-                Recipes
-              </Text>
-            </Button>
-          </View>
-          <View width={{ s: "100%", m: "200px" }} maxWidth={"200px"}>
-            <Button
-              variant="outline"
-              size="large"
-              rounded={true}
-              fullWidth={true}
-              onClick={() => {
-                setActiveTab("shop");
-                router.push("/shop");
-              }}
-            >
-              <Text
-                variant="body-2"
-                attributes={{
-                  style: {
-                    fontWeight: 300,
-                    color: "var(--rs-color-forest-green)",
-                    textTransform: "uppercase",
-                    fontFamily: "var(--font-midruns-sans)",
-                    letterSpacing: "1.2px",
-                  },
-                }}
-              >
-                Shop
-              </Text>
-            </Button>
-          </View>
-          <View width={{ s: "100%", m: "200px" }} maxWidth={"200px"}>
-            <Button
-              variant="outline"
-              size="large"
-              rounded={true}
-              fullWidth={true}
-              onClick={() => {
-                setActiveTab("orders");
-                router.push("/dashboard/orders");
-              }}
-            >
-              <Text
-                variant="body-2"
-                attributes={{
-                  style: {
-                    fontWeight: 300,
-                    color: "var(--rs-color-forest-green)",
-                    textTransform: "uppercase",
-                    fontFamily: "var(--font-midruns-sans)",
-                    letterSpacing: "1.2px",
-                  },
-                }}
-              >
-                {" "}
-                Orders
-              </Text>
-            </Button>
-          </View>
-          <View width={{ s: "100%", m: "200px" }} maxWidth={"200px"}>
-            <Button
-              variant="outline"
-              size="large"
-              rounded={true}
-              fullWidth={true}
-              onClick={() => {
-                setActiveTab("membership");
-                router.push("/dashboard/membership");
-              }}
-            >
-              <Text
-                variant="body-2"
-                attributes={{
-                  style: {
-                    fontWeight: 300,
-                    color: "var(--rs-color-forest-green)",
-                    textTransform: "uppercase",
-                    fontFamily: "var(--font-midruns-sans)",
-                    letterSpacing: "1.2px",
-                  },
-                }}
-              >
-                {" "}
-                Membership
-              </Text>
-            </Button>
-          </View>
-        </View>
-
-        {/* Hero Section with Coconut Image */}
-        <View
-          direction={{ s: "column", m: "row" }}
-          align="center"
-          gap={6}
-          padding={8}
-        >
+      <View direction="column" gap={6}>
+        {/* Hero Section */}
+        <View direction="column" align="center" gap={6} padding={8}>
           {/* Content Section */}
-          <View
-            direction="column"
-            align={{ s: "center", m: "start" }}
-            attributes={{ style: { flex: 1 } }}
-          >
-            <Text
-              variant="body-2"
-              align={{ s: "center", m: "start" }}
-              attributes={{
-                style: {
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                },
-              }}
-            >
-              THIS WEEKS RECIPES
-            </Text>
+          <View direction="column" align="center" gap={4}>
+            <View direction="column">
+              <Text
+                variant="featured-2"
+                align="center"
+                attributes={{
+                  style: {
+                    textTransform: "uppercase",
+                    letterSpacing: "2px",
+                    fontWeight: "600",
+                  },
+                }}
+              >
+                THIS WEEKS RECIPES
+              </Text>
 
-            <Text
-              color="neutral-faded"
-              align={{ s: "center", m: "start" }}
-              attributes={{
-                style: {
-                  lineHeight: "1.6",
-                  fontSize: "16px",
-                },
-              }}
-            >
-              a curated collection of recipes and step by step tutorials
-            </Text>
+              <Text
+                color="neutral-faded"
+                align="start"
+                attributes={{
+                  style: {
+                    lineHeight: "1.6",
+                    fontSize: "16px",
+                  },
+                }}
+              >
+                a curated collection of recipes and step by step tutorials
+              </Text>
+            </View>
 
-            <View direction={{ s: "column", m: "row" }}>
+            <View direction={{ s: "column", m: "row" }} gap={3}>
+              <Button
+                variant="outline"
+                size="large"
+                rounded={true}
+                fullWidth={{ s: true, m: false }}
+                onClick={() => {
+                  setActiveTab("recipes");
+                  router.push("/recipes");
+                }}
+                attributes={{ style: { minWidth: "150px" } }}
+              >
+                <Text
+                  variant="body-2"
+                  attributes={{
+                    style: {
+                      fontWeight: 300,
+                      color: "var(--rs-color-forest-green)",
+                      textTransform: "uppercase",
+                      fontFamily: "var(--font-midruns-sans)",
+                      letterSpacing: "1.2px",
+                    },
+                  }}
+                >
+                  Recipes
+                </Text>
+              </Button>
               <WeeklyGroceryList />
             </View>
           </View>
@@ -223,19 +120,6 @@ function DashboardContent() {
 
         {/* Featured Recipe */}
         <View padding={4}>
-          <View direction="column" gap={3}>
-            <Text
-              variant="featured-1"
-              attributes={{
-                style: {
-                  fontFamily: "var(--font-big-caslon)",
-                  textTransform: "lowercase",
-                },
-              }}
-            >
-              featured recipe
-            </Text>
-          </View>
           <FeaturedRecipe />
         </View>
 
@@ -253,12 +137,9 @@ function DashboardContent() {
             >
               latest products
             </Text>
-            <Suspense fallback={<Text>Loading products...</Text>}>
-              <LatestProducts />
-            </Suspense>
+            <LatestProducts />
           </View>
         </View>
-
       </View>
     </AppContainer>
   );

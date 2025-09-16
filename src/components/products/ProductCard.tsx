@@ -1,6 +1,6 @@
 'use client';
 
-import { View, Text, Card, Button } from 'reshaped';
+import { View, Text, Card, Button, Loader } from 'reshaped';
 import { useFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import Link from 'next/link';
@@ -71,101 +71,102 @@ export function ProductCard({ product }: Props) {
   };
 
   return (
-    <Link
-      href={`/shop/products/${data.slug}`}
-      style={{ textDecoration: "none" }}
-    >
-      <Card>
-        <View direction="column" gap={2}>
-          <div style={{ position: "relative", width: "100%", height: "200px" }}>
-            <img
-              src={data.photoUrl}
-              alt={data.name}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "8px",
-              }}
-            />
-            {data.inventory <= 0 && (
-              <div
+    <View height="360px" width="100%">
+      <Link
+        href={`/shop/products/${data.slug}`}
+        style={{ textDecoration: "none", height: "100%", display: "block" }}
+      >
+        <Card padding={0} height="100%">
+          <View direction="column" height="100%">
+            {/* Image container */}
+            <View
+              position="relative"
+              width="100%"
+              height="200px"
+              overflow="hidden"
+            >
+              <img
+                src={data.photoUrl}
+                alt={data.name}
                 style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
                   width: "100%",
                   height: "100%",
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "8px",
+                  objectFit: "cover",
                 }}
-              >
-                <Text
-                  variant="title-3"
-                  attributes={{ style: { color: "white" } }}
+              />
+              {data.inventory <= 0 && (
+                <View
+                  position="absolute"
+                  inset={0}
+                  backgroundColor="neutral-transparent"
+                  direction="column"
+                  align="center"
+                  justify="center"
                 >
-                  Sold Out
-                </Text>
-              </div>
-            )}
-          </div>
-          <View direction="column" gap={1} padding={2}>
-            <Text variant="title-3">{data.name}</Text>
-            <Text variant="title-4">{formattedPrice}</Text>
-            <Text variant="body-2" color="neutral-faded">
-              {data.category}
-            </Text>
-
-            {/* Rating Display */}
-            <StarRating
-              itemId={data.id}
-              itemType="product"
-              averageRating={data.averageRating || 0}
-              totalRatings={data.totalRatings || 0}
-              size="small"
-              readonly={true}
-            />
-            <View direction="row" gap={1} wrap>
-              {data.tags &&
-                data.tags.map((tag: string) => (
-                  <View
-                    key={tag}
-                    backgroundColor="neutral-faded"
-                    attributes={{
-                      style: {
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                      },
-                    }}
-                  >
-                    <Text variant="caption-1">{tag}</Text>
-                  </View>
-                ))}
+                  <Text variant="title-3" color="neutral-contrast">
+                    Sold Out
+                  </Text>
+                </View>
+              )}
             </View>
 
-            <Button
-              variant="solid"
-              size="small"
-              fullWidth
-              disabled={isAdding || data.inventory <= 0}
-              onClick={handleAddToCart}
-              attributes={{
-                style: {
-                  marginTop: "8px",
-                },
-              }}
+            {/* Content section - fills remaining space */}
+            <View
+              direction="column"
+              padding={4}
+              gap={1}
+              height="160px"
+              position="relative"
             >
-              <View direction="row" gap={1} align="center">
-                <ShoppingCartSimple size={16} />
-                <Text>{isAdding ? "Adding..." : "Add to Cart"}</Text>
+              <View direction="column" gap={1}>
+                {/* Product title */}
+                <Text variant="featured-3" weight="medium" maxLines={1}>
+                  {data.name}
+                </Text>
+
+                {/* Price */}
+                <Text variant="body-2">
+                  {formattedPrice}
+                </Text>
+
+                {/* Rating Display */}
+                <StarRating
+                  itemId={data.id}
+                  itemType="product"
+                  averageRating={data.averageRating || 0}
+                  totalRatings={data.totalRatings || 0}
+                  size="small"
+                  readonly={true}
+                />
               </View>
-            </Button>
+
+              {/* Absolutely positioned category */}
+              <View position="absolute" insetBottom={4} insetStart={4}>
+                <Text variant="caption-1" color="neutral-faded" weight="medium">
+                  {data.category.toUpperCase()}
+                </Text>
+              </View>
+
+              {/* Absolutely positioned circular cart button */}
+              <View position="absolute" insetBottom={4} insetEnd={4}>
+                <Button
+                  variant="solid"
+                  size="large"
+                  disabled={isAdding || data.inventory <= 0}
+                  onClick={handleAddToCart}
+                  rounded
+                >
+                  {isAdding ? (
+                    <Loader size="small" />
+                  ) : (
+                    <ShoppingCartSimple size={18} />
+                  )}
+                </Button>
+              </View>
+            </View>
           </View>
-        </View>
-      </Card>
-    </Link>
+        </Card>
+      </Link>
+    </View>
   );
 } 

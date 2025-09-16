@@ -11,6 +11,11 @@ export const FeaturedRecipeQuery = graphql`
       mediaUrl
       previewImageUrl
       uploadDate
+      averageRating
+      totalRatings
+      cookTime
+      prepTime
+      totalTime
     }
   }
 `;

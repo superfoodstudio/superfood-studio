@@ -29,9 +29,19 @@ function WeeklyGroceryListContent() {
         size="large"
         color="primary"
         rounded={true}
+        fullWidth={{ s: true, m: false }}
         onClick={() => groceryModal.activate()}
+        attributes={{
+          style: {
+            fontWeight: 300,
+            textTransform: "uppercase",
+            fontFamily: "var(--font-midruns-sans)",
+            letterSpacing: "1.2px",
+            minWidth: '150px'
+          },
+        }}
       >
-        Get Grocery List
+        Grocery List
       </Button>
 
       <Modal

@@ -107,20 +107,31 @@ export function StarRating({
   const displayRating = hoveredRating || userRating || averageRating || 0;
 
   return (
-    <View direction="column" gap={2}>
-      <View direction="row" align="center" gap={1}>
+    <View direction="row" align="center" gap={1}>
+      {/* Rating number before stars */}
+      {averageRating !== undefined && averageRating > 0 && (
+        <View align="center" justify="center">
+          <Text variant="caption-1" color="neutral-faded">
+            {averageRating.toFixed(1)}
+          </Text>
+        </View>
+      )}
+
+      {/* Stars */}
+      <View direction="row" align="center" gap={0.5}>
         {[1, 2, 3, 4, 5].map((star) => {
           const isActive = star <= displayRating;
           const isHovered = !readonly && star <= hoveredRating;
-          
+
           return (
-            <View key={star}>
+            <View key={star} align="center" justify="center">
               {readonly ? (
                 <Star
                   size={starSize}
                   weight={isActive ? 'fill' : 'regular'}
                   style={{
                     color: isActive ? '#F5D565' : '#E5E5E5',
+                    display: 'block'
                   }}
                 />
               ) : (
@@ -131,7 +142,10 @@ export function StarRating({
                       padding: '2px',
                       minWidth: 'auto',
                       height: 'auto',
-                      cursor: authenticated ? 'pointer' : 'not-allowed'
+                      cursor: authenticated ? 'pointer' : 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     },
                     onMouseEnter: () => authenticated && setHoveredRating(star),
                     onMouseLeave: () => setHoveredRating(0)
@@ -144,7 +158,8 @@ export function StarRating({
                     weight={isActive || isHovered ? 'fill' : 'regular'}
                     style={{
                       color: isActive || isHovered ? '#F5D565' : '#E5E5E5',
-                      transition: 'color 0.2s ease'
+                      transition: 'color 0.2s ease',
+                      display: 'block'
                     }}
                   />
                 </Button>
@@ -154,24 +169,14 @@ export function StarRating({
         })}
       </View>
 
-      {/* Rating info */}
-      <View direction="row" align="center" gap={2}>
-        {averageRating !== undefined && (
-          <Text variant={textSize} color="neutral-faded">
-            {averageRating > 0 ? averageRating.toFixed(1) : 'No ratings yet'}
+      {/* Count after stars */}
+      {totalRatings > 0 && (
+        <View align="center" justify="center">
+          <Text variant="caption-1" color="neutral-faded">
+            ({totalRatings})
           </Text>
-        )}
-        {totalRatings > 0 && (
-          <Text variant="body-2" color="neutral-faded">
-            ({totalRatings} {totalRatings === 1 ? 'rating' : 'ratings'})
-          </Text>
-        )}
-        {!authenticated && !readonly && (
-          <Text variant="body-2" color="neutral-faded">
-            Sign in to rate
-          </Text>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 }
