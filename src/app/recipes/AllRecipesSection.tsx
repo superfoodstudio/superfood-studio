@@ -111,9 +111,15 @@ const allRecipesSectionPaginationFragment = graphql`
           slug
           description
           category
+          servingSize
+          totalTime
+          prepTime
+          cookTime
           mediaUrl
           previewImageUrl
           uploadDate
+          averageRating
+          totalRatings
         }
       }
       pageInfo {
@@ -156,11 +162,13 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
   
   return (
     <View direction="column" gap={4}>
-      <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
-        {recipes.map((recipe: any) => (
-          <RecipeCard key={recipe.id} recipe={recipe} />
+      <View direction="row" gap={4}>
+        {recipes.map((recipe: any, i: number) => (
+          <View.Item key={recipe.id} columns={{ s: 12, m: 4 }}>
+            <RecipeCard recipe={recipe} />
+          </View.Item>
         ))}
-      </Grid>
+      </View>
       <LoadMore
         hasNext={hasNext}
         isLoadingNext={isLoadingNext}
@@ -172,11 +180,13 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
 
 function RecipeGridSkeleton() {
   return (
-    <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
+    <View direction="row" gap={4}>
       {Array.from({ length: 9 }).map((_, index) => (
-        <SkeletonCard key={index} />
+        <View.Item key={index} columns={{ s: 12, m: 4 }}>
+          <SkeletonCard />
+        </View.Item>
       ))}
-    </Grid>
+    </View>
   );
 }
 

@@ -3,7 +3,7 @@
 import React from 'react';
 import { graphql, useFragment } from 'react-relay';
 import Link from 'next/link';
-import { View, Text, Button } from 'reshaped';
+import { View, Text, Card } from 'reshaped';
 import { StarRating } from '@/components/ratings/StarRating';
 import { stripHtml } from '@/lib/textUtils';
 
@@ -53,102 +53,87 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
   const data = recipe;
   
   return (
-    <View 
-      padding={3} 
-      backgroundColor="neutral-faded"
-      attributes={{
-        style: {
-          borderRadius: '8px',
-          border: '1px solid var(--rs-color-border-neutral-faded)',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
-        }
-      }}
-    >
-      <View direction="column" gap={3}>
-        <div style={{ position: 'relative', aspectRatio: '16/9', width: '100%' }}>
-          {data.previewImageUrl ? (
-            <img
-              src={data.previewImageUrl}
-              alt={data.name}
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                objectFit: 'cover', 
-                borderRadius: '8px' 
-              }}
-              onError={(e) => {
-                // Fallback to solid color if preview image fails to load
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                if (target.parentElement) {
-                  target.parentElement.style.backgroundColor = '#6b4c7a';
-                  target.parentElement.style.display = 'flex';
-                  target.parentElement.style.alignItems = 'center';
-                  target.parentElement.style.justifyContent = 'center';
-                  target.parentElement.innerHTML = `
-                    <span style="color: white; font-size: 24px;">🎬</span>
-                  `;
-                }
-              }}
-            />
-          ) : (
-            <div
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                backgroundColor: '#6b4c7a',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
+    <View height="360px" width="100%">
+      <Link
+        href={`/recipes/${data.slug}`}
+        style={{ textDecoration: "none", height: "100%", display: "block" }}
+      >
+        <Card padding={0} height="100%">
+          <View direction="column" height="100%">
+            {/* Image container */}
+            <View
+              position="relative"
+              width="100%"
+              height="200px"
+              overflow="hidden"
             >
-              <span style={{ color: 'white', fontSize: '24px' }}>🎬</span>
-            </div>
-          )}
-        </div>
-        <View direction="column" gap={2}>
-          <Text variant="title-3" attributes={{ style: { fontFamily: 'var(--font-playfair)' } }}>{data.name}</Text>
-          <Text variant="body-2" color="neutral-faded">
-            {data.category}
-          </Text>
-          <div style={{ 
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}>
-            <Text variant="body-3">{stripHtml(data.description, 120)}</Text>
-          </div>
-          
-          {/* Rating Display */}
-          <StarRating
-            itemId={data.id}
-            itemType="recipe"
-            averageRating={data.averageRating || 0}
-            totalRatings={data.totalRatings || 0}
-            size="small"
-            readonly={true}
-          />
+              {data.previewImageUrl ? (
+                <img
+                  src={data.previewImageUrl}
+                  alt={data.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) => {
+                    // Fallback to solid color if preview image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    if (target.parentElement) {
+                      target.parentElement.style.backgroundColor = '#6b4c7a';
+                      target.parentElement.style.display = 'flex';
+                      target.parentElement.style.alignItems = 'center';
+                      target.parentElement.style.justifyContent = 'center';
+                      target.parentElement.innerHTML = `
+                        <span style="color: white; font-size: 24px;">🎬</span>
+                      `;
+                    }
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "#6b4c7a",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <span style={{ color: "white", fontSize: "24px" }}>🎬</span>
+                </div>
+              )}
+            </View>
 
-          {/* Recipe Info */}
-          <View direction="row" gap={3} wrap>
-            {data.servingSize && (
-              <Text variant="caption-1" color="neutral-faded">
-                🍽️ {data.servingSize}
+            {/* Content section */}
+            <View direction="column" gap={1} padding={2} position="relative" attributes={{ style: { flex: 1 } }}>
+              <Text variant="featured-3" weight="medium" maxLines={1}>{data.name}</Text>
+              <Text variant="body-2" color="neutral-faded" maxLines={1}>
+                {data.category}
               </Text>
-            )}
-            {data.totalTime && (
-              <Text variant="caption-1" color="neutral-faded">
-                ⏱️ {data.totalTime}min
-              </Text>
-            )}
+
+              {/* Rating Display */}
+              <StarRating
+                itemId={data.id}
+                itemType="recipe"
+                averageRating={data.averageRating || 0}
+                totalRatings={data.totalRatings || 0}
+                size="small"
+                readonly={true}
+              />
+
+              {/* Recipe Info */}
+              {data.totalTime && (
+                <Text variant="caption-1" color="neutral-faded">
+                  {data.totalTime} minutes
+                </Text>
+              )}
+            </View>
           </View>
-        </View>
-        <Link href={`/recipes/${data.slug}`} passHref>
-          <Button fullWidth>View Recipe</Button>
-        </Link>
-      </View>
+        </Card>
+      </Link>
     </View>
   );
 } 

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<967e00f35eb37815ce9236136e6931bb>>
+ * @generated SignedSource<<31d145807d171231cc13da0ef4528959>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,13 +14,19 @@ export type AllRecipesSectionPaginationFragment$data = {
   readonly publicRecipes: {
     readonly edges: ReadonlyArray<{
       readonly node: {
+        readonly averageRating: number | null;
         readonly category: string;
+        readonly cookTime: number | null;
         readonly description: string;
         readonly id: string;
         readonly mediaUrl: string;
         readonly name: string;
+        readonly prepTime: number | null;
         readonly previewImageUrl: string | null;
+        readonly servingSize: string | null;
         readonly slug: string;
+        readonly totalRatings: number;
+        readonly totalTime: number | null;
         readonly uploadDate: any;
       };
     }>;
@@ -158,6 +164,34 @@ return {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
+                  "name": "servingSize",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "totalTime",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "prepTime",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "cookTime",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
                   "name": "mediaUrl",
                   "storageKey": null
                 },
@@ -173,6 +207,20 @@ return {
                   "args": null,
                   "kind": "ScalarField",
                   "name": "uploadDate",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "averageRating",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "totalRatings",
                   "storageKey": null
                 },
                 {
@@ -229,6 +277,6 @@ return {
 };
 })();
 
-(node as any).hash = "c869769fc39ab77bfb7f0b4a64d2fbe3";
+(node as any).hash = "6dbd751fd3a7a9b3168c7b6b97462852";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bca1b9d1bd12ba97c6acb3113568db7a>>
+ * @generated SignedSource<<bddc3b3611de65c8f126b92197c4d8b2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -154,6 +154,34 @@ return {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
+                    "name": "servingSize",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "totalTime",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "prepTime",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "cookTime",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
                     "name": "mediaUrl",
                     "storageKey": null
                   },
@@ -169,6 +197,20 @@ return {
                     "args": null,
                     "kind": "ScalarField",
                     "name": "uploadDate",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "averageRating",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "totalRatings",
                     "storageKey": null
                   },
                   {
@@ -234,16 +276,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "66018b62a908d85f6709d48698ff3e3d",
+    "cacheID": "13c14c07024170c171531e27630b73b1",
     "id": null,
     "metadata": {},
     "name": "AllRecipesSectionPaginationQuery",
     "operationKind": "query",
-    "text": "query AllRecipesSectionPaginationQuery(\n  $after: String\n  $category: String\n  $first: Int\n  $sort: String\n) {\n  ...AllRecipesSectionPaginationFragment\n}\n\nfragment AllRecipesSectionPaginationFragment on Query {\n  publicRecipes(category: $category, first: $first, after: $after, sort: $sort) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        mediaUrl\n        previewImageUrl\n        uploadDate\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query AllRecipesSectionPaginationQuery(\n  $after: String\n  $category: String\n  $first: Int\n  $sort: String\n) {\n  ...AllRecipesSectionPaginationFragment\n}\n\nfragment AllRecipesSectionPaginationFragment on Query {\n  publicRecipes(category: $category, first: $first, after: $after, sort: $sort) {\n    edges {\n      node {\n        id\n        name\n        slug\n        description\n        category\n        servingSize\n        totalTime\n        prepTime\n        cookTime\n        mediaUrl\n        previewImageUrl\n        uploadDate\n        averageRating\n        totalRatings\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "c869769fc39ab77bfb7f0b4a64d2fbe3";
+(node as any).hash = "6dbd751fd3a7a9b3168c7b6b97462852";
 
 export default node;

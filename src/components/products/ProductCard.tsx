@@ -8,6 +8,7 @@ import { ShoppingCartSimple } from 'phosphor-react';
 import { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { StarRating } from '@/components/ratings/StarRating';
+import { QuantitySelector } from '@/components/ui/QuantitySelector';
 
 // Define the fragment directly in this file
 export const ProductCardFragment = graphql`
@@ -33,7 +34,12 @@ type Props = {
 export function ProductCard({ product }: Props) {
   const data = useFragment(ProductCardFragment, product);
   const [isAdding, setIsAdding] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart, cart, updateQuantity, removeFromCart } = useCart();
+
+  // Check if this product is in the cart and get its quantity
+  const cartItem = cart?.items.find(item => item.productId === data.id);
+  const isInCart = !!cartItem;
+  const cartQuantity = cartItem?.quantity || 0;
   
   // Format price to show 2 decimal places
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -45,16 +51,16 @@ export function ProductCard({ product }: Props) {
   const handleAddToCart = (e: React.MouseEvent<HTMLElement, MouseEvent> | React.KeyboardEvent<HTMLElement>) => {
     e.preventDefault(); // Prevent navigation to product page
     e.stopPropagation();
-    
+
     console.log('Add to cart clicked for:', data.name);
-    
+
     if (isAdding || data.inventory <= 0) {
       console.log('Cart action blocked - isAdding:', isAdding, 'inventory:', data.inventory);
       return;
     }
-    
+
     setIsAdding(true);
-    
+
     try {
       // Add item to cart using new cart hook
       console.log('Adding to cart:', data.id, data.name, data.price);
@@ -68,6 +74,31 @@ export function ProductCard({ product }: Props) {
     } finally {
       setIsAdding(false);
     }
+  };
+
+  // Handle quantity increase
+  const handleIncreaseQuantity = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (cartItem) {
+      updateQuantity(data.id, cartQuantity + 1);
+    }
+  };
+
+  // Handle quantity decrease
+  const handleDecreaseQuantity = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (cartItem && cartQuantity > 1) {
+      updateQuantity(data.id, cartQuantity - 1);
+    }
+  };
+
+  // Handle remove from cart
+  const handleRemoveFromCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    removeFromCart(data.id);
   };
 
   return (
@@ -98,12 +129,18 @@ export function ProductCard({ product }: Props) {
                 <View
                   position="absolute"
                   inset={0}
-                  backgroundColor="neutral-transparent"
+                  backgroundColor="neutral-faded"
                   direction="column"
                   align="center"
                   justify="center"
+                  attributes={{
+                    style: {
+                      backgroundColor: 'rgba(0, 0, 0, 0.6)'
+                    }
+                  }}
                 >
-                  <Text variant="title-3" color="neutral-contrast">
+                  <Text variant="title-3"
+                        attributes={{ style: { color: 'white', fontWeight: 'bold' } }}>
                     Sold Out
                   </Text>
                 </View>
@@ -147,21 +184,51 @@ export function ProductCard({ product }: Props) {
                 </Text>
               </View>
 
-              {/* Absolutely positioned circular cart button */}
+              {/* Absolutely positioned cart button or quantity selector */}
               <View position="absolute" insetBottom={4} insetEnd={4}>
-                <Button
-                  variant="solid"
-                  size="large"
-                  disabled={isAdding || data.inventory <= 0}
-                  onClick={handleAddToCart}
-                  rounded
-                >
-                  {isAdding ? (
-                    <Loader size="small" />
-                  ) : (
-                    <ShoppingCartSimple size={18} />
-                  )}
-                </Button>
+                {isInCart ? (
+                  <View
+                    padding={2}
+                    borderRadius="medium"
+                    attributes={{
+                      style: {
+                        border: '1px solid var(--rs-color-border-neutral-faded)',
+                      },
+                      onClick: (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    }}
+                  >
+                    <QuantitySelector
+                      quantity={cartQuantity}
+                      onIncrease={() => updateQuantity(data.id, cartQuantity + 1)}
+                      onDecrease={() => {
+                        if (cartQuantity === 1) {
+                          removeFromCart(data.id);
+                        } else {
+                          updateQuantity(data.id, cartQuantity - 1);
+                        }
+                      }}
+                      disabled={isAdding}
+                      size="small"
+                    />
+                  </View>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="large"
+                    disabled={isAdding || data.inventory <= 0}
+                    onClick={handleAddToCart}
+                    rounded
+                  >
+                    {isAdding ? (
+                      <Loader size="small" />
+                    ) : (
+                      <ShoppingCartSimple size={18} />
+                    )}
+                  </Button>
+                )}
               </View>
             </View>
           </View>

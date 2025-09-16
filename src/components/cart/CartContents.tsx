@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { View, Text, Button, Divider } from 'reshaped';
+import { View, Text, Button, Divider, Card } from 'reshaped';
+import { QuantitySelector } from '@/components/ui/QuantitySelector';
 import { useCart } from '@/hooks/useCart';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -89,58 +90,59 @@ export function CartContents() {
         </Button>
       </View>
       
-      <View direction="column" gap={2}>
+      <View direction="column" gap={4}>
         {cart.items.map((item) => (
-          <View key={item.id} direction="row" gap={4} padding={3} backgroundColor="neutral-faded">
-            <View width={80} height={80} position="relative">
-              <img 
-                src={item.product.photoUrl} 
-                alt={item.product.name}
-                style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-              />
-            </View>
-            
-            <View direction="column" gap={1} attributes={{ style: { flex: 1 } }}>
-              <Text variant="title-3">{item.product.name}</Text>
-              <Text variant="body-2">{formatPrice(item.price)}</Text>
-              
-              <View direction="row" gap={4} align="center">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Button 
-                    variant="ghost" 
-                    size="small"
-                    onClick={() => handleUpdateQuantity(item.productId, Math.max(1, item.quantity - 1))}
+          <Card key={item.id} padding={4}>
+            <View direction="row" gap={4} align="center">
+              {/* Product Image */}
+              <View
+                width="120px"
+                height="120px"
+                borderRadius="medium"
+                overflow="hidden"
+                attributes={{ style: { flexShrink: 0 } }}
+              >
+                <img
+                  src={item.product.photoUrl}
+                  alt={item.product.name}
+                  style={{
+                    objectFit: 'cover',
+                    width: '100%',
+                    height: '100%'
+                  }}
+                />
+              </View>
+
+              {/* Product Details */}
+              <View direction="column" gap={2} attributes={{ style: { flex: 1 } }}>
+                <Text variant="featured-3" weight="medium" maxLines={2}>
+                  {item.product.name}
+                </Text>
+                <Text variant="body-2" color="neutral-faded">
+                  {formatPrice(item.price)} each
+                </Text>
+
+                <View direction={{ s: "column", m: "row" }} gap={3} align={{ m: "center" }}>
+                  <QuantitySelector
+                    quantity={item.quantity}
+                    onIncrease={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
+                    onDecrease={() => handleUpdateQuantity(item.productId, Math.max(1, item.quantity - 1))}
+                    onRemove={() => handleRemoveItem(item.productId)}
                     disabled={isLoading || operationLoading}
-                  >
-                    -
-                  </Button>
-                  <Text variant="body-1">{item.quantity}</Text>
-                  <Button 
-                    variant="ghost" 
-                    size="small"
-                    onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
-                    disabled={isLoading || operationLoading}
-                  >
-                    +
-                  </Button>
-                </div>
-                
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleRemoveItem(item.productId)}
-                  disabled={isLoading || operationLoading}
-                >
-                  Remove
-                </Button>
+                    size="medium"
+                    showRemoveButton={true}
+                  />
+                </View>
+              </View>
+
+              {/* Total Price */}
+              <View align="end" attributes={{ style: { flexShrink: 0 } }}>
+                <Text variant="title-3" weight="medium">
+                  {formatPrice(item.price * item.quantity)}
+                </Text>
               </View>
             </View>
-            
-            <View align="end">
-              <Text variant="title-3">
-                {formatPrice(item.price * item.quantity)}
-              </Text>
-            </View>
-          </View>
+          </Card>
         ))}
       </View>
       

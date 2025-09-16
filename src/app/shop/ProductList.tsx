@@ -71,13 +71,13 @@ function ProductListContent({ category, sort }: ProductListProps) {
 
   return (
     <View direction="column" gap={4}>
-      <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
-        {data.productsConnection.edges.map(({ node: product }) => (
-          <View key={product.id}>
+      <View direction="row" gap={4}>
+        {data.productsConnection.edges.map(({ node: product }, i) => (
+          <View.Item key={product.id} columns={{ s: 12, m: 6 }}>
             <ProductCard product={product} />
-          </View>
+          </View.Item>
         ))}
-      </Grid>
+      </View>
       <LoadMore
         hasNext={hasNext}
         isLoadingNext={isLoadingNext}

@@ -204,10 +204,12 @@ export default function ProductsContent() {
 
 function ProductListSkeleton() {
   return (
-    <Grid columns={{ s: 1, m: 2, l: 3 }} gap={4}>
+    <View direction="row" gap={4}>
       {Array.from({ length: 9 }).map((_, index) => (
-        <SkeletonCard key={index} />
+        <View.Item key={index} columns={{ s: 12, m: 6 }}>
+          <SkeletonCard />
+        </View.Item>
       ))}
-    </Grid>
+    </View>
   );
 } 
