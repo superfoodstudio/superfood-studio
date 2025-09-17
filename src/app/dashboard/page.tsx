@@ -26,7 +26,7 @@ function LatestProducts() {
 
   return (
     <View direction="row" gap={4}>
-      {productsData.productsConnection.edges.map((edge, i) => (
+      {productsData?.productsConnection?.edges.map((edge, i) => (
         <View.Item key={i} columns={{ s: 12, m: 6 }}>
           <ProductCard product={edge.node} />
         </View.Item>
