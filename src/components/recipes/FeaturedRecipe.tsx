@@ -70,7 +70,7 @@ function FeaturedRecipeContent() {
         direction={{ s: "column", m: "row" }}
         height={{ s: "auto", m: "320px" }}
       >
-        {/* Recipe - Left Side */}
+        {/* Recipe - Left Siiide */}
         <View
           width={{ s: "100%", m: "50%" }}
           height="320px"
