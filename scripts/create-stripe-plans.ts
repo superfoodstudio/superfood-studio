@@ -22,7 +22,7 @@ const plans: PlanConfig[] = [
   {
     name: 'Monthly Subscription',
     description: 'Access to all premium recipes and content. Billed monthly.',
-    amount: 1000, // $10.00
+    amount: 1500, // $15.00
     interval: 'month',
     metadata: {
       planId: 'MONTHLY',
@@ -31,7 +31,7 @@ const plans: PlanConfig[] = [
   {
     name: 'Yearly Subscription',
     description: 'Access to all premium recipes and content. Billed yearly. Save over 20%!',
-    amount: 9500, // $95.00 (equivalent to $7.92/month)
+    amount: 17000, // $170.00 (equivalent to $14.17/month)
     interval: 'year',
     metadata: {
       planId: 'YEARLY',
