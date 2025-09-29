@@ -238,6 +238,9 @@ export const subscriptionResolvers = {
         });
 
         // Save subscription to database
+        const currentPeriodStart = stripeSubscription.current_period_start ? new Date(stripeSubscription.current_period_start * 1000) : new Date();
+        const currentPeriodEnd = stripeSubscription.current_period_end ? new Date(stripeSubscription.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
+
         const subscription = await prisma.subscription.create({
           data: {
             userId: user.id,
@@ -245,9 +248,9 @@ export const subscriptionResolvers = {
             stripePriceId: priceId,
             status: 'ACTIVE',
             plan: priceId === process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ? 'MONTHLY' : 'YEARLY',
-            startDate: new Date((stripeSubscription as any).current_period_start * 1000),
-            currentPeriodStart: new Date((stripeSubscription as any).current_period_start * 1000),
-            currentPeriodEnd: new Date((stripeSubscription as any).current_period_end * 1000),
+            startDate: currentPeriodStart,
+            currentPeriodStart: currentPeriodStart,
+            currentPeriodEnd: currentPeriodEnd,
             cancelAtPeriodEnd: false
           }
         });
@@ -313,12 +316,15 @@ export const subscriptionResolvers = {
         });
 
         // Update subscription in database
+        const currentPeriodStart = updatedStripeSubscription.current_period_start ? new Date(updatedStripeSubscription.current_period_start * 1000) : new Date();
+        const currentPeriodEnd = updatedStripeSubscription.current_period_end ? new Date(updatedStripeSubscription.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
         const updatedSubscription = await prisma.subscription.update({
           where: { id: subscription.id },
           data: {
             stripePriceId: priceId,
-            currentPeriodStart: new Date((updatedStripeSubscription as any).current_period_start * 1000),
-            currentPeriodEnd: new Date((updatedStripeSubscription as any).current_period_end * 1000)
+            currentPeriodStart: currentPeriodStart,
+            currentPeriodEnd: currentPeriodEnd
           }
         });
 
