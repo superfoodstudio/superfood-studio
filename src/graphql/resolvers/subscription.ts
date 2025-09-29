@@ -238,8 +238,9 @@ export const subscriptionResolvers = {
         });
 
         // Save subscription to database
-        const currentPeriodStart = stripeSubscription.current_period_start ? new Date(stripeSubscription.current_period_start * 1000) : new Date();
-        const currentPeriodEnd = stripeSubscription.current_period_end ? new Date(stripeSubscription.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
+        const subscription_data = stripeSubscription as any;
+        const currentPeriodStart = subscription_data.current_period_start ? new Date(subscription_data.current_period_start * 1000) : new Date();
+        const currentPeriodEnd = subscription_data.current_period_end ? new Date(subscription_data.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
 
         const subscription = await prisma.subscription.create({
           data: {
@@ -316,8 +317,9 @@ export const subscriptionResolvers = {
         });
 
         // Update subscription in database
-        const currentPeriodStart = updatedStripeSubscription.current_period_start ? new Date(updatedStripeSubscription.current_period_start * 1000) : new Date();
-        const currentPeriodEnd = updatedStripeSubscription.current_period_end ? new Date(updatedStripeSubscription.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const updated_subscription_data = updatedStripeSubscription as any;
+        const currentPeriodStart = updated_subscription_data.current_period_start ? new Date(updated_subscription_data.current_period_start * 1000) : new Date();
+        const currentPeriodEnd = updated_subscription_data.current_period_end ? new Date(updated_subscription_data.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         const updatedSubscription = await prisma.subscription.update({
           where: { id: subscription.id },
