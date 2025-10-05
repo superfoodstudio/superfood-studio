@@ -35,7 +35,7 @@ export function StarRating({
   const starSize = {
     small: 16,
     medium: 20,
-    large: 24
+    large: 32
   }[size];
 
   const textSize = {
@@ -130,7 +130,7 @@ export function StarRating({
                   size={starSize}
                   weight={isActive ? 'fill' : 'regular'}
                   style={{
-                    color: isActive ? '#F5D565' : '#E5E5E5',
+                    color: isActive ? 'var(--rs-color-sky-blue)' : '#E5E5E5',
                     display: 'block'
                   }}
                 />
@@ -157,7 +157,7 @@ export function StarRating({
                     size={starSize}
                     weight={isActive || isHovered ? 'fill' : 'regular'}
                     style={{
-                      color: isActive || isHovered ? '#F5D565' : '#E5E5E5',
+                      color: isActive || isHovered ? 'var(--rs-color-sky-blue)' : '#E5E5E5',
                       transition: 'color 0.2s ease',
                       display: 'block'
                     }}

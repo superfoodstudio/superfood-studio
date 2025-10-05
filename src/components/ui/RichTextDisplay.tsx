@@ -16,7 +16,7 @@ export function RichTextDisplay({ content, className }: RichTextDisplayProps) {
     .replace(/javascript:/gi, '');
 
   return (
-    <div 
+    <div
       className={className}
       style={{
         lineHeight: '1.6',

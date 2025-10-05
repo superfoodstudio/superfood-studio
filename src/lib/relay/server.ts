@@ -59,6 +59,7 @@ type CommentEdge {
 type CommentConnection {
   edges: [CommentEdge!]!
   pageInfo: PageInfo!
+  totalCount: Int!
 }
 
 type SiteSettings {
@@ -269,6 +270,12 @@ type User {
   lastName: String
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+input UpdateUserInput {
+  firstName: String
+  lastName: String
+  email: String
 }
 
 type OrderItem {
@@ -487,6 +494,9 @@ type Mutation {
   
   # Site Settings mutations
   updateSiteSettings(input: UpdateSiteSettingsInput!): SiteSettings!
+
+  # User mutations
+  updateUser(input: UpdateUserInput!): User!
 }
 
 type DeleteRecipeResponse {

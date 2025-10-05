@@ -29,53 +29,6 @@ async function getCurrentUserId(context: any): Promise<string | null> {
 
 export const orderResolvers = {
   Query: {
-    // Get current user profile
-    currentUser: async (_parent: any, _args: any, context: any) => {
-      try {
-        console.log('currentUser resolver called');
-        console.log('Context user:', context.user);
-        
-        const userId = await getCurrentUserId(context);
-        console.log('Resolved userId:', userId);
-        
-        if (!userId) {
-          return null;
-        }
-
-        const user = await prisma.user.findUnique({
-          where: {
-            id: userId,
-          },
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        });
-
-        console.log('Found user:', user);
-
-        if (!user) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt.toISOString(),
-        };
-      } catch (error) {
-        console.error('Error fetching current user:', error);
-        return null;
-      }
-    },
-
     // Get current user's orders with pagination
     userOrders: async (_parent: any, args: CursorPaginationArgs, context: any) => {
       try {

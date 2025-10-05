@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c4c9f69c087aa53346196009c34f2098>>
+ * @generated SignedSource<<8c0ca4da1438b630deeb858f9e548cb5>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,36 +10,38 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
-export type CommentQueriesRecipeCommentsQuery$variables = {
+export type CommentQueriesRecipeCommentsPaginationQuery$variables = {
   after?: string | null;
-  first: number;
+  first?: number | null;
   recipeId: string;
 };
-export type CommentQueriesRecipeCommentsQuery$data = {
+export type CommentQueriesRecipeCommentsPaginationQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"CommentQueriesRecipeCommentsPaginationFragment">;
 };
-export type CommentQueriesRecipeCommentsQuery = {
-  response: CommentQueriesRecipeCommentsQuery$data;
-  variables: CommentQueriesRecipeCommentsQuery$variables;
+export type CommentQueriesRecipeCommentsPaginationQuery = {
+  response: CommentQueriesRecipeCommentsPaginationQuery$data;
+  variables: CommentQueriesRecipeCommentsPaginationQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "after"
-},
-v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "first"
-},
-v2 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "recipeId"
-},
-v3 = [
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "after"
+  },
+  {
+    "defaultValue": 10,
+    "kind": "LocalArgument",
+    "name": "first"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "recipeId"
+  }
+],
+v1 = [
   {
     "kind": "Variable",
     "name": "after",
@@ -58,17 +60,13 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "CommentQueriesRecipeCommentsQuery",
+    "name": "CommentQueriesRecipeCommentsPaginationQuery",
     "selections": [
       {
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "kind": "FragmentSpread",
         "name": "CommentQueriesRecipeCommentsPaginationFragment"
       }
@@ -78,17 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "CommentQueriesRecipeCommentsQuery",
+    "name": "CommentQueriesRecipeCommentsPaginationQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "CommentConnection",
         "kind": "LinkedField",
         "name": "recipeCommentsConnection",
@@ -209,7 +203,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "filters": [
           "recipeId"
         ],
@@ -221,16 +215,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d5fe0ed1ad62eef33a7aec9d963ec751",
+    "cacheID": "5961316093a279063f50af54e48ced9c",
     "id": null,
     "metadata": {},
-    "name": "CommentQueriesRecipeCommentsQuery",
+    "name": "CommentQueriesRecipeCommentsPaginationQuery",
     "operationKind": "query",
-    "text": "query CommentQueriesRecipeCommentsQuery(\n  $recipeId: ID!\n  $first: Int!\n  $after: String\n) {\n  ...CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE\n}\n\nfragment CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE on Query {\n  recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after) {\n    totalCount\n    edges {\n      node {\n        id\n        content\n        author\n        email\n        isHidden\n        createdAt\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query CommentQueriesRecipeCommentsPaginationQuery(\n  $after: String\n  $first: Int = 10\n  $recipeId: ID!\n) {\n  ...CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE\n}\n\nfragment CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE on Query {\n  recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after) {\n    totalCount\n    edges {\n      node {\n        id\n        content\n        author\n        email\n        isHidden\n        createdAt\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "d99751ab90bc6a8a23111e22acf0e2e1";
+(node as any).hash = "cf42dffdda39ab54c5706698deda62ee";
 
 export default node;

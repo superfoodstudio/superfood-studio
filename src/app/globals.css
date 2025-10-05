@@ -33,3 +33,25 @@ body {
   padding: 0;
   font-family: var(--font-nunito);
 }
+
+/* Rich text display paragraph spacing */
+div p {
+  margin-bottom: 1em;
+}
+
+div p:last-child {
+  margin-bottom: 0;
+}
+
+/* Rich text display list styling */
+div ul,
+div ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+div ul:last-child,
+div ol:last-child {
+  margin-bottom: 0;
+}
+

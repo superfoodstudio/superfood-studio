@@ -25,8 +25,8 @@ export const commentResolvers = {
     },
 
     recipeCommentsConnection: async (
-      _parent: unknown, 
-      { recipeId, first = 10, after }: { recipeId: string; first?: number; after?: string }, 
+      _parent: unknown,
+      { recipeId, first = 10, after }: { recipeId: string; first?: number; after?: string },
       { prisma }: GraphQLContext
     ) => {
       const where = {
@@ -34,6 +34,14 @@ export const commentResolvers = {
         isHidden: false,
         ...(after ? { id: { gt: after } } : {})
       };
+
+      // Get total count
+      const totalCount = await prisma.comment.count({
+        where: {
+          recipeId,
+          isHidden: false
+        }
+      });
 
       const comments = await prisma.comment.findMany({
         where,
@@ -57,7 +65,8 @@ export const commentResolvers = {
           hasPreviousPage: !!after,
           startCursor: edges.length > 0 ? edges[0].cursor : null,
           endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null
-        }
+        },
+        totalCount
       };
     },
   },

@@ -1,27 +1,23 @@
 import { graphql } from 'relay-runtime';
 
 export const RecipeCommentsQuery = graphql`
-  query CommentQueriesRecipeCommentsQuery($recipeId: ID!) {
-    recipeComments(recipeId: $recipeId) {
-      id
-      content
-      author
-      email
-      isHidden
-      createdAt
-    }
+  query CommentQueriesRecipeCommentsQuery($recipeId: ID!, $first: Int!, $after: String) {
+    ...CommentQueriesRecipeCommentsPaginationFragment @arguments(recipeId: $recipeId, first: $first, after: $after)
   }
 `;
 
-export const RecipeCommentsConnectionQuery = graphql`
-  query CommentQueriesRecipeCommentsConnectionQuery(
-    $recipeId: ID!
-    $first: Int
-    $after: String
+export const RecipeCommentsPaginationFragment = graphql`
+  fragment CommentQueriesRecipeCommentsPaginationFragment on Query
+  @refetchable(queryName: "CommentQueriesRecipeCommentsPaginationQuery")
+  @argumentDefinitions(
+    recipeId: { type: "ID!" }
+    first: { type: "Int", defaultValue: 10 }
+    after: { type: "String" }
   ) {
-    recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after) {
+    recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after)
+    @connection(key: "RecipeCommentsList_recipeCommentsConnection") {
+      totalCount
       edges {
-        cursor
         node {
           id
           content
@@ -33,8 +29,6 @@ export const RecipeCommentsConnectionQuery = graphql`
       }
       pageInfo {
         hasNextPage
-        hasPreviousPage
-        startCursor
         endCursor
       }
     }

@@ -12,3 +12,15 @@ export const CurrentUserQuery = graphql`
     }
   }
 `;
+
+export const UpdateUserMutation = graphql`
+  mutation UserQueriesUpdateUserMutation($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      id
+      email
+      firstName
+      lastName
+      updatedAt
+    }
+  }
+`;

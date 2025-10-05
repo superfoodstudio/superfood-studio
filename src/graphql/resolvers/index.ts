@@ -6,6 +6,7 @@ import { subscriptionResolvers } from './subscription';
 import { orderResolvers } from './order';
 import { siteSettingsResolvers } from './siteSettings';
 import { commentResolvers } from './comment';
+import { userResolvers } from './user';
 
 export const resolvers = {
   Query: {
@@ -17,6 +18,7 @@ export const resolvers = {
     ...orderResolvers.Query,
     ...siteSettingsResolvers.Query,
     ...commentResolvers.Query,
+    ...userResolvers.Query,
   },
   Mutation: {
     ...recipeResolvers.Mutation,
@@ -26,6 +28,7 @@ export const resolvers = {
     ...subscriptionResolvers.Mutation,
     ...siteSettingsResolvers.Mutation,
     ...commentResolvers.Mutation,
+    ...userResolvers.Mutation,
   },
   Comment: commentResolvers.Comment,
   Recipe: recipeResolvers.Recipe,

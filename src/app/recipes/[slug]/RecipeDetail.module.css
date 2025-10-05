@@ -1,0 +1,12 @@
+.ingredientsSticky {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .ingredientsSticky {
+    position: sticky;
+    top: 100px;
+    border-right: 1px solid var(--rs-color-border-neutral-faded);
+  }
+}

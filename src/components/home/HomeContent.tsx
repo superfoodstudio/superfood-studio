@@ -165,7 +165,7 @@ export function HomeContent() {
               }}
             >
               <Text
-                variant="title-6"
+                variant="title-4"
                 attributes={{
                   style: {
                     fontFamily: "Habibi, serif",
@@ -237,7 +237,7 @@ export function HomeContent() {
             },
           }}
         >
-          <View direction="column" align="center" gap={2}>
+          <View direction="column" align="center" gap={1}>
             <Text
               variant="featured-2"
               align="center"
@@ -253,7 +253,7 @@ export function HomeContent() {
               From the founders of
             </Text>
             <Text
-              variant="title-2"
+              variant="title-1"
               align="center"
               attributes={{
                 style: {
@@ -265,59 +265,98 @@ export function HomeContent() {
               Sol Sips
             </Text>
           </View>
-          <View paddingInline={48}>
+          <View
+            paddingInline={{ s: 12, m: 48 }}
+            attributes={{ style: { marginTop: "-12px" } }}
+          >
             <Text
               variant="featured-3"
               align="center"
-
               attributes={{
                 style: {
                   color: "var(--rs-color-background-page)",
                 },
               }}
             >
-              A plant-forward concept studio with a new collection of audio-visual
-              recipes and superfood-centric tutorials every month
+              A plant-forward concept studio with a new collection of
+              audio-visual recipes and superfood-centric tutorials every month
             </Text>
           </View>
-
         </View>
       </View>
 
       {/* Newsletter Section */}
-      <View padding={{ s: 0, m: 4 }}>
+      <View padding={{ s: 0, m: 4 }} gap={8}>
         <View
           as="section"
-          direction="column"
+          direction={{ s: "column", m: "row" }}
           align="center"
-          gap={4}
-          padding={8}
+          justify="center"
+          gap={16}
+          padding={12}
+          attributes={{
+            style: {
+              backgroundColor: "var(--rs-color-forest-green)",
+              borderRadius: "24px",
+            },
+          }}
         >
-          <Text variant="body-2">subscribe</Text>
-          <View direction="row" gap={2} maxWidth={400}>
-            <input
-              type="email"
-              placeholder="email"
-              style={{
-                flex: 1,
-                padding: "8px 12px",
-                borderRadius: "4px",
-                border: "1px solid #e5e7eb",
+          <Text
+            variant="title-3"
+            attributes={{
+              style: {
+                fontFamily: "Habibi, serif",
+                color: "var(--rs-color-background-page)",
+              },
+            }}
+          >
+            Subscribe!
+          </Text>
+          <View direction="column" gap={4} maxWidth="500px" paddingInline={8}>
+            <View direction="column" gap={4}>
+              <input
+                type="email"
+                placeholder="EMAIL ADDRESS"
+                style={{
+                  padding: "16px 24px",
+                  borderRadius: "48px",
+                  border: "none",
+                  backgroundColor: "var(--rs-color-background-page)",
+                  fontFamily: "var(--font-nunito)",
+                  fontSize: "14px",
+                  textAlign: "center",
+                }}
+              />
+              <Button
+                variant="solid"
+                size="large"
+                attributes={{
+                  style: {
+                    backgroundColor: "var(--rs-color-lime-green)",
+                    color: "var(--rs-color-forest-green)",
+                    borderRadius: "48px",
+                    fontFamily: "var(--font-midruns-sans)",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                  },
+                }}
+              >
+                Sign Up
+              </Button>
+            </View>
+            <Text
+              variant="body-3"
+              align="center"
+              attributes={{
+                style: {
+                  color: "var(--rs-color-lime-green)",
+                },
               }}
-            />
-            <Button variant="solid">STAY IN TOUCH →</Button>
-          </View>
-          <View direction="row" align="center" gap={2}>
-            <input
-              type="checkbox"
-              id="subscribeConsent"
-              style={{ marginRight: "8px" }}
-            />
-            <label htmlFor="subscribeConsent" style={{ fontSize: "0.8rem" }}>
-              Subscribe to receive communications for exclusive offers and
-              events from Superfood Studio. By subscribing, you confirm you have
-              read and understood our privacy policy.
-            </label>
+            >
+              Subscribe to receive communications for exclusive offers and events
+              from Superfood Studio. By subscribing, you confirm you have read and
+              understood our privacy policy.
+            </Text>
           </View>
         </View>
       </View>
