@@ -1,7 +1,7 @@
 {
   "fontFamily": {
     "title": {
-      "family": "var(--font-midruns-script)"
+      "family": "var(--font-nunito)"
     },
     "body": {
       "family": "var(--font-nunito)"
