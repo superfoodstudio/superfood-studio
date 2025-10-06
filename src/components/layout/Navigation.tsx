@@ -187,31 +187,25 @@ export function Navigation() {
         <View direction="row" align="center" gap={3} attributes={{ style: { marginLeft: 'auto' } }}>
           {/* Cart Icon with Counter */}
           <Link href="/cart">
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', display: 'inline-block' }}>
               <Button variant="ghost" size="small">
                 <ShoppingCart size={24} />
-                {cartItemCount > 0 && (
-                  <Badge
-                    variant="outline"
-                    color="critical"
-                    attributes={{
-                      style: {
-                        position: 'absolute',
-                        top: '-8px',
-                        right: '-8px',
-                        borderRadius: '50%',
-                        minWidth: '20px',
-                        height: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }
-                    }}
-                  >
-                    {cartItemCount}
-                  </Badge>
-                )}
               </Button>
+              {cartItemCount > 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    backgroundColor: '#ef4444',
+                    pointerEvents: 'none',
+                    zIndex: 1000
+                  }}
+                />
+              )}
             </div>
           </Link>
 

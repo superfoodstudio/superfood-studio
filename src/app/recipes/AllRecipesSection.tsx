@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { Suspense, useState } from 'react';
-import { View, Text, Grid, Select, Button } from 'reshaped';
-import { useLazyLoadQuery, usePaginationFragment, graphql } from 'react-relay';
-import { SkeletonCard } from '@/components/ui/SkeletonCard';
-import { RecipeCard } from '@/components/recipes/RecipeCard';
-import { LoadMore } from '@/components/ui/LoadMore';
-import type { RecipeQueriesRecipeListQuery } from '@/__generated__/RecipeQueriesRecipeListQuery.graphql';
-import type { AllRecipesSectionPaginationFragment$key } from '@/__generated__/AllRecipesSectionPaginationFragment.graphql';
+import { Suspense, useState } from "react";
+import { View, Text, Grid, Select, Button } from "reshaped";
+import { useLazyLoadQuery, usePaginationFragment, graphql } from "react-relay";
+import { SkeletonCard } from "@/components/ui/SkeletonCard";
+import { RecipeCard } from "@/components/recipes/RecipeCard";
+import { LoadMore } from "@/components/ui/LoadMore";
+import type { RecipeQueriesRecipeListQuery } from "@/__generated__/RecipeQueriesRecipeListQuery.graphql";
+import type { AllRecipesSectionPaginationFragment$key } from "@/__generated__/AllRecipesSectionPaginationFragment.graphql";
 
 const recipeCategoriesQuery = graphql`
   query AllRecipesSectionCategoriesQuery {
@@ -16,10 +16,10 @@ const recipeCategoriesQuery = graphql`
 `;
 
 const sortOptions = [
-  { value: 'newest', label: 'newest to oldest' },
-  { value: 'oldest', label: 'oldest to newest' },
-  { value: 'a-z', label: 'a to z' },
-  { value: 'z-a', label: 'z to a' }
+  { value: "newest", label: "newest to oldest" },
+  { value: "oldest", label: "oldest to newest" },
+  { value: "a-z", label: "a to z" },
+  { value: "z-a", label: "z to a" },
 ];
 
 interface CategoryOption {
@@ -35,25 +35,35 @@ interface RecipeFiltersProps {
   categories: CategoryOption[];
 }
 
-function RecipeFilters({ selectedCategory, selectedSort, onCategoryChange, onSortChange, categories }: RecipeFiltersProps) {
+function RecipeFilters({
+  selectedCategory,
+  selectedSort,
+  onCategoryChange,
+  onSortChange,
+  categories,
+}: RecipeFiltersProps) {
   return (
     <View direction="column" gap={4} padding={4}>
       <View direction="column" gap={3}>
-        <Text variant="title-4" weight="medium">category</Text>
+        <Text variant="featured-2" weight="medium">
+          category
+        </Text>
         <View direction="column" gap={2}>
           {categories.map((category) => (
             <Button
               key={category.value}
-              variant={selectedCategory === category.value ? 'solid' : 'ghost'}
+              variant={selectedCategory === category.value ? "solid" : "ghost"}
               size="small"
+              color="primary"
               fullWidth
               onClick={() => onCategoryChange(category.value)}
               attributes={{
                 style: {
-                  justifyContent: 'flex-start',
-                  textAlign: 'left',
-                  fontWeight: selectedCategory === category.value ? '600' : '400'
-                }
+                  justifyContent: "flex-start",
+                  textAlign: "left",
+                  fontWeight:
+                    selectedCategory === category.value ? "600" : "400",
+                },
               }}
             >
               {category.label}
@@ -63,21 +73,24 @@ function RecipeFilters({ selectedCategory, selectedSort, onCategoryChange, onSor
       </View>
 
       <View direction="column" gap={3}>
-        <Text variant="title-4" weight="medium">sort</Text>
+        <Text variant="featured-2" weight="medium">
+          sort
+        </Text>
         <View direction="column" gap={2}>
           {sortOptions.map((option) => (
             <Button
               key={option.value}
-              variant={selectedSort === option.value ? 'solid' : 'ghost'}
+              variant={selectedSort === option.value ? "solid" : "ghost"}
               size="small"
+              color="primary"
               fullWidth
               onClick={() => onSortChange(option.value)}
               attributes={{
                 style: {
-                  justifyContent: 'flex-start',
-                  textAlign: 'left',
-                  fontWeight: selectedSort === option.value ? '600' : '400'
-                }
+                  justifyContent: "flex-start",
+                  textAlign: "left",
+                  fontWeight: selectedSort === option.value ? "600" : "400",
+                },
               }}
             >
               {option.label}
@@ -85,16 +98,17 @@ function RecipeFilters({ selectedCategory, selectedSort, onCategoryChange, onSor
           ))}
         </View>
       </View>
-
-      <Button variant="outline" size="small" fullWidth>
-        SAVE
-      </Button>
     </View>
   );
 }
 
 const allRecipesSectionQuery = graphql`
-  query AllRecipesSectionQuery($category: String, $first: Int!, $after: String, $sort: String) {
+  query AllRecipesSectionQuery(
+    $category: String
+    $first: Int!
+    $after: String
+    $sort: String
+  ) {
     ...AllRecipesSectionPaginationFragment
   }
 `;
@@ -102,8 +116,12 @@ const allRecipesSectionQuery = graphql`
 const allRecipesSectionPaginationFragment = graphql`
   fragment AllRecipesSectionPaginationFragment on Query
   @refetchable(queryName: "AllRecipesSectionPaginationQuery") {
-    publicRecipes(category: $category, first: $first, after: $after, sort: $sort)
-    @connection(key: "AllRecipesSection_publicRecipes") {
+    publicRecipes(
+      category: $category
+      first: $first
+      after: $after
+      sort: $sort
+    ) @connection(key: "AllRecipesSection_publicRecipes") {
       edges {
         node {
           id
@@ -130,21 +148,24 @@ const allRecipesSectionPaginationFragment = graphql`
   }
 `;
 
-function RecipeGridContent({ category, sort }: { category: string; sort: string }) {
-  const queryData = useLazyLoadQuery<any>(
-    allRecipesSectionQuery,
-    { 
-      category: category || null,
-      first: 12,
-      sort: sort || 'newest'
-    }
-  );
+function RecipeGridContent({
+  category,
+  sort,
+}: {
+  category: string;
+  sort: string;
+}) {
+  const queryData = useLazyLoadQuery<any>(allRecipesSectionQuery, {
+    category: category || null,
+    first: 12,
+    sort: sort || "newest",
+  });
 
   const { data, loadNext, hasNext, isLoadingNext } = usePaginationFragment(
-    allRecipesSectionPaginationFragment, 
-    queryData
+    allRecipesSectionPaginationFragment,
+    queryData,
   );
-  
+
   if (!data.publicRecipes || data.publicRecipes.edges.length === 0) {
     return (
       <View padding={4}>
@@ -152,14 +173,16 @@ function RecipeGridContent({ category, sort }: { category: string; sort: string 
       </View>
     );
   }
-  
+
   // Recipes are already sorted by the GraphQL resolver
-  const recipes = data.publicRecipes.edges.map((edge: any) => edge.node).filter(Boolean);
+  const recipes = data.publicRecipes.edges
+    .map((edge: any) => edge.node)
+    .filter(Boolean);
 
   const handleLoadMore = () => {
     loadNext(12);
   };
-  
+
   return (
     <View direction="column" gap={4}>
       <View direction="row" gap={4}>
@@ -191,56 +214,53 @@ function RecipeGridSkeleton() {
 }
 
 export function AllRecipesSection() {
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSort, setSelectedSort] = useState('newest');
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSort, setSelectedSort] = useState("newest");
 
   // Load categories using GraphQL
   const categoriesData = useLazyLoadQuery<any>(recipeCategoriesQuery, {});
-  
+
   const categories = [
-    { value: '', label: 'all' },
+    { value: "", label: "all" },
     ...(categoriesData?.recipeCategories || []).map((cat: string) => ({
       value: cat,
-      label: cat.toLowerCase()
-    }))
+      label: cat.toLowerCase(),
+    })),
   ];
 
   return (
-    <View direction="column" gap={4}>
+    <View direction="column" gap={4} paddingTop={4}>
       {/* Section Title */}
       <View
         attributes={{
-          style: { paddingLeft: '1rem', paddingRight: '1rem' }
+          style: { paddingLeft: "1rem", paddingRight: "1rem" },
         }}
       >
-        <Text variant="title-2" weight="medium" attributes={{ style: { fontFamily: 'var(--font-playfair)' } }}>
-          ALL RECIPES
-        </Text>
+        <Text variant="featured-2">Recipes</Text>
       </View>
 
       {/* Main Content Area */}
       <View
         attributes={{
-          style: { 
-            paddingLeft: '1rem', 
-            paddingRight: '1rem'
-          }
+          style: {
+            paddingLeft: "1rem",
+            paddingRight: "1rem",
+          },
         }}
       >
         <View direction="row" gap={6}>
           {/* Filters Sidebar - Sticky */}
           <View
+            backgroundColor="page"
             attributes={{
               style: {
-                flex: '0 0 200px',
-                backgroundColor: '#ffffff',
-                borderRadius: '8px',
-                border: '1px solid #e5e5e5',
-                position: 'sticky',
-                top: '80px',
-                alignSelf: 'flex-start',
-                height: 'fit-content'
-              }
+                flex: "0 0 200px",
+                borderRadius: "8px",
+                position: "sticky",
+                top: "80px",
+                alignSelf: "flex-start",
+                height: "fit-content",
+              },
             }}
           >
             <RecipeFilters
@@ -256,13 +276,13 @@ export function AllRecipesSection() {
           <View
             direction="column"
             attributes={{
-              style: { flex: 1 }
+              style: { flex: 1 },
             }}
           >
             <Suspense fallback={<RecipeGridSkeleton />}>
-              <RecipeGridContent 
-                category={selectedCategory} 
-                sort={selectedSort} 
+              <RecipeGridContent
+                category={selectedCategory}
+                sort={selectedSort}
               />
             </Suspense>
           </View>
@@ -270,4 +290,4 @@ export function AllRecipesSection() {
       </View>
     </View>
   );
-} 
+}
