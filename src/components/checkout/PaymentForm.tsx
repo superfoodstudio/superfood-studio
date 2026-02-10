@@ -8,9 +8,8 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from '@stripe/react-stripe-js';
-import { View, Text, Button } from 'reshaped';
+import { View, Text, Button, Divider } from 'reshaped';
 import { usePrivy } from '@privy-io/react-auth';
-import { useCart } from '@/hooks/useCart';
 
 interface PaymentFormProps {
   clientSecret: string;
@@ -21,24 +20,32 @@ interface PaymentFormProps {
 const cardElementOptions = {
   style: {
     base: {
-      fontSize: '16px',
-      color: '#424770',
+      fontSize: '14px',
+      fontFamily: 'inherit',
+      color: '#333',
       '::placeholder': {
         color: '#aab7c4',
       },
     },
     invalid: {
-      color: '#9e2146',
+      color: '#e22c2c',
     },
   },
+};
+
+const fieldWrapperStyle: React.CSSProperties = {
+  padding: '10px 12px',
+  border: '1px solid var(--rs-color-border-neutral-faded)',
+  borderRadius: '8px',
+  backgroundColor: '#fff',
 };
 
 export function PaymentForm({ clientSecret, onSuccess, onError }: PaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const { user } = usePrivy();
-  const { cart, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -50,7 +57,7 @@ export function PaymentForm({ clientSecret, onSuccess, onError }: PaymentFormPro
     setIsProcessing(true);
 
     const cardNumber = elements.getElement(CardNumberElement);
-    
+
     if (!cardNumber) {
       onError('Card information is incomplete');
       setIsProcessing(false);
@@ -69,14 +76,13 @@ export function PaymentForm({ clientSecret, onSuccess, onError }: PaymentFormPro
 
       if (error) {
         onError(error.message || 'Payment failed');
+        setIsProcessing(false);
       } else if (paymentIntent?.status === 'succeeded') {
-        // Clear cart after successful payment
-        clearCart();
+        setIsComplete(true);
         onSuccess(paymentIntent.id);
       }
     } catch (err) {
       onError('An unexpected error occurred');
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -84,42 +90,30 @@ export function PaymentForm({ clientSecret, onSuccess, onError }: PaymentFormPro
   return (
     <form onSubmit={handleSubmit}>
       <View direction="column" gap={4}>
-        <Text variant="title-3">Payment Information</Text>
-        
-        <View direction="column" gap={2}>
+        <Text variant="body-1" weight="bold" attributes={{ style: { textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px' } }}>
+          Payment Information
+        </Text>
+        <Divider />
+
+        <View direction="column" gap={3}>
           <View direction="column" gap={1}>
-            <Text>Card Number</Text>
-            <div style={{ 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '4px',
-              backgroundColor: '#fff'
-            }}>
+            <Text variant="body-2" weight="medium">Card Number</Text>
+            <div style={fieldWrapperStyle}>
               <CardNumberElement options={cardElementOptions} />
             </div>
           </View>
-          
-          <View direction="row" gap={2}>
+
+          <View direction="row" gap={3}>
             <View direction="column" gap={1} grow>
-              <Text>Expiry Date</Text>
-              <div style={{ 
-                padding: '12px', 
-                border: '1px solid #ccc', 
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}>
+              <Text variant="body-2" weight="medium">Expiry Date</Text>
+              <div style={fieldWrapperStyle}>
                 <CardExpiryElement options={cardElementOptions} />
               </div>
             </View>
-            
+
             <View direction="column" gap={1} grow>
-              <Text>CVC</Text>
-              <div style={{ 
-                padding: '12px', 
-                border: '1px solid #ccc', 
-                borderRadius: '4px',
-                backgroundColor: '#fff'
-              }}>
+              <Text variant="body-2" weight="medium">CVC</Text>
+              <div style={fieldWrapperStyle}>
                 <CardCvcElement options={cardElementOptions} />
               </div>
             </View>
@@ -129,10 +123,12 @@ export function PaymentForm({ clientSecret, onSuccess, onError }: PaymentFormPro
         <Button
           type="submit"
           variant="solid"
+          color="primary"
+          size="large"
           fullWidth
-          disabled={!stripe || isProcessing}
+          disabled={!stripe || isProcessing || isComplete}
         >
-          {isProcessing ? 'Processing...' : `Pay $${(cart.total).toFixed(2)}`}
+          {isComplete ? 'Order placed! Redirecting...' : isProcessing ? 'Processing...' : 'Complete Purchase'}
         </Button>
       </View>
     </form>

@@ -15,8 +15,8 @@ import type { OrderQueriesUserOrdersPaginationFragment$key } from '@/__generated
 
 function OrdersContent() {
   const queryData = useLazyLoadQuery<OrderQueriesUserOrdersQuery>(UserOrdersQuery, {
-    first: 10
-  });
+    first: 50
+  }, { fetchPolicy: 'network-only' });
   
   const { data, loadNext, hasNext, isLoadingNext } = usePaginationFragment<
     OrderQueriesUserOrdersQuery,

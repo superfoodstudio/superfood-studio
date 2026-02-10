@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useCart } from '@/hooks/useCart';
@@ -10,7 +10,6 @@ import { FormSkeleton } from '@/components/ui/ListSkeleton';
 import { StripeProvider } from '@/components/providers/StripeProvider';
 import { PaymentForm } from '@/components/checkout/PaymentForm';
 
-// Format currency
 function formatPrice(price: number) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -18,33 +17,47 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '10px 12px',
+  border: '1px solid var(--rs-color-border-neutral-faded)',
+  borderRadius: '8px',
+  fontSize: '14px',
+  fontFamily: 'inherit',
+  backgroundColor: '#fff',
+  outline: 'none',
+};
+
 function CartSummary({ cart }: { cart: any }) {
   if (!cart || cart.items.length === 0) {
     return (
-      <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-        <Text color="critical">Cart is empty</Text>
+      <View direction="column" gap={2} padding={4} borderRadius="medium" attributes={{ style: { border: '1px solid var(--rs-color-border-neutral-faded)' } }}>
+        <Text color="neutral-faded">Cart is empty</Text>
       </View>
     );
   }
 
   return (
-    <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-      <Text variant="featured-1">Order Summary</Text>
+    <View direction="column" gap={3} padding={5} borderRadius="medium" attributes={{ style: { border: '1px solid var(--rs-color-border-neutral-faded)' } }}>
+      <Text variant="body-1" weight="bold" attributes={{ style: { textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px' } }}>
+        Order Summary
+      </Text>
       <Divider />
 
       {cart.items.map((item: any) => (
-        <View key={item.id} direction="row" justify="space-between" padding={1}>
-          <Text>
-            {item.product.name} ({item.quantity})
-          </Text>
-          <Text>{formatPrice(item.price * item.quantity)}</Text>
+        <View key={item.id} direction="row" justify="space-between" align="center">
+          <View direction="row" gap={2} align="center">
+            <Text variant="body-2">{item.product.name}</Text>
+            <Text variant="caption-1" color="neutral-faded">×{item.quantity}</Text>
+          </View>
+          <Text variant="body-2">{formatPrice(item.price * item.quantity)}</Text>
         </View>
       ))}
 
       <Divider />
       <View direction="row" justify="space-between">
-        <Text variant="title-6">Total</Text>
-        <Text variant="title-6">{formatPrice(cart.total)}</Text>
+        <Text variant="body-1" weight="bold">Total</Text>
+        <Text variant="body-1" weight="bold">{formatPrice(cart.total)}</Text>
       </View>
     </View>
   );
@@ -55,6 +68,7 @@ export default function CheckoutPage() {
   const [isReady, setIsReady] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const paymentSucceeded = useRef(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -67,13 +81,10 @@ export default function CheckoutPage() {
   });
   const router = useRouter();
   const { ready, authenticated, user, getAccessToken } = usePrivy();
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
 
-  // Set isReady to true when component mounts
   useEffect(() => {
     setIsReady(true);
-    
-    // Populate email if available
     if (user?.email?.address) {
       setFormData(prev => ({
         ...prev,
@@ -82,21 +93,19 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (ready && !authenticated) {
       router.push('/cart');
     }
   }, [ready, authenticated, router]);
 
-  // Check if cart is empty and redirect
+  // Redirect if cart is empty (but not after successful payment)
   useEffect(() => {
-    if (ready && cart && cart.items.length === 0) {
+    if (ready && cart && cart.items.length === 0 && !paymentSucceeded.current) {
       router.push('/cart');
     }
   }, [ready, cart, router]);
 
-  // Handle loading and authentication states after all hooks
   if (!isReady) {
     return <AppContainer maxWidth={800}><FormSkeleton /></AppContainer>;
   }
@@ -107,10 +116,7 @@ export default function CheckoutPage() {
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
   }
 
   async function createPaymentIntent() {
@@ -118,15 +124,12 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      // Check if cart has items
       if (!cart || cart.items.length === 0) {
         throw new Error('Cart is empty');
       }
 
-      // Get auth token for API request
       const token = await getAccessToken();
-      
-      // Convert cart items to the format expected by API
+
       const cartItems = cart.items.map(item => ({
         productId: item.productId,
         quantity: item.quantity,
@@ -135,7 +138,6 @@ export default function CheckoutPage() {
         productPhoto: item.product.photoUrl
       }));
 
-      // Prepare shipping address
       const shippingAddress = {
         street: formData.street,
         city: formData.city,
@@ -143,18 +145,14 @@ export default function CheckoutPage() {
         zipCode: formData.zipCode,
         country: formData.country
       };
-      
-      // Create payment intent with shipping address
+
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          cartItems,
-          shippingAddress
-        }),
+        body: JSON.stringify({ cartItems, shippingAddress }),
       });
 
       if (!response.ok) {
@@ -164,7 +162,7 @@ export default function CheckoutPage() {
 
       const data = await response.json();
       setClientSecret(data.clientSecret);
-      
+
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to initialize payment');
     } finally {
@@ -172,9 +170,12 @@ export default function CheckoutPage() {
     }
   }
 
-  const handlePaymentSuccess = (paymentIntentId: string) => {
-    // Navigate to success page with payment intent ID
-    router.push(`/checkout/success?payment_intent=${paymentIntentId}`);
+  const handlePaymentSuccess = async (_paymentIntentId: string) => {
+    paymentSucceeded.current = true;
+    clearCart();
+    // Brief delay to allow webhook to process the order
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    router.push('/dashboard/orders');
   };
 
   const handlePaymentError = (errorMessage: string) => {
@@ -184,26 +185,41 @@ export default function CheckoutPage() {
   return (
     <StripeProvider>
       <AppContainer maxWidth={800}>
-        <View direction="column" gap={4} padding={4}>
-          <Text variant="title-4" align="center">Checkout</Text>
-          
+        <View direction="column" gap={6} padding={4}>
+          <Text
+            variant="featured-2"
+            align="center"
+            attributes={{
+              style: {
+                textTransform: 'uppercase',
+                letterSpacing: '2px',
+                fontWeight: '600',
+              },
+            }}
+          >
+            Checkout
+          </Text>
+
           {error && (
-            <View direction="column" align="center" padding={4} backgroundColor="critical-faded">
-              <Text color="critical">{error}</Text>
+            <View padding={3} backgroundColor="critical-faded" borderRadius="medium">
+              <Text color="critical" variant="body-2">{error}</Text>
             </View>
           )}
-          
-          <View direction="row" gap={6} attributes={{ style: { flexWrap: 'wrap' } }}>
-            {/* Shipping Information */}
+
+          <View direction={{ s: 'column', m: 'row' }} gap={6}>
+            {/* Left Column — Forms */}
             <View direction="column" gap={4} attributes={{ style: { flex: 1 } }}>
-              <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-                <Text variant="featured-1">Shipping Information</Text>
+              {/* Shipping Information */}
+              <View direction="column" gap={4} padding={5} borderRadius="medium" attributes={{ style: { border: '1px solid var(--rs-color-border-neutral-faded)' } }}>
+                <Text variant="body-1" weight="bold" attributes={{ style: { textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px' } }}>
+                  Shipping Information
+                </Text>
                 <Divider />
-                
+
                 <View direction="column" gap={3}>
-                  <View direction="row" gap={2}>
+                  <View direction="row" gap={3}>
                     <View direction="column" gap={1} grow>
-                      <label htmlFor="firstName"><Text>First Name</Text></label>
+                      <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'firstName' }}>First Name</Text>
                       <input
                         id="firstName"
                         type="text"
@@ -211,11 +227,11 @@ export default function CheckoutPage() {
                         value={formData.firstName}
                         onChange={handleInputChange}
                         required
-                        className="w-full p-2 border rounded"
+                        style={inputStyle}
                       />
                     </View>
                     <View direction="column" gap={1} grow>
-                      <label htmlFor="lastName"><Text>Last Name</Text></label>
+                      <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'lastName' }}>Last Name</Text>
                       <input
                         id="lastName"
                         type="text"
@@ -223,13 +239,13 @@ export default function CheckoutPage() {
                         value={formData.lastName}
                         onChange={handleInputChange}
                         required
-                        className="w-full p-2 border rounded"
+                        style={inputStyle}
                       />
                     </View>
                   </View>
-                  
+
                   <View direction="column" gap={1}>
-                    <label htmlFor="email"><Text>Email</Text></label>
+                    <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'email' }}>Email</Text>
                     <input
                       id="email"
                       type="email"
@@ -237,12 +253,12 @@ export default function CheckoutPage() {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="w-full p-2 border rounded"
+                      style={inputStyle}
                     />
                   </View>
-                  
+
                   <View direction="column" gap={1}>
-                    <label htmlFor="street"><Text>Street Address</Text></label>
+                    <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'street' }}>Street Address</Text>
                     <input
                       id="street"
                       type="text"
@@ -250,13 +266,13 @@ export default function CheckoutPage() {
                       value={formData.street}
                       onChange={handleInputChange}
                       required
-                      className="w-full p-2 border rounded"
+                      style={inputStyle}
                     />
                   </View>
-                  
-                  <View direction="row" gap={2}>
+
+                  <View direction="row" gap={3}>
                     <View direction="column" gap={1} grow>
-                      <label htmlFor="city"><Text>City</Text></label>
+                      <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'city' }}>City</Text>
                       <input
                         id="city"
                         type="text"
@@ -264,11 +280,11 @@ export default function CheckoutPage() {
                         value={formData.city}
                         onChange={handleInputChange}
                         required
-                        className="w-full p-2 border rounded"
+                        style={inputStyle}
                       />
                     </View>
                     <View direction="column" gap={1} grow>
-                      <label htmlFor="state"><Text>State</Text></label>
+                      <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'state' }}>State</Text>
                       <input
                         id="state"
                         type="text"
@@ -276,14 +292,14 @@ export default function CheckoutPage() {
                         value={formData.state}
                         onChange={handleInputChange}
                         required
-                        className="w-full p-2 border rounded"
+                        style={inputStyle}
                       />
                     </View>
                   </View>
-                  
-                  <View direction="row" gap={2}>
+
+                  <View direction="row" gap={3}>
                     <View direction="column" gap={1} grow>
-                      <label htmlFor="zipCode"><Text>ZIP Code</Text></label>
+                      <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'zipCode' }}>ZIP Code</Text>
                       <input
                         id="zipCode"
                         type="text"
@@ -291,18 +307,18 @@ export default function CheckoutPage() {
                         value={formData.zipCode}
                         onChange={handleInputChange}
                         required
-                        className="w-full p-2 border rounded"
+                        style={inputStyle}
                       />
                     </View>
                     <View direction="column" gap={1} grow>
-                      <label htmlFor="country"><Text>Country</Text></label>
+                      <Text variant="body-2" weight="medium" as="label" attributes={{ htmlFor: 'country' }}>Country</Text>
                       <select
                         id="country"
                         name="country"
                         value={formData.country}
                         onChange={handleInputChange}
                         required
-                        className="w-full p-2 border rounded"
+                        style={inputStyle}
                       >
                         <option value="US">United States</option>
                         <option value="CA">Canada</option>
@@ -313,19 +329,19 @@ export default function CheckoutPage() {
                 </View>
               </View>
 
-              {/* Payment Form */}
-              <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+              {/* Payment Section */}
+              <View direction="column" gap={3} padding={5} borderRadius="medium" attributes={{ style: { border: '1px solid var(--rs-color-border-neutral-faded)' } }}>
                 {!clientSecret ? (
-                  <View direction="column" gap={3}>
-                    <Button
-                      variant="solid"
-                      onClick={createPaymentIntent}
-                      disabled={isLoading}
-                      fullWidth
-                    >
-                      {isLoading ? 'Preparing Payment...' : 'Continue to Payment'}
-                    </Button>
-                  </View>
+                  <Button
+                    variant="solid"
+                    color="primary"
+                    size="large"
+                    onClick={createPaymentIntent}
+                    disabled={isLoading}
+                    fullWidth
+                  >
+                    {isLoading ? 'Preparing Payment...' : 'Continue to Payment'}
+                  </Button>
                 ) : (
                   <PaymentForm
                     clientSecret={clientSecret}
@@ -335,18 +351,16 @@ export default function CheckoutPage() {
                 )}
               </View>
 
-              <View direction="row" gap={2}>
-                <Button
-                  variant="outline"
-                  onClick={() => router.push('/cart')}
-                >
-                  Return to Cart
-                </Button>
-              </View>
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/cart')}
+              >
+                Return to Cart
+              </Button>
             </View>
-            
-            {/* Order Summary */}
-            <View width={{ s: '100%', m: '300px' }}>
+
+            {/* Right Column — Order Summary */}
+            <View width={{ s: '100%', m: '280px' }}>
               <CartSummary cart={cart} />
             </View>
           </View>
