@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { View, Text, Button, Divider } from "reshaped";
 import { useLazyLoadQuery, useFragment } from "react-relay";
 import {
@@ -60,13 +61,10 @@ export default function RecipeDetailPage() {
 }
 
 function RecipeNotFound() {
-  const router = useRouter();
   return (
     <View direction="column" align="center" gap={4} padding={8}>
-      <Text variant="title-5">Recipe not found</Text>
-      <Button variant="solid" onClick={() => router.push("/recipes")}>
-        Back to Recipes
-      </Button>
+      <Text variant="featured-1">Recipe not found</Text>
+      <Link href="/recipes"><Button variant="solid">Back to Recipes</Button></Link>
     </View>
   );
 }
@@ -119,7 +117,6 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
           altText={recipe.name}
           style={{
             width: "100%",
-            height: "400px",
           }}
         />
 
@@ -148,7 +145,8 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
           justify="space-between"
         >
           <Text
-            variant="title-5"
+            variant="featured-1"
+            weight="bold"
             attributes={{ style: { flex: 1, marginRight: "16px" } }}
           >
             {recipe.name}

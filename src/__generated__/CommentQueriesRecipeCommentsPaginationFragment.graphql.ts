@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<330198f561e0bc794b2a5f20c6401a59>>
+ * @generated SignedSource<<f9a01ba6a8b075f824c7ddc6725ad8a2>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,7 +17,6 @@ export type CommentQueriesRecipeCommentsPaginationFragment$data = {
         readonly author: string;
         readonly content: string;
         readonly createdAt: any;
-        readonly email: string | null;
         readonly id: string;
         readonly isHidden: boolean;
       };
@@ -144,13 +143,6 @@ return {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "email",
-                  "storageKey": null
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
                   "name": "isHidden",
                   "storageKey": null
                 },
@@ -215,6 +207,6 @@ return {
 };
 })();
 
-(node as any).hash = "cf42dffdda39ab54c5706698deda62ee";
+(node as any).hash = "7531e66816e441d05974f7b3637c6912";
 
 export default node;

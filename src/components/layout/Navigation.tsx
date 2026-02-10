@@ -111,9 +111,10 @@ export function Navigation() {
             }
           }}
         >
-        {/* Logo - Centered with absolute positioning */}
+        {/* Logo - Centered on desktop, left on mobile */}
         <View
           attributes={{
+            className: 'nav-logo-container',
             style: {
               position: 'absolute',
               left: '50%',
@@ -124,6 +125,7 @@ export function Navigation() {
           <Link href="/" style={{ textDecoration: 'none' }}>
             <View
               attributes={{
+                className: 'nav-logo-inner',
                 style: {
                   position: 'relative',
                   width: '160px',
@@ -138,6 +140,7 @@ export function Navigation() {
               <Text
                 variant="featured-1"
                 attributes={{
+                  className: 'nav-logo-superfood',
                   style: {
                     fontFamily: 'var(--font-midruns-script)',
                     color: 'var(--rs-color-forest-green)',
@@ -155,6 +158,7 @@ export function Navigation() {
               <Text
                 variant="featured-1"
                 attributes={{
+                  className: 'nav-logo-studio',
                   style: {
                     fontFamily: 'var(--font-midruns-sans)',
                     color: 'var(--rs-color-forest-green)',

@@ -417,15 +417,6 @@ export default function EditProductPage() {
             </View>
           </FormField>
           
-          <FormField label="Product Video URL (optional)">
-            <TextField
-              name="videoUrl"
-              value={videoUrl}
-              onChange={({ value }) => setVideoUrl(value)}
-              placeholder="https://example.com/video.mp4"
-            />
-          </FormField>
-          
           {!isNew && (
             <FormField label="Active Status">
               <Switch 
@@ -447,17 +438,17 @@ export default function EditProductPage() {
               {isFeatured ? 'Featured' : 'Not Featured'}
             </Switch>
           </FormField>
+
+          <AdminFormActions
+            isNew={isNew}
+            isSaving={saving}
+            isDeleting={deleting}
+            onSave={() => handleSubmit()}
+            onCancel={() => router.push('/admin/products')}
+            onDelete={!isNew ? handleDelete : undefined}
+            disabled={!name || !category || !description || !photoUrl || price <= 0}
+          />
         </View>
-        
-        <AdminFormActions 
-          isNew={isNew}
-          isSaving={saving}
-          isDeleting={deleting}
-          onSave={() => handleSubmit()}
-          onCancel={() => router.push('/admin/products')}
-          onDelete={!isNew ? handleDelete : undefined}
-          disabled={!name || !category || !description || !photoUrl || price <= 0}
-        />
       </View>
     </AdminLayout>
   );

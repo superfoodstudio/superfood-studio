@@ -133,6 +133,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event) {
   // Find order by payment intent ID
   const order = await prisma.order.findFirst({
     where: { stripeSessionId: paymentIntent.id },
+    include: { items: true },
   });
 
   if (!order) {
@@ -140,7 +141,7 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event) {
     return;
   }
 
-  // Only update to PROCESSING if still PENDING (idempotency — checkout.session.completed may have already handled this)
+  // Only update and decrement inventory if still PENDING (idempotency)
   if (order.status === 'PENDING') {
     await prisma.order.update({
       where: { id: order.id },
@@ -149,8 +150,19 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event) {
         updatedAt: new Date(),
       },
     });
+
+    // Decrement inventory for each product
+    for (const item of order.items) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          inventory: {
+            decrement: item.quantity,
+          },
+        },
+      });
+    }
   }
-  // NOTE: Inventory decrement is handled exclusively in handleCheckoutSessionCompleted
 }
 
 async function handlePaymentIntentFailed(event: Stripe.Event) {

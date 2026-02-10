@@ -3,7 +3,7 @@
 import { Suspense, useRef, useState } from "react";
 import { View, Text, Card, Button, Skeleton } from "reshaped";
 import { useLazyLoadQuery } from "react-relay";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FeaturedRecipeQuery } from "@/graphql/queries/FeaturedRecipeQuery";
 import { stripHtml } from "@/lib/textUtils";
 import { StarRating } from "@/components/ratings/StarRating";
@@ -11,7 +11,6 @@ import { ipfsUrl } from "@/lib/ipfs";
 import type { FeaturedRecipeQueryQuery } from "@/__generated__/FeaturedRecipeQueryQuery.graphql";
 
 function FeaturedRecipeContent() {
-  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -53,6 +52,7 @@ function FeaturedRecipeContent() {
   };
 
   return (
+    <Link href={`/recipes/${recipe.slug}`} style={{ textDecoration: "none", display: "block" }}>
     <Card
       padding={{ s: 0, m: 4 }}
       attributes={{
@@ -65,7 +65,6 @@ function FeaturedRecipeContent() {
         onMouseEnter: handleMouseEnter,
         onMouseLeave: handleMouseLeave,
       }}
-      onClick={() => router.push(`/recipes/${recipe.slug}`)}
     >
       <View
         direction={{ s: "column", m: "row" }}
@@ -189,6 +188,7 @@ function FeaturedRecipeContent() {
         </View>
       </View>
     </Card>
+    </Link>
   );
 }
 

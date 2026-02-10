@@ -22,7 +22,6 @@ export const RecipeCommentsPaginationFragment = graphql`
           id
           content
           author
-          email
           isHidden
           createdAt
         }
@@ -41,7 +40,6 @@ export const CreateCommentMutation = graphql`
       id
       content
       author
-      email
       isHidden
       createdAt
     }

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8d7453f6f44f419e3b279ac3142ca234>>
+ * @generated SignedSource<<d358fa770b899e34752e5df73b561a2e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -23,7 +23,6 @@ export type CommentQueriesCreateMutation$data = {
     readonly author: string;
     readonly content: string;
     readonly createdAt: any;
-    readonly email: string | null;
     readonly id: string;
     readonly isHidden: boolean;
   };
@@ -81,13 +80,6 @@ v1 = [
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "email",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
         "name": "isHidden",
         "storageKey": null
       },
@@ -120,16 +112,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "9bcb35e922794b54327236b868a341e9",
+    "cacheID": "a6431f01960f92a792576a0046edcde8",
     "id": null,
     "metadata": {},
     "name": "CommentQueriesCreateMutation",
     "operationKind": "mutation",
-    "text": "mutation CommentQueriesCreateMutation(\n  $input: CreateCommentInput!\n) {\n  createComment(input: $input) {\n    id\n    content\n    author\n    email\n    isHidden\n    createdAt\n  }\n}\n"
+    "text": "mutation CommentQueriesCreateMutation(\n  $input: CreateCommentInput!\n) {\n  createComment(input: $input) {\n    id\n    content\n    author\n    isHidden\n    createdAt\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "bea45f4a332f5e2fc7f7d2e4874f6327";
+(node as any).hash = "32eb67e283bad4bdac5d7ff50e4d99a4";
 
 export default node;

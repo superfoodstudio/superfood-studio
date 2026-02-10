@@ -116,15 +116,13 @@ function AdminOrdersContent() {
 
   return (
     <View direction="column" gap={6}>
-      <View direction="row" justify="space-between" align="center">
-        <View direction="row" align="center" gap={2}>
-          <Button variant="ghost" size="small" onClick={() => router.push('/admin')}>
-            ← Back
-          </Button>
-          <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
-            Orders
-          </Text>
-        </View>
+      <View direction="column" gap={1}>
+        <Button variant="ghost" size="small" onClick={() => router.push('/admin')} attributes={{ style: { alignSelf: 'flex-start' } }}>
+          ← Back
+        </Button>
+        <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
+          Orders
+        </Text>
       </View>
 
       {/* Filters */}
@@ -153,11 +151,11 @@ function AdminOrdersContent() {
             <Table.Head>
               <Table.Row>
                 <Table.Heading>Order</Table.Heading>
-                <Table.Heading>Customer</Table.Heading>
-                <Table.Heading>Items</Table.Heading>
-                <Table.Heading>Total</Table.Heading>
-                <Table.Heading>Status</Table.Heading>
-                <Table.Heading>Date</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Customer</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Items</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Total</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Status</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Date</Table.Heading>
               </Table.Row>
             </Table.Head>
             <Table.Body>
@@ -172,24 +170,24 @@ function AdminOrdersContent() {
                   <Table.Cell>
                     <Text weight="medium">{order.id.slice(-8).toUpperCase()}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <View direction="column" gap={1}>
                       <Text variant="caption-1">{order.customerName}</Text>
                       <Text variant="caption-1" color="neutral-faded">{order.customerEmail}</Text>
                     </View>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color="neutral-faded">{order.items?.length || 0}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1">{formatPrice(order.total)}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color="neutral-faded">
                       {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
                     </Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color="neutral-faded">{formatDate(order.date)}</Text>
                   </Table.Cell>
                 </Table.Row>

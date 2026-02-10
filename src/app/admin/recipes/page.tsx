@@ -12,6 +12,7 @@ import { graphql } from 'relay-runtime';
 import { LoadMore } from '@/components/ui/LoadMore';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { stripHtml } from '@/lib/textUtils';
+import { ipfsUrl } from '@/lib/ipfs';
 import { FeaturedRecipeQuery } from '@/graphql/queries/FeaturedRecipeQuery';
 
 // Format date for display
@@ -131,18 +132,18 @@ function AdminRecipesContent() {
 
   return (
     <View direction="column" gap={6}>
-      <View direction="row" justify="space-between" align="center">
-        <View direction="row" align="center" gap={2}>
-          <Button variant="ghost" size="small" onClick={() => router.push('/admin')}>
-            ← Back
-          </Button>
+      <View direction="column" gap={1}>
+        <Button variant="ghost" size="small" onClick={() => router.push('/admin')} attributes={{ style: { alignSelf: 'flex-start' } }}>
+          ← Back
+        </Button>
+        <View direction="row" justify="space-between" align="center">
           <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
             Recipes
           </Text>
+          <Link href="/admin/recipes/new" passHref>
+            <Button color="primary">Create New Recipe</Button>
+          </Link>
         </View>
-        <Link href="/admin/recipes/new" passHref>
-          <Button color="primary">Create New Recipe</Button>
-        </Link>
       </View>
 
       {/* Filters */}
@@ -181,13 +182,13 @@ function AdminRecipesContent() {
         <View direction="column" gap={2}>
           <Text variant="caption-1" color="neutral-faded" weight="medium">Featured</Text>
           <View
-            padding={4}
             attributes={{
               style: {
                 border: '1px solid var(--rs-color-border-neutral-faded)',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'background-color 0.15s ease',
+                overflow: 'hidden',
               },
               onClick: () => router.push(`/admin/recipes/${featuredData.featuredRecipe!.id}`),
               onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => {
@@ -198,18 +199,27 @@ function AdminRecipesContent() {
               },
             }}
           >
-            <View direction="row" justify="space-between" align="center">
-              <View direction="column" gap={1}>
-                <Text weight="medium">{featuredData.featuredRecipe.name}</Text>
-                {featuredData.featuredRecipe.description && (
-                  <Text variant="caption-1" color="neutral-faded">
-                    {stripHtml(featuredData.featuredRecipe.description, 80)}
-                  </Text>
-                )}
-              </View>
-              <View direction="row" gap={4} align="center">
-                <Text variant="caption-1" color="neutral-faded">{featuredData.featuredRecipe.category}</Text>
-                <Text variant="caption-1" color="neutral-faded">{formatDate(featuredData.featuredRecipe.uploadDate)}</Text>
+            <View direction="row" align="center">
+              {featuredData.featuredRecipe.previewImageUrl && (
+                <img
+                  src={ipfsUrl(featuredData.featuredRecipe.previewImageUrl)}
+                  alt={featuredData.featuredRecipe.name}
+                  style={{ width: '80px', height: '80px', objectFit: 'cover', flexShrink: 0 }}
+                />
+              )}
+              <View direction="row" justify="space-between" align="center" padding={4} attributes={{ style: { flex: 1 } }}>
+                <View direction="column" gap={1}>
+                  <Text weight="medium">{featuredData.featuredRecipe.name}</Text>
+                  {featuredData.featuredRecipe.description && (
+                    <Text variant="caption-1" color="neutral-faded">
+                      {stripHtml(featuredData.featuredRecipe.description, 80)}
+                    </Text>
+                  )}
+                </View>
+                <View direction="row" gap={4} align="center">
+                  <Text variant="caption-1" color="neutral-faded">{featuredData.featuredRecipe.category}</Text>
+                  <Text variant="caption-1" color="neutral-faded">{formatDate(featuredData.featuredRecipe.uploadDate)}</Text>
+                </View>
               </View>
             </View>
           </View>
@@ -227,10 +237,10 @@ function AdminRecipesContent() {
             <Table.Head>
               <Table.Row>
                 <Table.Heading>Name</Table.Heading>
-                <Table.Heading>Category</Table.Heading>
-                <Table.Heading>Status</Table.Heading>
-                <Table.Heading>Comments</Table.Heading>
-                <Table.Heading>Date</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Category</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Status</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Comments</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Date</Table.Heading>
               </Table.Row>
             </Table.Head>
             <Table.Body>
@@ -252,18 +262,18 @@ function AdminRecipesContent() {
                       )}
                     </View>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1">{recipe.category}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color={recipe.isPublished ? 'neutral' : 'neutral-faded'}>
                       {recipe.isPublished ? 'Published' : 'Draft'}
                     </Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color="neutral-faded">{recipe.comments?.length || 0}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color="neutral-faded">{formatDate(recipe.uploadDate)}</Text>
                   </Table.Cell>
                 </Table.Row>

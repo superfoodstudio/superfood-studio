@@ -1,7 +1,8 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { useLazyLoadQuery } from 'react-relay';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { View, Text, Button, Divider } from 'reshaped';
@@ -9,7 +10,6 @@ import { OrderByPaymentIntentQuery } from '@/app/dashboard/orders/OrderQueries';
 import type { OrderQueriesOrderByPaymentIntentQuery } from '@/__generated__/OrderQueriesOrderByPaymentIntentQuery.graphql';
 
 function CheckoutSuccessContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const paymentIntentId = searchParams.get('payment_intent');
 
@@ -19,9 +19,7 @@ function CheckoutSuccessContent() {
         <View direction="column" align="center" padding={8} gap={4}>
           <Text variant="title-5" color="critical">Order Not Found</Text>
           <Text>No payment information found.</Text>
-          <Button variant="solid" onClick={() => router.push('/')}>
-            Continue Shopping
-          </Button>
+          <Link href="/"><Button variant="solid">Continue Shopping</Button></Link>
         </View>
       </AppContainer>
     );
@@ -38,9 +36,7 @@ function CheckoutSuccessContent() {
         <View direction="column" align="center" padding={8} gap={4}>
           <Text variant="title-5" color="critical">Order Not Found</Text>
           <Text>We couldn't find details for this order.</Text>
-          <Button variant="solid" onClick={() => router.push('/')}>
-            Continue Shopping
-          </Button>
+          <Link href="/"><Button variant="solid">Continue Shopping</Button></Link>
         </View>
       </AppContainer>
     );
@@ -139,12 +135,8 @@ function CheckoutSuccessContent() {
         </View>
         
         <View direction="row" justify="center" gap={3}>
-          <Button variant="outline" onClick={() => router.push('/dashboard/orders')}>
-            View All Orders
-          </Button>
-          <Button variant="solid" onClick={() => router.push('/')}>
-            Continue Shopping
-          </Button>
+          <Link href="/dashboard/orders"><Button variant="outline">View All Orders</Button></Link>
+          <Link href="/"><Button variant="solid">Continue Shopping</Button></Link>
         </View>
       </View>
     </AppContainer>

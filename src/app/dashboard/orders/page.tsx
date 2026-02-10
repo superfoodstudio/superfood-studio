@@ -1,12 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { Suspense, useEffect, useCallback } from 'react';
 import { View, Text, Button, Skeleton } from 'reshaped';
 import { UserOrdersQuery, UserOrdersPaginationFragment } from './OrderQueries';
 import { LoadMore } from '@/components/ui/LoadMore';
+import { ipfsUrl } from '@/lib/ipfs';
 import type { OrderQueriesUserOrdersQuery } from '@/__generated__/OrderQueriesUserOrdersQuery.graphql';
 import type { OrderQueriesUserOrdersPaginationFragment$key } from '@/__generated__/OrderQueriesUserOrdersPaginationFragment.graphql';
 
@@ -85,13 +87,7 @@ function OrdersContent() {
             <Text variant="body-2" color="neutral-faded">
               No orders yet
             </Text>
-            <Button
-              variant="solid"
-              size="small"
-              onClick={() => router.push('/shop')}
-            >
-              Start Shopping
-            </Button>
+            <Link href="/shop"><Button variant="solid" size="small">Start Shopping</Button></Link>
           </View>
         ) : (
           <View
@@ -103,54 +99,70 @@ function OrdersContent() {
               }
             }}
           >
-            {data.userOrders.edges.map(({ node: order }, index) => (
-              <View
-                key={order.id}
-                direction="row"
-                justify="space-between"
-                padding={4}
-                attributes={{
-                  style: {
-                    borderBottom: index < data.userOrders!.edges.length - 1 ? '1px solid #e0ddd8' : 'none',
-                    alignItems: 'center'
-                  }
-                }}
-              >
-                <View direction="column" gap={1}>
-                  <a
-                    href={`/dashboard/orders/${order.id}`}
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: '500',
-                      color: '#6b4c7a',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      textAlign: 'left'
-                    }}
-                  >
-                    #{order.id.slice(-8).toUpperCase()}
-                  </a>
-                  <Text variant="caption-1" color="neutral-faded">
-                    {formatDate(order.createdAt)} • {order.items.length} items
-                  </Text>
+            {data.userOrders.edges.map(({ node: order }, index) => {
+              const firstItem = order.items[0];
+              return (
+                <View
+                  key={order.id}
+                  direction="row"
+                  padding={4}
+                  gap={3}
+                  attributes={{
+                    style: {
+                      borderBottom: index < data.userOrders!.edges.length - 1 ? '1px solid #e0ddd8' : 'none',
+                      alignItems: 'center'
+                    }
+                  }}
+                >
+                  {firstItem?.product?.photoUrl && (
+                    <img
+                      src={ipfsUrl(firstItem.product.photoUrl)}
+                      alt={firstItem.product.name}
+                      style={{
+                        width: '48px',
+                        height: '48px',
+                        objectFit: 'cover',
+                        borderRadius: '6px',
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
+                  <View direction="column" gap={1} attributes={{ style: { flex: 1 } }}>
+                    <a
+                      href={`/dashboard/orders/${order.id}`}
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        color: '#6b4c7a',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                        textAlign: 'left'
+                      }}
+                    >
+                      #{order.id.slice(-8).toUpperCase()}
+                    </a>
+                    <Text variant="caption-1" color="neutral-faded">
+                      {formatDate(order.createdAt)} • {order.items.length} items
+                    </Text>
+                  </View>
+                  <View direction="column" align="end" gap={1}>
+                    <Text variant="body-2" weight="medium">
+                      {formatPrice(order.total)}
+                    </Text>
+                    <Text
+                      variant="caption-1"
+                      attributes={{
+                        style: {
+                          color: order.status === 'COMPLETED' ? '#6b4c7a' : '#8a8a8a'
+                        }
+                      }}
+                    >
+                      {order.status.toLowerCase()}
+                    </Text>
+                  </View>
                 </View>
-                <View direction="column" align="end" gap={1}>
-                  <Text variant="body-2" weight="medium">
-                    {formatPrice(order.total)}
-                  </Text>
-                  <Text
-                    variant="caption-1"
-                    attributes={{
-                      style: {
-                        color: order.status === 'COMPLETED' ? '#6b4c7a' : '#8a8a8a'
-                      }
-                    }}
-                  >
-                    {order.status.toLowerCase()}
-                  </Text>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
 

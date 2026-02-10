@@ -131,18 +131,18 @@ function AdminProductsContent() {
 
   return (
     <View direction="column" gap={6}>
-      <View direction="row" justify="space-between" align="center">
-        <View direction="row" align="center" gap={2}>
-          <Button variant="ghost" size="small" onClick={() => router.push('/admin')}>
-            ← Back
-          </Button>
+      <View direction="column" gap={1}>
+        <Button variant="ghost" size="small" onClick={() => router.push('/admin')} attributes={{ style: { alignSelf: 'flex-start' } }}>
+          ← Back
+        </Button>
+        <View direction="row" justify="space-between" align="center">
           <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
             Products
           </Text>
+          <Link href="/admin/products/new" passHref>
+            <Button color="primary">Create New Product</Button>
+          </Link>
         </View>
-        <Link href="/admin/products/new" passHref>
-          <Button color="primary">Create New Product</Button>
-        </Link>
       </View>
 
       {/* Filters */}
@@ -233,11 +233,11 @@ function AdminProductsContent() {
             <Table.Head>
               <Table.Row>
                 <Table.Heading>Name</Table.Heading>
-                <Table.Heading>Category</Table.Heading>
-                <Table.Heading>Price</Table.Heading>
-                <Table.Heading>Inventory</Table.Heading>
-                <Table.Heading>Status</Table.Heading>
-                <Table.Heading>Date</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Category</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Price</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Inventory</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Status</Table.Heading>
+                <Table.Heading attributes={{ className: 'hide-on-mobile' }}>Date</Table.Heading>
               </Table.Row>
             </Table.Head>
             <Table.Body>
@@ -259,21 +259,21 @@ function AdminProductsContent() {
                       )}
                     </View>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1">{product.category}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1">{formatPrice(product.price)}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color="neutral-faded">{product.inventory}</Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color={product.isActive ? 'neutral' : 'neutral-faded'}>
                       {product.isActive ? 'Active' : 'Inactive'}
                     </Text>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
                     <Text variant="caption-1" color="neutral-faded">{formatDate(product.createdAt)}</Text>
                   </Table.Cell>
                 </Table.Row>

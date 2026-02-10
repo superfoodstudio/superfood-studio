@@ -16,27 +16,27 @@ export function AdminLayout({ children, title, backUrl = '/admin', actions }: Ad
 
   return (
     <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <View direction="row" justify="space-between" align="center">
-        <View direction="row" align="center" gap={2}>
-          {backUrl && (
-            <Button
-              variant="ghost"
-              size="small"
-              onClick={() => router.push(backUrl)}
-            >
-              ← Back
-            </Button>
-          )}
+      <View direction="column" gap={1}>
+        {backUrl && (
+          <Button
+            variant="ghost"
+            size="small"
+            onClick={() => router.push(backUrl)}
+            attributes={{ style: { alignSelf: 'flex-start' } }}
+          >
+            ← Back
+          </Button>
+        )}
+        <View direction="row" justify="space-between" align="center">
           <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
             {title}
           </Text>
+          {actions && (
+            <View direction="row" gap={2}>
+              {actions}
+            </View>
+          )}
         </View>
-
-        {actions && (
-          <View direction="row" gap={2}>
-            {actions}
-          </View>
-        )}
       </View>
 
       {children}

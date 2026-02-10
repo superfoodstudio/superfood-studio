@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c4c9f69c087aa53346196009c34f2098>>
+ * @generated SignedSource<<211e22574abaf610b36aebab06faa5a7>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -142,13 +142,6 @@ return {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "email",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
                     "name": "isHidden",
                     "storageKey": null
                   },
@@ -221,12 +214,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d5fe0ed1ad62eef33a7aec9d963ec751",
+    "cacheID": "5ed2badf84bb1c33ccaa842c0450bb07",
     "id": null,
     "metadata": {},
     "name": "CommentQueriesRecipeCommentsQuery",
     "operationKind": "query",
-    "text": "query CommentQueriesRecipeCommentsQuery(\n  $recipeId: ID!\n  $first: Int!\n  $after: String\n) {\n  ...CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE\n}\n\nfragment CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE on Query {\n  recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after) {\n    totalCount\n    edges {\n      node {\n        id\n        content\n        author\n        email\n        isHidden\n        createdAt\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query CommentQueriesRecipeCommentsQuery(\n  $recipeId: ID!\n  $first: Int!\n  $after: String\n) {\n  ...CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE\n}\n\nfragment CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE on Query {\n  recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after) {\n    totalCount\n    edges {\n      node {\n        id\n        content\n        author\n        isHidden\n        createdAt\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();

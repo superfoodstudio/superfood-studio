@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { View, Text, Grid, Select, Button } from "reshaped";
+import { View, Text, Grid, Select, Button, Hidden } from "reshaped";
 import { useLazyLoadQuery, usePaginationFragment, graphql } from "react-relay";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
@@ -187,7 +187,7 @@ function RecipeGridContent({
     <View direction="column" gap={4}>
       <View direction="row" gap={4}>
         {recipes.map((recipe: any, i: number) => (
-          <View.Item key={recipe.id} columns={{ s: 12, m: 4 }}>
+          <View.Item key={recipe.id} columns={{ s: 6, m: 4 }}>
             <RecipeCard recipe={recipe} />
           </View.Item>
         ))}
@@ -205,7 +205,7 @@ function RecipeGridSkeleton() {
   return (
     <View direction="row" gap={4}>
       {Array.from({ length: 9 }).map((_, index) => (
-        <View.Item key={index} columns={{ s: 12, m: 4 }}>
+        <View.Item key={index} columns={{ s: 6, m: 4 }}>
           <SkeletonCard />
         </View.Item>
       ))}
@@ -216,6 +216,7 @@ function RecipeGridSkeleton() {
 export function AllRecipesSection() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("newest");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Load categories using GraphQL
   const categoriesData = useLazyLoadQuery<any>(recipeCategoriesQuery, {});
@@ -228,6 +229,11 @@ export function AllRecipesSection() {
     })),
   ];
 
+  const activeFilterLabel = [
+    selectedCategory ? categories.find(c => c.value === selectedCategory)?.label : null,
+    selectedSort !== "newest" ? sortOptions.find(s => s.value === selectedSort)?.label : null,
+  ].filter(Boolean).join(", ");
+
   return (
     <View direction="column" gap={4} paddingTop={4}>
       {/* Main Content Area */}
@@ -239,29 +245,60 @@ export function AllRecipesSection() {
           },
         }}
       >
-        <View direction="row" gap={6}>
-          {/* Filters Sidebar - Sticky */}
-          <View
-            backgroundColor="page"
-            attributes={{
-              style: {
-                flex: "0 0 200px",
-                borderRadius: "8px",
-                position: "sticky",
-                top: "80px",
-                alignSelf: "flex-start",
-                height: "fit-content",
-              },
-            }}
-          >
-            <RecipeFilters
-              selectedCategory={selectedCategory}
-              selectedSort={selectedSort}
-              onCategoryChange={setSelectedCategory}
-              onSortChange={setSelectedSort}
-              categories={categories}
-            />
+        {/* Mobile filter toggle */}
+        <Hidden hide={{ s: false, m: true }}>
+          <View direction="column" gap={3} paddingBottom={4}>
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              attributes={{
+                style: { justifyContent: 'space-between' }
+              }}
+            >
+              <span>Filters{activeFilterLabel ? `: ${activeFilterLabel}` : ''}</span>
+              <span style={{ fontSize: '12px' }}>{filtersOpen ? '▲' : '▼'}</span>
+            </Button>
+            {filtersOpen && (
+              <View backgroundColor="page" borderRadius="medium">
+                <RecipeFilters
+                  selectedCategory={selectedCategory}
+                  selectedSort={selectedSort}
+                  onCategoryChange={setSelectedCategory}
+                  onSortChange={setSelectedSort}
+                  categories={categories}
+                />
+              </View>
+            )}
           </View>
+        </Hidden>
+
+        <View direction="row" gap={6}>
+          {/* Filters Sidebar - Desktop only */}
+          <Hidden hide={{ s: true, m: false }}>
+            <View
+              backgroundColor="page"
+              attributes={{
+                style: {
+                  width: "200px",
+                  borderRadius: "8px",
+                  position: "sticky",
+                  top: "80px",
+                  alignSelf: "flex-start",
+                  height: "fit-content",
+                },
+              }}
+            >
+              <RecipeFilters
+                selectedCategory={selectedCategory}
+                selectedSort={selectedSort}
+                onCategoryChange={setSelectedCategory}
+                onSortChange={setSelectedSort}
+                categories={categories}
+              />
+            </View>
+          </Hidden>
 
           {/* Recipe Grid */}
           <View

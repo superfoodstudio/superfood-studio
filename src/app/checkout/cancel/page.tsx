@@ -1,11 +1,11 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { ContentSkeleton } from '@/components/ui/ListSkeleton';
 
 function CheckoutCancelContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('order_id');
 
@@ -39,18 +39,12 @@ function CheckoutCancelContent() {
         </div>
         
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-          <button
-            onClick={() => router.push('/cart')}
-            className="bg-white border border-green-600 text-green-600 px-6 py-2 rounded hover:bg-green-50"
-          >
+          <Link href="/cart" className="bg-white border border-green-600 text-green-600 px-6 py-2 rounded hover:bg-green-50 text-center">
             Return to Cart
-          </button>
-          <button
-            onClick={() => router.push('/')}
-            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-          >
+          </Link>
+          <Link href="/" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 text-center">
             Continue Shopping
-          </button>
+          </Link>
         </div>
       </div>
     </div>

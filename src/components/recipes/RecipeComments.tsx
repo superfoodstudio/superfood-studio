@@ -228,7 +228,7 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
                 <Text variant="body-2" weight="medium">
                   {comment.author && comment.author !== 'null null' && comment.author.trim()
                     ? comment.author
-                    : (comment.email || 'Anonymous')}
+                    : 'Anonymous'}
                 </Text>
                 <Text variant="caption-1" color="neutral-faded">
                   {formatDate(comment.createdAt)}

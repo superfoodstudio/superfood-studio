@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { View, Text, Button } from 'reshaped';
+import { View, Text, Button, Hidden } from 'reshaped';
 import { useLazyLoadQuery, usePaginationFragment, graphql } from 'react-relay';
 import ProductList from './ProductList';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
@@ -47,6 +47,7 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
               key={category.value}
               variant={selectedCategory === category.value ? 'solid' : 'ghost'}
               size="small"
+              color="primary"
               fullWidth
               onClick={() => onCategoryChange(category.value)}
               attributes={{
@@ -71,6 +72,7 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
               key={option.value}
               variant={selectedSort === option.value ? 'solid' : 'ghost'}
               size="small"
+              color="primary"
               fullWidth
               onClick={() => onSortChange(option.value)}
               attributes={{
@@ -94,10 +96,11 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
 function AllProductsSection() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSort, setSelectedSort] = useState('newest');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Load categories using GraphQL
   const categoriesData = useLazyLoadQuery<any>(productCategoriesQuery, {});
-  
+
   const categories = [
     { value: '', label: 'all' },
     ...(categoriesData?.productCategories || []).map((cat: string) => ({
@@ -105,6 +108,11 @@ function AllProductsSection() {
       label: cat.toLowerCase()
     }))
   ];
+
+  const activeFilterLabel = [
+    selectedCategory ? categories.find(c => c.value === selectedCategory)?.label : null,
+    selectedSort !== 'newest' ? sortOptions.find(s => s.value === selectedSort)?.label : null,
+  ].filter(Boolean).join(', ');
 
   return (
     <View direction="column" gap={6}>
@@ -120,35 +128,66 @@ function AllProductsSection() {
       {/* Main Content Area */}
       <View
         attributes={{
-          style: { 
-            paddingLeft: '1rem', 
+          style: {
+            paddingLeft: '1rem',
             paddingRight: '1rem'
           }
         }}
       >
-        <View direction="row" gap={6}>
-          {/* Filters Sidebar - Sticky */}
-          <View
-            backgroundColor="page"
-            attributes={{
-              style: {
-                flex: '0 0 200px',
-                borderRadius: '8px',
-                position: 'sticky',
-                top: '80px',
-                alignSelf: 'flex-start',
-                height: 'fit-content'
-              }
-            }}
-          >
-            <ProductFilters
-              selectedCategory={selectedCategory}
-              selectedSort={selectedSort}
-              onCategoryChange={setSelectedCategory}
-              onSortChange={setSelectedSort}
-              categories={categories}
-            />
+        {/* Mobile filter toggle */}
+        <Hidden hide={{ s: false, m: true }}>
+          <View direction="column" gap={3} paddingBottom={4}>
+            <Button
+              variant="outline"
+              size="small"
+              fullWidth
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              attributes={{
+                style: { justifyContent: 'space-between' }
+              }}
+            >
+              <span>Filters{activeFilterLabel ? `: ${activeFilterLabel}` : ''}</span>
+              <span style={{ fontSize: '12px' }}>{filtersOpen ? '▲' : '▼'}</span>
+            </Button>
+            {filtersOpen && (
+              <View backgroundColor="page" borderRadius="medium">
+                <ProductFilters
+                  selectedCategory={selectedCategory}
+                  selectedSort={selectedSort}
+                  onCategoryChange={setSelectedCategory}
+                  onSortChange={setSelectedSort}
+                  categories={categories}
+                />
+              </View>
+            )}
           </View>
+        </Hidden>
+
+        <View direction="row" gap={6}>
+          {/* Filters Sidebar - Desktop only */}
+          <Hidden hide={{ s: true, m: false }}>
+            <View
+              backgroundColor="page"
+              attributes={{
+                style: {
+                  width: '200px',
+                  borderRadius: '8px',
+                  position: 'sticky',
+                  top: '80px',
+                  alignSelf: 'flex-start',
+                  height: 'fit-content'
+                }
+              }}
+            >
+              <ProductFilters
+                selectedCategory={selectedCategory}
+                selectedSort={selectedSort}
+                onCategoryChange={setSelectedCategory}
+                onSortChange={setSelectedSort}
+                categories={categories}
+              />
+            </View>
+          </Hidden>
 
           {/* Product Grid */}
           <View
@@ -158,9 +197,9 @@ function AllProductsSection() {
             }}
           >
             <Suspense fallback={<ProductListSkeleton />}>
-              <ProductList 
-                category={selectedCategory} 
-                sort={selectedSort} 
+              <ProductList
+                category={selectedCategory}
+                sort={selectedSort}
               />
             </Suspense>
           </View>

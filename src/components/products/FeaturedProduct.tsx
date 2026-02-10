@@ -4,15 +4,13 @@ import { Suspense } from 'react';
 import { View, Text, Card, Button } from 'reshaped';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useLazyLoadQuery } from 'react-relay';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { FeaturedProductQuery } from '@/graphql/queries/FeaturedProductQuery';
 import { stripHtml } from '@/lib/textUtils';
 import { ipfsUrl } from '@/lib/ipfs';
 import type { FeaturedProductQueryQuery } from '@/__generated__/FeaturedProductQueryQuery.graphql';
 
 function FeaturedProductContent() {
-  const router = useRouter();
-
   const data = useLazyLoadQuery<FeaturedProductQueryQuery>(
     FeaturedProductQuery,
     {}
@@ -26,6 +24,7 @@ function FeaturedProductContent() {
   }
 
   return (
+    <Link href={`/shop/products/${product.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
     <Card
       padding={0}
       attributes={{
@@ -36,7 +35,6 @@ function FeaturedProductContent() {
           cursor: 'pointer'
         }
       }}
-      onClick={() => router.push(`/shop/products/${product.slug}`)}
     >
       <View direction="row" height="300px">
         {/* Product Image */}
@@ -136,6 +134,7 @@ function FeaturedProductContent() {
         </View>
       </View>
     </Card>
+    </Link>
   );
 }
 

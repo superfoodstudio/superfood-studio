@@ -186,15 +186,6 @@ export default function NewProductPage() {
             />
           </FormField>
 
-          <FormField label="Product Video URL (optional)">
-            <TextField
-              name="videoUrl"
-              value={videoUrl}
-              onChange={({ value }) => setVideoUrl(value)}
-              placeholder="https://example.com/video.mp4"
-            />
-          </FormField>
-
           <FormField label="Featured">
             <Switch
               name="isFeatured"
@@ -204,16 +195,16 @@ export default function NewProductPage() {
               {isFeatured ? 'Featured' : 'Not Featured'}
             </Switch>
           </FormField>
-        </View>
 
-        <AdminFormActions
-          isNew={true}
-          isSaving={saving}
-          isDeleting={false}
-          onSave={handleSubmit}
-          onCancel={() => router.push('/admin/products')}
-          disabled={!name || !description || !photoUrl || !category || price <= 0}
-        />
+          <AdminFormActions
+            isNew={true}
+            isSaving={saving}
+            isDeleting={false}
+            onSave={handleSubmit}
+            onCancel={() => router.push('/admin/products')}
+            disabled={!name || !description || !photoUrl || !category || price <= 0}
+          />
+        </View>
       </View>
     </AdminLayout>
   );

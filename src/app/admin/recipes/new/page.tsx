@@ -300,16 +300,16 @@ export default function NewRecipePage() {
               {formValues.isFeatured ? 'Featured' : 'Not Featured'}
             </Switch>
           </FormField>
+
+          <AdminFormActions
+            isNew={true}
+            isSaving={saving}
+            isDeleting={false}
+            onSave={() => handleSubmit(onSubmit)()}
+            onCancel={() => router.push('/admin/recipes')}
+            disabled={Object.keys(errors).length > 0 || !formValues.name || !formValues.mediaUrl}
+          />
         </View>
-        
-        <AdminFormActions 
-          isNew={true}
-          isSaving={saving}
-          isDeleting={false}
-          onSave={() => handleSubmit(onSubmit)()}
-          onCancel={() => router.push('/admin/recipes')}
-          disabled={Object.keys(errors).length > 0 || !formValues.name || !formValues.mediaUrl}
-        />
       </View>
     </AdminLayout>
   );

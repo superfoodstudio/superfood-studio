@@ -108,19 +108,13 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
 
   return (
     <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <View direction="row" justify="space-between" align="center">
-        <View direction="row" align="center" gap={2}>
-          <Button
-            variant="ghost"
-            size="small"
-            onClick={() => router.push('/admin/orders')}
-          >
-            ← Back
-          </Button>
-          <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
-            Order #{order.id.slice(-8).toUpperCase()}
-          </Text>
-        </View>
+      <View direction="column" gap={1}>
+        <Button variant="ghost" size="small" onClick={() => router.push('/admin/orders')} attributes={{ style: { alignSelf: 'flex-start' } }}>
+          ← Back
+        </Button>
+        <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
+          Order #{order.id.slice(-8).toUpperCase()}
+        </Text>
       </View>
       
       <Grid columns={{ s: "1fr", m: "1fr 1fr" }} gap={4}>

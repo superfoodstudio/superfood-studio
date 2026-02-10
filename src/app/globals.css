@@ -55,8 +55,68 @@ div ol {
   margin-bottom: 1em;
 }
 
+div ul {
+  list-style: disc;
+}
+
+div ol {
+  list-style: decimal;
+}
+
 div ul:last-child,
 div ol:last-child {
   margin-bottom: 0;
 }
+
+div li {
+  margin-bottom: 0.35em;
+}
+
+div li:last-child {
+  margin-bottom: 0;
+}
+
+/* Grocery list specific styling */
+.grocery-list-content {
+  font-size: 15px;
+}
+
+.grocery-list-content ul,
+.grocery-list-content ol {
+  padding-left: 1.25em;
+}
+
+.grocery-list-content li {
+  margin-bottom: 0.5em;
+  line-height: 1.5;
+}
+
+/* Admin table: hide non-name columns on mobile */
+@media (max-width: 660px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+/* Navigation logo responsive sizing */
+@media (max-width: 660px) {
+  .nav-logo-container {
+    position: static !important;
+    left: auto !important;
+    transform: none !important;
+  }
+  .nav-logo-inner {
+    width: 100px !important;
+    height: 38px !important;
+  }
+  .nav-logo-superfood {
+    font-size: 1.6rem !important;
+    top: -4px !important;
+  }
+  .nav-logo-studio {
+    font-size: 1.1rem !important;
+    right: -2px !important;
+  }
+}
+
 

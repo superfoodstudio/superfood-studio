@@ -151,7 +151,7 @@ export const commentResolvers = {
     author: (parent: any) => {
       const author = parent.author;
       if (!author || author === 'null null' || !author.trim()) {
-        return parent.email || 'Anonymous';
+        return 'Anonymous';
       }
       return author;
     },

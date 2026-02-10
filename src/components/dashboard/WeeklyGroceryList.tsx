@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { View, Text, Button, Modal, useToggle, Skeleton } from 'reshaped';
 import { useLazyLoadQuery } from 'react-relay';
 import { SiteSettingsQuery } from '@/graphql/queries/SiteSettingsQueries';
@@ -9,6 +9,14 @@ import type { SiteSettingsQueriesQuery } from '@/__generated__/SiteSettingsQueri
 
 function WeeklyGroceryListContent() {
   const groceryModal = useToggle();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 660);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const data = useLazyLoadQuery<SiteSettingsQueriesQuery>(
     SiteSettingsQuery,
@@ -47,35 +55,14 @@ function WeeklyGroceryListContent() {
       <Modal
         active={groceryModal.active}
         onClose={groceryModal.deactivate}
-        position="bottom"
+        position={isMobile ? "bottom" : "center"}
+        size="500px"
       >
         <View padding={6} gap={4}>
-            {/* Handle bar for visual indication it's a bottom sheet */}
-            <View 
-              align="center"
-              paddingBottom={2}
-            >
-              <View
-                attributes={{
-                  style: {
-                    width: '40px',
-                    height: '4px',
-                    backgroundColor: '#e2e8f0',
-                    borderRadius: '2px'
-                  }
-                }}
-              />
-            </View>
-
             <Text
-              variant="title-3"
+              variant="featured-2"
               align="center"
-              attributes={{
-                style: {
-                  fontFamily: 'var(--font-big-caslon)',
-                  color: '#2d3748'
-                }
-              }}
+              weight="medium"
             >
               Weekly Grocery List
             </Text>
@@ -92,8 +79,8 @@ function WeeklyGroceryListContent() {
                 }
               }}
             >
-              <RichTextDisplay 
-                content={groceryListContent} 
+              <RichTextDisplay
+                content={groceryListContent}
                 className="grocery-list-content"
               />
             </View>

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8c0ca4da1438b630deeb858f9e548cb5>>
+ * @generated SignedSource<<3ae1b750dcccf6ee14c8f68b57cb9ccc>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -136,13 +136,6 @@ return {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "email",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
                     "name": "isHidden",
                     "storageKey": null
                   },
@@ -215,16 +208,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5961316093a279063f50af54e48ced9c",
+    "cacheID": "c90c8422a2ece6f8a53e1527f8a8e18f",
     "id": null,
     "metadata": {},
     "name": "CommentQueriesRecipeCommentsPaginationQuery",
     "operationKind": "query",
-    "text": "query CommentQueriesRecipeCommentsPaginationQuery(\n  $after: String\n  $first: Int = 10\n  $recipeId: ID!\n) {\n  ...CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE\n}\n\nfragment CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE on Query {\n  recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after) {\n    totalCount\n    edges {\n      node {\n        id\n        content\n        author\n        email\n        isHidden\n        createdAt\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
+    "text": "query CommentQueriesRecipeCommentsPaginationQuery(\n  $after: String\n  $first: Int = 10\n  $recipeId: ID!\n) {\n  ...CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE\n}\n\nfragment CommentQueriesRecipeCommentsPaginationFragment_2Kr0OE on Query {\n  recipeCommentsConnection(recipeId: $recipeId, first: $first, after: $after) {\n    totalCount\n    edges {\n      node {\n        id\n        content\n        author\n        isHidden\n        createdAt\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "cf42dffdda39ab54c5706698deda62ee";
+(node as any).hash = "7531e66816e441d05974f7b3637c6912";
 
 export default node;

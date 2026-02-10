@@ -111,8 +111,8 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
           controls
           style={{
             width: '100%',
-            height: '100%',
-            objectFit: 'cover',
+            height: 'auto',
+            maxHeight: '600px',
             borderRadius: '24px'
           }}
         >
