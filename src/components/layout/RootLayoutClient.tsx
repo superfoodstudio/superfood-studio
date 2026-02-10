@@ -14,9 +14,6 @@ const ClientOnly = dynamic(
   }
 );
 
-// Log when this component renders - helps with debugging
-console.log('Root Layout - Privy App ID:', process.env.NEXT_PUBLIC_PRIVY_APP_ID);
-
 export function RootLayoutClient({ children }: { children: React.ReactNode }) {
   return (
     <PrivyProvider

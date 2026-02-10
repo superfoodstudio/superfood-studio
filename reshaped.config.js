@@ -16,7 +16,7 @@ const config = {
         // Custom background colors - using cream as main background
         backgroundPage: { hex: "#fef3dc" },
         backgroundPageFaded: { hex: "#F5EDDA" },
-        backgroundElevationBase: { hex: "#ffffff" },
+        backgroundElevationBase: { hex: "#fdf8ef" },
         // Custom palette colors
         lavender: { hex: "#b98dd8" },
         limeGreen: { hex: "#a7e22c" },

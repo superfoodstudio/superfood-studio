@@ -22,8 +22,6 @@ export function StripePaymentForm({
 }: StripePaymentFormProps) {
   const setupIntentData = useLazyLoadQuery<SetupIntentQueryQuery>(SetupIntentQuery, {});
   
-  console.log('Setup intent data:', setupIntentData);
-  
   if (!setupIntentData?.createSetupIntent?.clientSecret) {
     return (
       <View padding={4}>

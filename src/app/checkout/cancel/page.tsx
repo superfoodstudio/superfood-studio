@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { ContentSkeleton } from '@/components/ui/ListSkeleton';
 
 function CheckoutCancelContent() {
   const router = useRouter();
@@ -58,7 +59,7 @@ function CheckoutCancelContent() {
 
 export default function CheckoutCancelPage() {
   return (
-    <Suspense fallback={<div className="container mx-auto p-4 text-center">Loading...</div>}>
+    <Suspense fallback={<div className="container mx-auto p-4"><ContentSkeleton /></div>}>
       <CheckoutCancelContent />
     </Suspense>
   );

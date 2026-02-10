@@ -1,7 +1,6 @@
 'use client';
 
 import { View, Text, Button } from 'reshaped';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 
@@ -16,53 +15,31 @@ export function AdminLayout({ children, title, backUrl = '/admin', actions }: Ad
   const router = useRouter();
 
   return (
-    <View width="100%" minHeight="100vh">
-      <View
-        direction="column"
-        gap={6}
-        padding={8}
-        width="100%"
-        maxWidth="1200px"
-        attributes={{
-          style: {
-            margin: '0 auto'
-          }
-        }}
-      >
-        <View direction="row" justify="space-between" align="center">
-          <View direction="row" align="center" gap={2}>
-            {backUrl && (
-              <Button
-                variant="ghost"
-                size="small"
-                onClick={() => router.push(backUrl)}
-              >
-                ← Back
-              </Button>
-            )}
-            <Text 
-              variant="body-1" 
-              weight="medium"
-              attributes={{
-                style: {
-                  fontFamily: 'var(--font-midruns-sans)',
-                  fontSize: '1.25rem'
-                }
-              }}
+    <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <View direction="row" justify="space-between" align="center">
+        <View direction="row" align="center" gap={2}>
+          {backUrl && (
+            <Button
+              variant="ghost"
+              size="small"
+              onClick={() => router.push(backUrl)}
             >
-              {title}
-            </Text>
-          </View>
-
-          {actions && (
-            <View direction="row" gap={2}>
-              {actions}
-            </View>
+              ← Back
+            </Button>
           )}
+          <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
+            {title}
+          </Text>
         </View>
 
-        {children}
+        {actions && (
+          <View direction="row" gap={2}>
+            {actions}
+          </View>
+        )}
       </View>
-    </View>
+
+      {children}
+    </div>
   );
 }

@@ -560,8 +560,6 @@ extend type Mutation {
 }
 `;
 
-console.log('GraphQL schema loaded successfully (inline)');
-
 // Create schema
 const schema = makeExecutableSchema({
   typeDefs: [unifiedSchema],
@@ -592,7 +590,6 @@ export async function executeQuery(
   });
 
   if (result.errors) {
-    console.error('GraphQL Errors:', result.errors);
     return { errors: result.errors.map(e => e.message) };
   }
 

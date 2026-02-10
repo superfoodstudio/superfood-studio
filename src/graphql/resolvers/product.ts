@@ -2,6 +2,15 @@ import { PrismaClient } from '@prisma/client';
 import { GraphQLContext } from '../context';
 import Stripe from 'stripe';
 import { generateSlug } from '@/lib/utils';
+import { requireActiveSubscription } from './helpers';
+
+async function requireAdmin(context: GraphQLContext) {
+  const user = await context.getFullUser();
+  if (!user?.isAuthenticated || user.role !== 'ADMIN') {
+    throw new Error('Admin access required');
+  }
+  return user;
+}
 
 // Define our full Product type including Stripe fields
 interface Product {
@@ -107,19 +116,19 @@ export const productResolvers = {
       });
     },
 
-    // Resolver for the averageRating field
+    // Resolver for the averageRating field (uses aggregate instead of fetching all rows)
     averageRating: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
-      const ratings = await prisma.productRating.findMany({
+      const result = await prisma.productRating.aggregate({
         where: { productId: parent.id },
-        select: { rating: true }
+        _avg: { rating: true },
+        _count: { rating: true },
       });
 
-      if (ratings.length === 0) {
+      if (result._count.rating === 0) {
         return null;
       }
 
-      const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
-      return Number((sum / ratings.length).toFixed(1));
+      return result._avg.rating ? Number(result._avg.rating.toFixed(1)) : null;
     },
 
     // Resolver for the totalRatings field
@@ -183,7 +192,15 @@ export const productResolvers = {
       });
     },
     
-    productBySlug: async (_parent: unknown, { slug }: { slug: string }, { prisma }: GraphQLContext) => {
+    productBySlug: async (_parent: unknown, { slug }: { slug: string }, context: GraphQLContext) => {
+      const { prisma } = context;
+      const fullUser = await context.getFullUser();
+      if (!fullUser?.isAuthenticated) {
+        throw new Error('Authentication required to view products');
+      }
+      if (fullUser.role !== 'ADMIN') {
+        await requireActiveSubscription(prisma, fullUser.id!);
+      }
       return prisma.product.findUnique({
         where: { slug },
       });
@@ -207,17 +224,25 @@ export const productResolvers = {
 
     // Products connection for infinite scrolling
     productsConnection: async (
-      _parent: unknown, 
-      { first, after, category, status, search, sort }: { 
-        first?: number; 
-        after?: string; 
-        category?: string; 
-        status?: string; 
-        search?: string; 
-        sort?: string; 
-      }, 
-      { prisma }: GraphQLContext
+      _parent: unknown,
+      { first, after, category, status, search, sort }: {
+        first?: number;
+        after?: string;
+        category?: string;
+        status?: string;
+        search?: string;
+        sort?: string;
+      },
+      context: GraphQLContext
     ) => {
+      const { prisma } = context;
+      const fullUser = await context.getFullUser();
+      if (!fullUser?.isAuthenticated) {
+        throw new Error('Authentication required to view products');
+      }
+      if (fullUser.role !== 'ADMIN') {
+        await requireActiveSubscription(prisma, fullUser.id!);
+      }
       const { paginateQuery } = await import('@/lib/pagination');
       
       const baseWhere: any = {
@@ -388,8 +413,10 @@ export const productResolvers = {
     createProduct: async (
       _parent: unknown,
       { input }: { input: CreateProductInputWithStripe },
-      { prisma, user }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      const user = await requireAdmin(context);
+      const { prisma } = context;
       try {
         // Check if we're in a test environment
         const isTestEnvironment = process.env.NODE_ENV === 'test' || 
@@ -455,7 +482,7 @@ export const productResolvers = {
 
         return product;
       } catch (error) {
-        console.error('Error creating product with Stripe:', error);
+        console.error(error);
         throw new Error('Failed to create product with Stripe');
       }
     },
@@ -463,8 +490,10 @@ export const productResolvers = {
     updateProduct: async (
       _parent: unknown,
       { id, input }: { id: string; input: UpdateProductInputWithStripe },
-      { prisma }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       try {
         // Get the current product from the database
         const currentProduct = await prisma.product.findUnique({
@@ -509,12 +538,14 @@ export const productResolvers = {
           data: updateData,
         });
       } catch (error) {
-        console.error('Error updating product with Stripe:', error);
+        console.error(error);
         throw new Error('Failed to update product with Stripe');
       }
     },
 
-    deleteProduct: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+    deleteProduct: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       try {
         // Get the product to get Stripe ID
         const product = await prisma.product.findUnique({
@@ -543,12 +574,14 @@ export const productResolvers = {
 
         return { success: true };
       } catch (error) {
-        console.error('Error archiving product:', error);
+        console.error(error);
         return { success: false };
       }
     },
 
-    toggleProductStatus: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+    toggleProductStatus: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       try {
         const product = await prisma.product.findUnique({
           where: { id },
@@ -573,12 +606,14 @@ export const productResolvers = {
           },
         });
       } catch (error) {
-        console.error('Error toggling product status:', error);
+        console.error(error);
         throw new Error('Failed to toggle product status');
       }
     },
 
-    setFeaturedProduct: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+    setFeaturedProduct: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       // First, unfeatured any currently featured product
       await prisma.product.updateMany({
         where: { isFeatured: true },

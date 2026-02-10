@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { View, Text, Button, Skeleton } from 'reshaped';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useUpdateAccount } from '@privy-io/react-auth';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { CurrentUserQuery, UpdateUserMutation } from '@/graphql/queries/UserQueries';
 import type { UserQueriesCurrentUserQuery } from '@/__generated__/UserQueriesCurrentUserQuery.graphql';
@@ -21,6 +21,7 @@ function ProfileContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { updateEmail } = useUpdateAccount();
 
   const data = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
     CurrentUserQuery,
@@ -89,11 +90,11 @@ function ProfileContent() {
   }
 
   return (
-    <View direction="column" gap={6} padding={6}>
+    <View direction="column" gap={6} padding={6} attributes={{ style: { maxWidth: '500px', margin: '0 auto' } }}>
       <View direction="row" justify="space-between" align="center">
-        <Text variant="title-5">Profile Settings</Text>
+        <Text variant="featured-2" weight="bold">Profile</Text>
         {!isEditing && (
-          <Button variant="solid" onClick={() => setIsEditing(true)}>
+          <Button variant="outline" size="small" onClick={() => setIsEditing(true)}>
             Edit Profile
           </Button>
         )}
@@ -115,15 +116,17 @@ function ProfileContent() {
         as="form"
         direction="column"
         gap={4}
-        padding={6}
-        backgroundColor="neutral-faded"
-        borderRadius="medium"
+        padding={5}
         attributes={{
+          style: {
+            border: '1px solid #e0ddd8',
+            borderRadius: '4px',
+          },
           onSubmit: handleSubmit(onSubmit)
         }}
       >
-        <View direction="column" gap={2}>
-          <Text variant="body-3" weight="medium">First Name</Text>
+        <View direction="column" gap={1}>
+          <Text variant="caption-1" color="neutral-faded">First Name</Text>
           {isEditing ? (
             <>
               <input
@@ -132,9 +135,9 @@ function ProfileContent() {
                 placeholder="First name"
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #e0ddd8',
                   fontSize: '14px',
                   fontFamily: 'var(--font-nunito)',
                 }}
@@ -144,23 +147,23 @@ function ProfileContent() {
               )}
             </>
           ) : (
-            <Text variant="body-2">{data.currentUser.firstName || 'Not set'}</Text>
+            <Text variant="body-2" weight="bold">{data.currentUser.firstName || 'Not set'}</Text>
           )}
         </View>
 
-        <View direction="column" gap={2}>
-          <Text variant="body-3" weight="medium">Last Name</Text>
+        <View direction="column" gap={1}>
+          <Text variant="caption-1" color="neutral-faded">Last Name</Text>
           {isEditing ? (
             <>
               <input
-                {...register('lastName', { required: 'Last name is required' })}
+                {...register('lastName')}
                 type="text"
                 placeholder="Last name"
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #e0ddd8',
                   fontSize: '14px',
                   fontFamily: 'var(--font-nunito)',
                 }}
@@ -170,45 +173,23 @@ function ProfileContent() {
               )}
             </>
           ) : (
-            <Text variant="body-2">{data.currentUser.lastName || 'Not set'}</Text>
+            <Text variant="body-2" weight="bold">{data.currentUser.lastName || 'Not set'}</Text>
           )}
         </View>
 
-        <View direction="column" gap={2}>
-          <Text variant="body-3" weight="medium">Email</Text>
-          {isEditing ? (
-            <>
-              <input
-                {...register('email', {
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address'
-                  }
-                })}
-                type="email"
-                placeholder="email@example.com"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb',
-                  fontSize: '14px',
-                  fontFamily: 'var(--font-nunito)',
-                }}
-              />
-              {errors.email && (
-                <Text variant="caption-1" color="critical">{errors.email.message}</Text>
-              )}
-            </>
-          ) : (
-            <Text variant="body-2">{data.currentUser.email}</Text>
-          )}
+        <View direction="column" gap={1}>
+          <Text variant="caption-1" color="neutral-faded">Email</Text>
+          <View direction="row" align="center" gap={2}>
+            <Text variant="body-2" weight="bold">{data.currentUser.email}</Text>
+            <Button variant="ghost" size="small" onClick={() => updateEmail()}>
+              Change
+            </Button>
+          </View>
         </View>
 
-        <View direction="column" gap={2}>
-          <Text variant="body-3" weight="medium">Member Since</Text>
-          <Text variant="body-2" color="neutral-faded">
+        <View direction="column" gap={1}>
+          <Text variant="caption-1" color="neutral-faded">Member Since</Text>
+          <Text variant="body-2" weight="bold">
             {new Date(data.currentUser.createdAt).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
@@ -218,7 +199,7 @@ function ProfileContent() {
         </View>
 
         {isEditing && (
-          <View direction="row" gap={2} justify="end">
+          <View direction="row" gap={2} justify="end" paddingTop={2}>
             <Button variant="ghost" onClick={handleCancel} type="button">
               Cancel
             </Button>
@@ -267,7 +248,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <AppContainer maxWidth={800}>
+    <AppContainer maxWidth={600}>
       <Suspense fallback={<ProfileSkeleton />}>
         <ProfileContent />
       </Suspense>

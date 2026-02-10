@@ -230,15 +230,6 @@ export function AllRecipesSection() {
 
   return (
     <View direction="column" gap={4} paddingTop={4}>
-      {/* Section Title */}
-      <View
-        attributes={{
-          style: { paddingLeft: "1rem", paddingRight: "1rem" },
-        }}
-      >
-        <Text variant="featured-2">Recipes</Text>
-      </View>
-
       {/* Main Content Area */}
       <View
         attributes={{

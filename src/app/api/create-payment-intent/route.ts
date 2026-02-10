@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     
     // Validate all products exist
     for (const cartItem of cartItems) {
-      const product = products.find(p => p.id === cartItem.productId);
+      const product = products.find((p: any) => p.id === cartItem.productId);
       if (!product) {
         return NextResponse.json(
           { error: `Product ${cartItem.productId} not found or archived` },
@@ -114,9 +114,12 @@ export async function POST(req: NextRequest) {
       }
     }
     
-    // Calculate total
-    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
+    // Calculate total using DB prices (ignore client-sent prices)
+    const total = cartItems.reduce((sum, item) => {
+      const product = products.find((p: any) => p.id === item.productId)!;
+      return sum + (product.price * item.quantity);
+    }, 0);
+
     // Create a pending order in the database
     const order = await prisma.order.create({
       data: {
@@ -125,11 +128,14 @@ export async function POST(req: NextRequest) {
         status: 'PENDING',
         shippingAddress: shippingAddress || undefined,
         items: {
-          create: cartItems.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
+          create: cartItems.map(item => {
+            const product = products.find((p: any) => p.id === item.productId)!;
+            return {
+              productId: item.productId,
+              quantity: item.quantity,
+              price: product.price, // Use DB price
+            };
+          }),
         },
       },
     });

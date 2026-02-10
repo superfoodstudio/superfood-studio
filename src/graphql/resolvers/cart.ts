@@ -92,7 +92,7 @@ export const cartResolvers = {
           }
         } else {
           // Handle guest cart using a cookie-based ID or similar
-          const guestId = args.guestId || 'guest-id'; // You'd implement actual guest ID handling
+          const guestId = args.guestId || `guest-${crypto.randomUUID()}`;
           
           // Find or create guest cart
           cart = await prisma.cart.findFirst({
@@ -132,7 +132,7 @@ export const cartResolvers = {
           total,
         };
       } catch (error) {
-        console.error('Error fetching cart:', error);
+        console.error(error);
         throw new Error('Failed to fetch cart');
       }
     },
@@ -181,7 +181,7 @@ export const cartResolvers = {
           }
         } else {
           // Handle guest cart using provided ID
-          const guestId = inputGuestId || 'guest-id'; // You'd implement actual guest ID handling
+          const guestId = inputGuestId || `guest-${crypto.randomUUID()}`;
           
           cart = await prisma.cart.findFirst({
             where: { guestId },
@@ -228,7 +228,7 @@ export const cartResolvers = {
         // Return updated cart with items
         return getCartWithItems(prisma, cart.id);
       } catch (error) {
-        console.error('Error adding to cart:', error);
+        console.error(error);
         throw new Error('Failed to add item to cart');
       }
     },
@@ -271,7 +271,7 @@ export const cartResolvers = {
         // Return updated cart
         return getCartWithItems(prisma, cartItem.cartId);
       } catch (error) {
-        console.error('Error removing from cart:', error);
+        console.error(error);
         throw new Error('Failed to remove item from cart');
       }
     },
@@ -321,7 +321,7 @@ export const cartResolvers = {
         // Return updated cart
         return getCartWithItems(prisma, cartItem.cartId);
       } catch (error) {
-        console.error('Error updating cart item:', error);
+        console.error(error);
         throw new Error('Failed to update cart item');
       }
     },
@@ -362,7 +362,7 @@ export const cartResolvers = {
           total: 0,
         };
       } catch (error) {
-        console.error('Error clearing cart:', error);
+        console.error(error);
         throw new Error('Failed to clear cart');
       }
     },

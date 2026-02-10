@@ -51,10 +51,8 @@ async function uploadToIPFS(buffer: Buffer, filename: string): Promise<string> {
   };
 
   try {
-    console.log('Attempting to upload to IPFS:', { filename, bufferSize: buffer.length });
     const result = await pinata.pinFileToIPFS(fileStream, options);
-    console.log('Successfully uploaded to IPFS:', { hash: result.IpfsHash });
-    return `https://ipfs.io/ipfs/${result.IpfsHash}`;
+    return result.IpfsHash;
   } catch (error) {
     console.error('Failed to upload to IPFS:', {
       error: error instanceof Error ? error.message : error,
@@ -138,8 +136,8 @@ export async function POST(req: NextRequest) {
       filename = filename.replace(/\.[^/.]+$/, '.jpg');
     }
 
-    const url = await uploadToIPFS(buffer, filename);
-    return NextResponse.json({ url, success: true }, { status: 200 });
+    const cid = await uploadToIPFS(buffer, filename);
+    return NextResponse.json({ cid, success: true }, { status: 200 });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json({

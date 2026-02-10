@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { StarRating } from '@/components/ratings/StarRating';
 import { QuantitySelector } from '@/components/ui/QuantitySelector';
+import { ipfsUrl } from '@/lib/ipfs';
 
 // Define the fragment directly in this file
 export const ProductCardFragment = graphql`
@@ -52,25 +53,19 @@ export function ProductCard({ product }: Props) {
     e.preventDefault(); // Prevent navigation to product page
     e.stopPropagation();
 
-    console.log('Add to cart clicked for:', data.name);
-
     if (isAdding || data.inventory <= 0) {
-      console.log('Cart action blocked - isAdding:', isAdding, 'inventory:', data.inventory);
       return;
     }
 
     setIsAdding(true);
 
     try {
-      // Add item to cart using new cart hook
-      console.log('Adding to cart:', data.id, data.name, data.price);
       addToCart(data.id, 1, data.price, {
         name: data.name,
         photoUrl: data.photoUrl
       });
-      console.log('Successfully called addToCart');
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      // Cart add failed silently
     } finally {
       setIsAdding(false);
     }
@@ -117,7 +112,7 @@ export function ProductCard({ product }: Props) {
               overflow="hidden"
             >
               <img
-                src={data.photoUrl}
+                src={ipfsUrl(data.photoUrl)}
                 alt={data.name}
                 style={{
                   width: "100%",

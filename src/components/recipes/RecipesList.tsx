@@ -69,7 +69,7 @@ function RecipesListContent({ category }: RecipesListProps) {
 
   return (
     <View direction="column" gap={4}>
-      <Text variant="title-2">Recipes</Text>
+      <Text variant="title-5">Recipes</Text>
       <View 
         direction={{ s: 'column', m: 'row' }} 
         gap={3}

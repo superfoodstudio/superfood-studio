@@ -2,39 +2,30 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
-import { Button, View, Text, Card } from 'reshaped';
+import { Button, View, Text, Table } from 'reshaped';
 import { LoadMore } from '@/components/ui/LoadMore';
+import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { graphql } from 'relay-runtime';
+
 // Helper function to format date
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
   });
 }
 
-// Helper function to get status color
-function getStatusColor(status: string): string {
-  switch (status) {
-    case 'PENDING':
-      return 'amber';
-    case 'PROCESSING':
-      return 'blue';
-    case 'DELIVERED':
-      return 'green';
-    case 'CANCELED':
-      return 'red';
-    default:
-      return 'gray';
-  }
+// Helper function to format price
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price);
 }
 
 // Define the query that includes the fragment
@@ -82,14 +73,16 @@ import type { pageOrdersPageQuery } from '@/__generated__/pageOrdersPageQuery.gr
 import type { pageOrdersPaginationFragment$key } from '@/__generated__/pageOrdersPaginationFragment.graphql';
 
 function AdminOrdersContent() {
+  const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  
+
+  // Use STATIC default variables so filter changes don't trigger Suspense
   const queryData = useLazyLoadQuery<pageOrdersPageQuery>(
     AdminOrdersPageQuery,
     {
       first: 20,
       after: null,
-      status: statusFilter,
+      status: null,
     }
   );
 
@@ -98,138 +91,112 @@ function AdminOrdersContent() {
     loadNext,
     hasNext,
     isLoadingNext,
+    refetch,
   } = usePaginationFragment<pageOrdersPageQuery, pageOrdersPaginationFragment$key>(
-    AdminOrdersPaginationFragment, 
+    AdminOrdersPaginationFragment,
     queryData
   );
 
+  // Refetch when filter changes (does NOT trigger Suspense)
+  useEffect(() => {
+    refetch({
+      first: 20,
+      after: null,
+      status: statusFilter,
+    });
+  }, [statusFilter, refetch]);
+
   const orders = data.adminOrdersConnection?.edges?.map(edge => edge.node) || [];
-  
+
   const handleLoadMore = useCallback(() => {
     if (!isLoadingNext && hasNext) {
       loadNext(20);
     }
   }, [loadNext, isLoadingNext, hasNext]);
-  
-  const handleStatusFilter = (status: string | null) => {
-    setStatusFilter(status);
-  };
 
   return (
-    <View direction="column" gap={4}>
-      {/* Status Filter */}
-      <View direction="row" gap={2} align="center">
-        <Text>Filter by status:</Text>
-        <Button
-          variant={statusFilter === null ? 'solid' : 'outline'}
-          size="small"
-          onClick={() => handleStatusFilter(null)}
-        >
-          All
-        </Button>
-        <Button
-          variant={statusFilter === 'PENDING' ? 'solid' : 'outline'}
-          size="small"
-          onClick={() => handleStatusFilter('PENDING')}
-        >
-          Pending
-        </Button>
-        <Button
-          variant={statusFilter === 'PROCESSING' ? 'solid' : 'outline'}
-          size="small"
-          onClick={() => handleStatusFilter('PROCESSING')}
-        >
-          Processing
-        </Button>
-        <Button
-          variant={statusFilter === 'DELIVERED' ? 'solid' : 'outline'}
-          size="small"
-          onClick={() => handleStatusFilter('DELIVERED')}
-        >
-          Delivered
-        </Button>
-        <Button
-          variant={statusFilter === 'CANCELED' ? 'solid' : 'outline'}
-          size="small"
-          onClick={() => handleStatusFilter('CANCELED')}
-        >
-          Canceled
-        </Button>
+    <View direction="column" gap={6}>
+      <View direction="row" justify="space-between" align="center">
+        <View direction="row" align="center" gap={2}>
+          <Button variant="ghost" size="small" onClick={() => router.push('/admin')}>
+            ← Back
+          </Button>
+          <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
+            Orders
+          </Text>
+        </View>
       </View>
 
-      {/* Table Header */}
-      <View 
-        direction="row" 
-        padding={2}
-        attributes={{ style: { 
-          borderBottom: '1px solid #eaeaea',
-          fontWeight: 'bold'
-        }}}
-      >
-        <View width="14.28%"><Text>Order ID</Text></View>
-        <View width="14.28%"><Text>Customer</Text></View>
-        <View width="14.28%"><Text>Date</Text></View>
-        <View width="14.28%"><Text>Items</Text></View>
-        <View width="14.28%"><Text>Total</Text></View>
-        <View width="14.28%"><Text>Status</Text></View>
-        <View width="14.28%"><Text>Actions</Text></View>
+      {/* Filters */}
+      <View direction="row" gap={2} align="center" wrap>
+        <Text variant="caption-1" color="neutral-faded">Status:</Text>
+        {([null, 'PENDING', 'PROCESSING', 'DELIVERED', 'CANCELED'] as const).map((status) => (
+          <Button
+            key={status ?? 'all'}
+            variant={statusFilter === status ? 'outline' : 'ghost'}
+            size="small"
+            onClick={() => setStatusFilter(status)}
+          >
+            {status === null ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+          </Button>
+        ))}
       </View>
-      
-      {/* Table Rows */}
+
+      {/* Orders Table */}
       {orders.length === 0 ? (
         <View direction="column" align="center" justify="center" height="300px">
-          <Text>No orders found.</Text>
+          <Text color="neutral-faded">No orders found.</Text>
         </View>
       ) : (
         <>
-          {orders.map((order) => (
-            <View 
-              key={order.id} 
-              direction="row"
-              padding={2}
-              attributes={{ style: { borderBottom: '1px solid #eaeaea' }}}
-            >
-              <View width="14.28%">
-                <Text weight="medium">{order.id.slice(-8).toUpperCase()}</Text>
-              </View>
-              <View width="14.28%" direction="column" gap={1}>
-                <Text>{order.customerName}</Text>
-                <Text variant="caption-1" color="neutral-faded">{order.customerEmail}</Text>
-              </View>
-              <View width="14.28%">
-                <Text>{formatDate(order.date)}</Text>
-              </View>
-              <View width="14.28%">
-                <Text>{order.items?.length || 0}</Text>
-              </View>
-              <View width="14.28%">
-                <Text weight="medium">${order.total.toFixed(2)}</Text>
-              </View>
-              <View width="14.28%">
-                <span style={{
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  fontSize: '0.8rem',
-                  backgroundColor: getStatusColor(order.status) === 'amber' ? '#FEF3C7' :
-                                  getStatusColor(order.status) === 'blue' ? '#DBEAFE' :
-                                  getStatusColor(order.status) === 'green' ? '#D1FAE5' : 
-                                  getStatusColor(order.status) === 'red' ? '#FEE2E2' : '#F3F4F6',
-                  color: getStatusColor(order.status) === 'amber' ? '#92400E' :
-                        getStatusColor(order.status) === 'blue' ? '#1E40AF' :
-                        getStatusColor(order.status) === 'green' ? '#065F46' : 
-                        getStatusColor(order.status) === 'red' ? '#B91C1C' : '#374151',
-                }}>
-                  {order.status}
-                </span>
-              </View>
-              <View width="14.28%">
-                <Link href={`/admin/orders/${order.id}`} passHref>
-                  <Button size="small">View Details</Button>
-                </Link>
-              </View>
-            </View>
-          ))}
-          
+          <Table>
+            <Table.Head>
+              <Table.Row>
+                <Table.Heading>Order</Table.Heading>
+                <Table.Heading>Customer</Table.Heading>
+                <Table.Heading>Items</Table.Heading>
+                <Table.Heading>Total</Table.Heading>
+                <Table.Heading>Status</Table.Heading>
+                <Table.Heading>Date</Table.Heading>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              {orders.map((order) => (
+                <Table.Row
+                  key={order.id}
+                  attributes={{
+                    style: { cursor: 'pointer' },
+                    onClick: () => router.push(`/admin/orders/${order.id}`),
+                  }}
+                >
+                  <Table.Cell>
+                    <Text weight="medium">{order.id.slice(-8).toUpperCase()}</Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <View direction="column" gap={1}>
+                      <Text variant="caption-1">{order.customerName}</Text>
+                      <Text variant="caption-1" color="neutral-faded">{order.customerEmail}</Text>
+                    </View>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1" color="neutral-faded">{order.items?.length || 0}</Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1">{formatPrice(order.total)}</Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1" color="neutral-faded">
+                      {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1" color="neutral-faded">{formatDate(order.date)}</Text>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+
           <LoadMore
             hasNext={hasNext}
             isLoadingNext={isLoadingNext}
@@ -245,7 +212,6 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const { ready, authenticated } = usePrivy();
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (ready && !authenticated) {
       router.push('/');
@@ -254,28 +220,17 @@ export default function AdminOrdersPage() {
 
   if (!ready || !authenticated) {
     return (
-      <View direction="column" align="center" justify="center" height="300px">
-        <Text>Loading...</Text>
-      </View>
+      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px' }}>
+        <ListSkeleton rows={8} columns={6} />
+      </div>
     );
   }
 
   return (
-    <View direction="column" gap={6} padding={8}>
-      <View direction="column" gap={4}>
-        <Text variant="title-2">Orders</Text>
-        <Text>Manage customer orders and update their status.</Text>
-      </View>
-      
-      <Card padding={6}>
-        <Suspense fallback={
-          <View direction="column" align="center" justify="center" height="300px">
-            <Text>Loading orders...</Text>
-          </View>
-        }>
-          <AdminOrdersContent />
-        </Suspense>
-      </Card>
-    </View>
+    <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px' }}>
+      <Suspense fallback={<ListSkeleton rows={8} columns={6} />}>
+        <AdminOrdersContent />
+      </Suspense>
+    </div>
   );
-} 
+}

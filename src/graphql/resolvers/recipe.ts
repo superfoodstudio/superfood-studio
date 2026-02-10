@@ -2,6 +2,15 @@ import { PrismaClient } from '@prisma/client';
 import { GraphQLContext } from '../context';
 import { generateSlug } from '@/lib/utils';
 import { paginateQuery, CursorPaginationArgs, validatePaginationArgs, createCursorWhere, createConnection, createCursor, parseCursor } from '@/lib/pagination';
+import { requireActiveSubscription } from './helpers';
+
+async function requireAdmin(context: GraphQLContext) {
+  const user = await context.getFullUser();
+  if (!user?.isAuthenticated || user.role !== 'ADMIN') {
+    throw new Error('Admin access required');
+  }
+  return user;
+}
 
 interface RecipeFilters extends CursorPaginationArgs {
   category?: string;
@@ -92,19 +101,19 @@ export const recipeResolvers = {
       });
     },
 
-    // Resolver for the averageRating field
+    // Resolver for the averageRating field (uses aggregate instead of fetching all rows)
     averageRating: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
-      const ratings = await prisma.recipeRating.findMany({
+      const result = await prisma.recipeRating.aggregate({
         where: { recipeId: parent.id },
-        select: { rating: true }
+        _avg: { rating: true },
+        _count: { rating: true },
       });
 
-      if (ratings.length === 0) {
+      if (result._count.rating === 0) {
         return null;
       }
 
-      const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
-      return Number((sum / ratings.length).toFixed(1));
+      return result._avg.rating ? Number(result._avg.rating.toFixed(1)) : null;
     },
 
     // Resolver for the totalRatings field
@@ -210,15 +219,33 @@ export const recipeResolvers = {
       });
     },
     
-    recipeBySlug: async (_parent: unknown, { slug }: { slug: string }, { prisma }: GraphQLContext) => {
+    recipeBySlug: async (_parent: unknown, { slug }: { slug: string }, context: GraphQLContext) => {
+      const { prisma } = context;
+      const fullUser = await context.getFullUser();
+      if (!fullUser?.isAuthenticated) {
+        throw new Error('Authentication required to view recipes');
+      }
+      // Non-admin users need active subscription
+      if (fullUser.role !== 'ADMIN') {
+        await requireActiveSubscription(prisma, fullUser.id!);
+      }
       return prisma.recipe.findUnique({
         where: { slug },
       });
     },
-    
-    publicRecipes: async (_parent: unknown, args: PublicRecipeFilters, { prisma, user }: GraphQLContext) => {
+
+    publicRecipes: async (_parent: unknown, args: PublicRecipeFilters, context: GraphQLContext) => {
+      const { prisma } = context;
+      const fullUser = await context.getFullUser();
+      if (!fullUser?.isAuthenticated) {
+        throw new Error('Authentication required to view recipes');
+      }
+      // Non-admin users need active subscription
+      if (fullUser.role !== 'ADMIN') {
+        await requireActiveSubscription(prisma, fullUser.id!);
+      }
       const { category, sort, ...paginationArgs } = args;
-      
+
       const baseWhere = {
         isPublished: true,
         ...(category ? { category } : {}),
@@ -372,8 +399,10 @@ export const recipeResolvers = {
     createRecipe: async (
       _parent: unknown,
       { input }: { input: Omit<RecipeCreateInput, 'slug' | 'isPublished' | 'uploadDate'> },
-      { prisma }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       // Generate a slug from the name
       const slug = generateSlug(input.name);
       
@@ -390,8 +419,10 @@ export const recipeResolvers = {
     updateRecipe: async (
       _parent: unknown,
       { id, input }: { id: string; input: RecipeUpdateInput },
-      { prisma }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       // If name is updated, generate a new slug
       if (input.name) {
         const recipe = await prisma.recipe.findUnique({ where: { id } });
@@ -406,19 +437,23 @@ export const recipeResolvers = {
       });
     },
 
-    deleteRecipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+    deleteRecipe: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       try {
         await prisma.recipe.delete({
           where: { id },
         });
         return { success: true };
       } catch (error) {
-        console.error('Error deleting recipe:', error);
+        console.error(error);
         return { success: false };
       }
     },
 
-    toggleRecipeStatus: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+    toggleRecipeStatus: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       const recipe = await prisma.recipe.findUnique({
         where: { id },
       });
@@ -435,7 +470,9 @@ export const recipeResolvers = {
       });
     },
 
-    setFeaturedRecipe: async (_parent: unknown, { id }: { id: string }, { prisma }: GraphQLContext) => {
+    setFeaturedRecipe: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       // First, unfeatured any currently featured recipe
       await prisma.recipe.updateMany({
         where: { isFeatured: true },

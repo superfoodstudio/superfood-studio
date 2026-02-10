@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, Suspense } from 'react';
 import { View, Button, Text } from 'reshaped';
+import { FormSkeleton } from '@/components/ui/ListSkeleton';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { FormField } from '@/components/admin/FormField';
 import { FormError } from '@/components/admin/FormError';
@@ -21,6 +22,9 @@ interface SiteSettingsFormInputs {
   weeklyGroceryList: string;
 }
 
+// Same default used by the homepage when no custom video is set
+const DEFAULT_HOMEPAGE_VIDEO = 'bafybeiey5bktyrja2zfxdcnnil7neqhp3ngky2jsatqgjd3uyevcjn6p2a';
+
 function SiteSettingsContent() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +41,7 @@ function SiteSettingsContent() {
   // React Hook Form
   const { handleSubmit, setValue, watch, formState: { errors } } = useForm<SiteSettingsFormInputs>({
     defaultValues: {
-      homepageVideoUrl: data.siteSettings?.homepageVideoUrl || '',
+      homepageVideoUrl: data.siteSettings?.homepageVideoUrl || DEFAULT_HOMEPAGE_VIDEO,
       weeklyGroceryList: data.siteSettings?.weeklyGroceryList || ''
     }
   });
@@ -113,9 +117,7 @@ function SiteSettingsContent() {
 
 function SiteSettingsLoading() {
   return (
-    <View padding={4}>
-      <Text>Loading site settings...</Text>
-    </View>
+    <FormSkeleton />
   );
 }
 

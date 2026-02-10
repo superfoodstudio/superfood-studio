@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense, useCallback } from "react";
-import { View, Text, Button, Divider, Modal, useToggle } from "reshaped";
+import { View, Text, Button, Divider, Modal, useToggle, Skeleton } from "reshaped";
 import {
   useLazyLoadQuery,
   useMutation,
@@ -90,8 +90,9 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
     setSubmitting(true);
     setError(null);
 
-    const authorName =
-      `${userData.currentUser.firstName} ${userData.currentUser.lastName}`.trim();
+    const firstName = userData.currentUser.firstName || '';
+    const lastName = userData.currentUser.lastName || '';
+    const authorName = [firstName, lastName].filter(Boolean).join(' ') || userData.currentUser.email;
 
     createComment({
       variables: {
@@ -225,7 +226,9 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
             >
               <View direction="row" justify="space-between" align="center">
                 <Text variant="body-2" weight="medium">
-                  {comment.author}
+                  {comment.author && comment.author !== 'null null' && comment.author.trim()
+                    ? comment.author
+                    : (comment.email || 'Anonymous')}
                 </Text>
                 <Text variant="caption-1" color="neutral-faded">
                   {formatDate(comment.createdAt)}
@@ -260,11 +263,19 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
 
 function RecipeCommentsLoading() {
   return (
-    <View direction="column" gap={4}>
-      <Text variant="title-2">Comments</Text>
-      <View padding={4}>
-        <Text>Loading comments...</Text>
-      </View>
+    <View direction="column" gap={6}>
+      <Skeleton height="1.5rem" width="30%" borderRadius="small" />
+      {[1, 2, 3].map((i) => (
+        <View key={i} direction="column" gap={2} paddingInline={16}>
+          <View direction="row" justify="space-between" align="center">
+            <Skeleton height="1rem" width="20%" borderRadius="small" />
+            <Skeleton height="0.75rem" width="15%" borderRadius="small" />
+          </View>
+          <Skeleton height="0.875rem" width="80%" borderRadius="small" />
+          <Skeleton height="0.875rem" width="60%" borderRadius="small" />
+          <Divider />
+        </View>
+      ))}
     </View>
   );
 }

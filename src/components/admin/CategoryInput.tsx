@@ -179,7 +179,7 @@ export function CategoryInput({
       
       {existingCategories.length > 0 && (
         <Text variant="caption-1" color="neutral-faded">
-          💡 Popular: {existingCategories.slice(0, 5).map((cat: CategoryOption) => cat.label).join(', ')}
+          Popular: {existingCategories.slice(0, 5).map((cat: CategoryOption) => cat.label).join(', ')}
           {existingCategories.length > 5 && '...'}
         </Text>
       )}

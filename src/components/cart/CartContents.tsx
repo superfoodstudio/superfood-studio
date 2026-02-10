@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { View, Text, Button, Divider, Card } from "reshaped";
+import { View, Text, Button, Divider } from "reshaped";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
 import { useCart } from "@/hooks/useCart";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ipfsUrl } from "@/lib/ipfs";
 
 export function CartContents() {
   const router = useRouter();
@@ -13,14 +14,11 @@ export function CartContents() {
     useCart();
   const [operationLoading, setOperationLoading] = useState(false);
 
-  console.log("CartContents rendering with cart:", cart);
-  console.log("Cart items length:", cart?.items?.length);
-
   // Show error if there is one
   if (error) {
     return (
       <View direction="column" align="center" padding={8} gap={4}>
-        <Text variant="title-2">Error</Text>
+        <Text variant="title-5">Error</Text>
         <Text variant="body-1">{error}</Text>
         <Link href="/shop">
           <Button variant="solid">Continue Shopping</Button>
@@ -95,82 +93,82 @@ export function CartContents() {
         </Button>
       </View>
 
-      <View direction="column" gap={4}>
+      <View direction="column" gap={2}>
         {cart.items.map((item) => (
-          <Card key={item.id} padding={4}>
-            <View direction="row" gap={4} align="center">
-              {/* Product Image */}
-              <View
-                width="120px"
-                height="120px"
-                borderRadius="medium"
-                overflow="hidden"
-                attributes={{ style: { flexShrink: 0 } }}
-              >
-                <img
-                  src={item.product.photoUrl}
-                  alt={item.product.name}
-                  style={{
-                    objectFit: "cover",
-                    width: "100%",
-                    height: "100%",
-                  }}
-                />
-              </View>
-
-              {/* Product Details */}
-              <View
-                direction="column"
-                gap={2}
-                attributes={{ style: { flex: 1 } }}
-              >
-                <Text variant="featured-3" weight="medium" maxLines={2}>
-                  {item.product.name}
-                </Text>
-                <Text variant="body-2" color="neutral-faded">
-                  {formatPrice(item.price)} each
-                </Text>
-
-                <View
-                  direction={{ s: "column", m: "row" }}
-                  gap={3}
-                  align={{ m: "center" }}
-                >
-                  <QuantitySelector
-                    quantity={item.quantity}
-                    onIncrease={() =>
-                      handleUpdateQuantity(item.productId, item.quantity + 1)
-                    }
-                    onDecrease={() =>
-                      handleUpdateQuantity(
-                        item.productId,
-                        Math.max(1, item.quantity - 1),
-                      )
-                    }
-                    onRemove={() => handleRemoveItem(item.productId)}
-                    disabled={isLoading || operationLoading}
-                    size="medium"
-                    showRemoveButton={true}
-                  />
-                </View>
-              </View>
-
-              {/* Total Price */}
-              <View align="end" attributes={{ style: { flexShrink: 0 } }}>
-                <Text variant="title-3" weight="medium">
-                  {formatPrice(item.price * item.quantity)}
-                </Text>
-              </View>
+          <View
+            key={item.id}
+            direction="row"
+            gap={4}
+            align="center"
+            padding={4}
+            borderRadius="medium"
+            backgroundColor="page"
+          >
+            {/* Product Image */}
+            <View
+              width="80px"
+              height="80px"
+              borderRadius="medium"
+              overflow="hidden"
+              attributes={{ style: { flexShrink: 0 } }}
+            >
+              <img
+                src={ipfsUrl(item.product.photoUrl)}
+                alt={item.product.name}
+                style={{
+                  objectFit: "cover",
+                  width: "100%",
+                  height: "100%",
+                }}
+              />
             </View>
-          </Card>
+
+            {/* Product Details */}
+            <View
+              direction="column"
+              gap={1}
+              attributes={{ style: { flex: 1 } }}
+            >
+              <Text variant="body-1" weight="medium" maxLines={2}>
+                {item.product.name}
+              </Text>
+              <Text variant="body-2" color="neutral-faded">
+                {formatPrice(item.price)} each
+              </Text>
+
+              <QuantitySelector
+                quantity={item.quantity}
+                onIncrease={() =>
+                  handleUpdateQuantity(item.productId, item.quantity + 1)
+                }
+                onDecrease={() =>
+                  handleUpdateQuantity(
+                    item.productId,
+                    Math.max(1, item.quantity - 1),
+                  )
+                }
+                onRemove={() => handleRemoveItem(item.productId)}
+                disabled={isLoading || operationLoading}
+                size="small"
+                showRemoveButton={true}
+              />
+            </View>
+
+            {/* Total Price */}
+            <View align="end" attributes={{ style: { flexShrink: 0 } }}>
+              <Text variant="body-1" weight="medium">
+                {formatPrice(item.price * item.quantity)}
+              </Text>
+            </View>
+          </View>
         ))}
       </View>
 
       <Divider />
 
       <View direction="row" justify="space-between" padding={2}>
-        <Text variant="title-3">Total</Text>
-        <Text variant="title-2">{formatPrice(cart.total)}</Text>
+        <Text variant="title-6">Total</Text>
+        <Text variant="title-6">{formatPrice(cart.total)}</Text>
       </View>
 
       <View direction="row" justify="end" gap={2}>

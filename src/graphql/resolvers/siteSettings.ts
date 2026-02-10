@@ -8,10 +8,6 @@ interface UpdateSiteSettingsInput {
 export const siteSettingsResolvers = {
   Query: {
     siteSettings: async (_parent: unknown, _args: unknown, context: GraphQLContext) => {
-      console.log('siteSettings resolver called');
-      console.log('Context keys:', Object.keys(context));
-      console.log('Prisma available:', !!context.prisma);
-      
       if (!context.prisma) {
         throw new Error('Prisma client not available in context');
       }
@@ -37,11 +33,12 @@ export const siteSettingsResolvers = {
       { input }: { input: UpdateSiteSettingsInput },
       context: GraphQLContext
     ) => {
-      console.log('updateSiteSettings resolver called');
-      console.log('Context keys:', Object.keys(context));
-      console.log('Prisma available:', !!context.prisma);
-      console.log('Input:', input);
-      
+      // Require admin for updating site settings
+      const user = await context.getFullUser();
+      if (!user?.isAuthenticated || user.role !== 'ADMIN') {
+        throw new Error('Admin access required');
+      }
+
       if (!context.prisma) {
         throw new Error('Prisma client not available in context');
       }

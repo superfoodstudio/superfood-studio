@@ -18,7 +18,9 @@ import { StarRating } from '@/components/ratings/StarRating';
 import { ProductDetailSkeleton } from '@/components/ui/ProductDetailSkeleton';
 import { RichTextDisplay } from '@/components/ui/RichTextDisplay';
 import { useCart } from '@/hooks/useCart';
+import { QuantitySelector } from '@/components/ui/QuantitySelector';
 import { ShoppingCartSimple } from 'phosphor-react';
+import { ipfsUrl } from '@/lib/ipfs';
 
 // LazyLoad component that will only fetch data when it's needed
 function ProductDetailLazy({ slug }: { slug: string }) {
@@ -46,7 +48,7 @@ export default function ProductDetailPage() {
   }, []);
 
   return (
-    <AppContainer maxWidth={1000}>
+    <AppContainer maxWidth={750}>
       <Suspense fallback={<ProductDetailSkeleton />}>
         {isReady && <ProductDetailLazy slug={productSlug} />}
       </Suspense>
@@ -58,7 +60,7 @@ function ProductNotFound() {
   const router = useRouter();
   return (
     <View direction="column" align="center" gap={4} padding={8}>
-      <Text variant="title-2">Product not found</Text>
+      <Text variant="title-5">Product not found</Text>
       <Button variant="solid" onClick={() => router.push('/shop')}>
         Back to Shop
       </Button>
@@ -73,7 +75,7 @@ type ProductDetailViewProps = {
 function ProductDetailView({ productRef }: ProductDetailViewProps) {
   const router = useRouter();
   const [isAdding, setIsAdding] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart, cart, updateQuantity, removeFromCart } = useCart();
   
   // Use the fragment to access product data with type safety
   const product: ProductQueriesProductDetail_product$data = useFragment(
@@ -102,7 +104,7 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
         photoUrl: product.photoUrl
       });
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      // Cart add failed
     } finally {
       setIsAdding(false);
     }
@@ -142,13 +144,13 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
           }}
         >
           <img
-            src={product.photoUrl}
+            src={ipfsUrl(product.photoUrl)}
             alt={product.name}
-            style={{ 
+            style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover', 
-              borderRadius: '8px' 
+              objectFit: 'cover',
+              borderRadius: '8px'
             }}
           />
         </View>
@@ -156,20 +158,11 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
         {/* Product Details */}
         <View direction="column" gap={4}>
           <View direction="column" gap={2}>
-            <Text variant="title-1">{product.name}</Text>
-            <Text variant="title-2">{formatPrice(product.price)}</Text>
+            <Text variant="title-5">{product.name}</Text>
+            <Text variant="title-6">{formatPrice(product.price)}</Text>
             <Text variant="body-2" color="neutral-faded" align="start">
               Category: {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
             </Text>
-          </View>
-          
-          <Divider />
-          
-          <RichTextDisplay content={product.description} />
-          
-          {/* Rating Section */}
-          <View direction="column" gap={2}>
-            <Text variant="title-3">Rate this product</Text>
             <StarRating
               itemId={product.id}
               itemType="product"
@@ -178,10 +171,16 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
               size="large"
             />
           </View>
-          
-          <View direction="row" gap={2} wrap>
+
+          <Divider />
+
+          <View paddingStart={4}>
+            <RichTextDisplay content={product.description} />
+          </View>
+
+          <View direction="row" gap={2} wrap paddingStart={4}>
             {product.tags.map((tag: string) => (
-              <View 
+              <View
                 key={tag}
                 backgroundColor="neutral-faded"
                 attributes={{
@@ -195,29 +194,50 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
               </View>
             ))}
           </View>
-          
-          <View direction="column" gap={2}>
-            <Button 
-              variant="solid" 
-              size="large"
-              disabled={isAdding || product.inventory <= 0}
-              onClick={handleAddToCart}
-              attributes={{ style: { width: '100%' } }}
-            >
-              <View direction="row" gap={2} align="center">
-                <ShoppingCartSimple size={20} />
-                <Text>{isAdding ? 'Adding...' : 'Add to Cart'}</Text>
-              </View>
-            </Button>
-            
+
+          <View direction="column" gap={2} paddingBottom={6}>
+            {(() => {
+              const cartItem = cart?.items.find(item => item.productId === product.id);
+              if (cartItem) {
+                return (
+                  <QuantitySelector
+                    quantity={cartItem.quantity}
+                    onIncrease={() => updateQuantity(product.id, cartItem.quantity + 1)}
+                    onDecrease={() => {
+                      if (cartItem.quantity === 1) {
+                        removeFromCart(product.id);
+                      } else {
+                        updateQuantity(product.id, cartItem.quantity - 1);
+                      }
+                    }}
+                    disabled={isAdding}
+                    size="medium"
+                  />
+                );
+              }
+              return (
+                <Button
+                  variant="solid"
+                  size="large"
+                  disabled={isAdding || product.inventory <= 0}
+                  onClick={handleAddToCart}
+                >
+                  <View direction="row" gap={2} align="center">
+                    <ShoppingCartSimple size={20} />
+                    <Text>{isAdding ? 'Adding...' : 'Add to Cart'}</Text>
+                  </View>
+                </Button>
+              );
+            })()}
+
             {product.inventory <= 10 && product.inventory > 0 && (
-              <Text variant="body-2" color="critical" align="center">
+              <Text variant="body-2" color="critical">
                 Only {product.inventory} left in stock!
               </Text>
             )}
-            
+
             {product.inventory === 0 && (
-              <Text variant="body-2" color="critical" align="center">
+              <Text variant="body-2" color="critical">
                 Out of stock
               </Text>
             )}
@@ -228,7 +248,7 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
       {/* Product Video (if available) */}
       {product.videoUrl && (
         <View direction="column" gap={2} attributes={{ style: { marginTop: '2rem', marginBottom: '2rem' } }}>
-          <Text variant="title-3">Product Video</Text>
+          <Text variant="featured-1">Product Video</Text>
           <View
             attributes={{
               style: {
@@ -239,7 +259,7 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
             }}
           >
             <video
-              src={product.videoUrl}
+              src={ipfsUrl(product.videoUrl)}
               controls
               style={{
                 position: 'absolute',

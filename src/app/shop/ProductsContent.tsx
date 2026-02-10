@@ -40,7 +40,7 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
   return (
     <View direction="column" gap={4} padding={4}>
       <View direction="column" gap={3}>
-        <Text variant="title-4" weight="medium">category</Text>
+        <Text variant="featured-2" weight="medium">category</Text>
         <View direction="column" gap={2}>
           {categories.map((category) => (
             <Button
@@ -64,7 +64,7 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
       </View>
 
       <View direction="column" gap={3}>
-        <Text variant="title-4" weight="medium">sort</Text>
+        <Text variant="featured-2" weight="medium">sort</Text>
         <View direction="column" gap={2}>
           {sortOptions.map((option) => (
             <Button
@@ -87,9 +87,6 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
         </View>
       </View>
 
-      <Button variant="outline" size="small" fullWidth>
-        SAVE
-      </Button>
     </View>
   );
 }
@@ -117,31 +114,7 @@ function AllProductsSection() {
           style: { paddingLeft: '1rem', paddingRight: '1rem' }
         }}
       >
-        <View direction="column" gap={3}>
-          <Text
-            variant="featured-1"
-            attributes={{
-              style: {
-                fontFamily: "var(--font-big-caslon)",
-                textTransform: "lowercase",
-              },
-            }}
-          >
-            featured product
-          </Text>
-          <FeaturedProduct />
-        </View>
-      </View>
-
-      {/* Section Title */}
-      <View
-        attributes={{
-          style: { paddingLeft: '1rem', paddingRight: '1rem' }
-        }}
-      >
-        <Text variant="title-2" weight="medium" attributes={{ style: { fontFamily: 'var(--font-playfair)' } }}>
-          ALL PRODUCTS
-        </Text>
+        <FeaturedProduct />
       </View>
 
       {/* Main Content Area */}
@@ -156,12 +129,11 @@ function AllProductsSection() {
         <View direction="row" gap={6}>
           {/* Filters Sidebar - Sticky */}
           <View
+            backgroundColor="page"
             attributes={{
               style: {
                 flex: '0 0 200px',
-                backgroundColor: '#ffffff',
                 borderRadius: '8px',
-                border: '1px solid #e5e5e5',
                 position: 'sticky',
                 top: '80px',
                 alignSelf: 'flex-start',

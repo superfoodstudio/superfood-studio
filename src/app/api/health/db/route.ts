@@ -3,9 +3,8 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    await prisma.$connect();
     await prisma.user.findFirst({ take: 1 });
-    
+
     return NextResponse.json({
       status: 'healthy',
       database: 'connected',
@@ -18,7 +17,5 @@ export async function GET() {
       error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 503 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

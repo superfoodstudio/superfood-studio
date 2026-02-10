@@ -1,4 +1,4 @@
-import { View, Skeleton, Grid } from "reshaped";
+import { View, Skeleton } from "reshaped";
 
 export function AdminDashboardSkeleton() {
   return (
@@ -18,51 +18,36 @@ export function AdminDashboardSkeleton() {
         width="100%"
         attributes={{
           style: {
-            maxWidth: '1200px',
+            maxWidth: '900px',
             margin: '0 auto'
           }
         }}
       >
-        {/* Admin Section Skeleton */}
-        <View direction="column" gap={6}>
-          <Skeleton height="1rem" width="4rem" />
+        {/* Admin label */}
+        <Skeleton height="1rem" width="4rem" />
 
-          {/* Admin Navigation Grid Skeleton */}
-          <Grid columns={{ s: "1fr 1fr 1fr", m: "repeat(3, 180px)" }} gap={4}>
-            <Skeleton height="45px" width="180px" borderRadius="small" />
-            <Skeleton height="45px" width="180px" borderRadius="small" />
-            <Skeleton height="45px" width="180px" borderRadius="small" />
-            <Skeleton height="45px" width="180px" borderRadius="small" />
-          </Grid>
+        {/* Nav buttons */}
+        <View direction="row" gap={4} wrap>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} height="40px" width="140px" borderRadius="medium" />
+          ))}
         </View>
 
-        {/* Metrics Cards Skeleton */}
-        <View direction="row" gap={5} justify="start">
-          <Skeleton height="100px" width="120px" borderRadius="small" />
-          <Skeleton height="100px" width="120px" borderRadius="small" />
-          <Skeleton height="100px" width="120px" borderRadius="small" />
-          <Skeleton height="100px" width="140px" borderRadius="small" />
+        {/* Metrics cards */}
+        <View direction="row" gap={5} wrap>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} height="90px" width="120px" borderRadius="small" />
+          ))}
         </View>
 
-        {/* Orders Table Section Skeleton */}
-        <View direction="column" gap={5}>
-          <Skeleton height="1rem" width="8rem" />
+        {/* Latest orders label */}
+        <Skeleton height="1rem" width="8rem" />
 
-          {/* Orders Table Skeleton */}
-          <View direction="column" gap={0}>
-            {/* Table Header Skeleton */}
-            <Skeleton height="50px" width="100%" borderRadius="small" />
-            
-            {/* Table Rows Skeleton */}
-            {[...Array(5)].map((_, index) => (
-              <Skeleton key={index} height="45px" width="100%" />
-            ))}
-          </View>
-
-          {/* See All Orders Link Skeleton */}
-          <View align="center" paddingTop={6}>
-            <Skeleton height="0.75rem" width="6rem" />
-          </View>
+        {/* Table placeholder */}
+        <View direction="column" gap={3}>
+          <Skeleton height="2.5rem" width="100%" borderRadius="small" />
+          <Skeleton height="2.5rem" width="100%" borderRadius="small" />
+          <Skeleton height="2.5rem" width="100%" borderRadius="small" />
         </View>
       </View>
     </View>

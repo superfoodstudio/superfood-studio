@@ -15,9 +15,9 @@ function CheckoutSuccessContent() {
 
   if (!paymentIntentId) {
     return (
-      <AppContainer>
+      <AppContainer maxWidth={600}>
         <View direction="column" align="center" padding={8} gap={4}>
-          <Text variant="title-2" color="critical">Order Not Found</Text>
+          <Text variant="title-5" color="critical">Order Not Found</Text>
           <Text>No payment information found.</Text>
           <Button variant="solid" onClick={() => router.push('/')}>
             Continue Shopping
@@ -34,9 +34,9 @@ function CheckoutSuccessContent() {
 
   if (!data.orderByPaymentIntent) {
     return (
-      <AppContainer>
+      <AppContainer maxWidth={600}>
         <View direction="column" align="center" padding={8} gap={4}>
-          <Text variant="title-2" color="critical">Order Not Found</Text>
+          <Text variant="title-5" color="critical">Order Not Found</Text>
           <Text>We couldn't find details for this order.</Text>
           <Button variant="solid" onClick={() => router.push('/')}>
             Continue Shopping
@@ -84,7 +84,7 @@ function CheckoutSuccessContent() {
           >
             <Text variant="title-2" color="positive">✓</Text>
           </View>
-          <Text variant="title-1" align="center">Thank You For Your Order!</Text>
+          <Text variant="title-4" align="center">Thank You For Your Order!</Text>
           <Text align="center" color="neutral-faded">
             Your order has been processed successfully. We'll send you updates as we prepare your items.
           </Text>
@@ -99,7 +99,7 @@ function CheckoutSuccessContent() {
           width={{ s: '100%', m: '600px' }}
           attributes={{ style: { margin: '0 auto' } }}
         >
-          <Text variant="title-3">Order Details</Text>
+          <Text variant="featured-1">Order Details</Text>
           <Divider />
           
           <View direction="row" justify="space-between">
@@ -154,9 +154,9 @@ function CheckoutSuccessContent() {
 export default function CheckoutSuccessPage() {
   return (
     <Suspense fallback={
-      <AppContainer>
+      <AppContainer maxWidth={600}>
         <View direction="column" align="center" padding={8}>
-          <Text variant="title-2">Processing Your Order...</Text>
+          <Text variant="featured-3">Processing Your Order...</Text>
           <Text>Please wait while we confirm your order details.</Text>
         </View>
       </AppContainer>

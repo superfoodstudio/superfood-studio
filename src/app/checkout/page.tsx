@@ -6,8 +6,49 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useCart } from '@/hooks/useCart';
 import { AppContainer } from '@/components/layout/AppContainer';
 import { View, Text, Button, Divider } from 'reshaped';
+import { FormSkeleton } from '@/components/ui/ListSkeleton';
 import { StripeProvider } from '@/components/providers/StripeProvider';
 import { PaymentForm } from '@/components/checkout/PaymentForm';
+
+// Format currency
+function formatPrice(price: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(price);
+}
+
+function CartSummary({ cart }: { cart: any }) {
+  if (!cart || cart.items.length === 0) {
+    return (
+      <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+        <Text color="critical">Cart is empty</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
+      <Text variant="featured-1">Order Summary</Text>
+      <Divider />
+
+      {cart.items.map((item: any) => (
+        <View key={item.id} direction="row" justify="space-between" padding={1}>
+          <Text>
+            {item.product.name} ({item.quantity})
+          </Text>
+          <Text>{formatPrice(item.price * item.quantity)}</Text>
+        </View>
+      ))}
+
+      <Divider />
+      <View direction="row" justify="space-between">
+        <Text variant="title-6">Total</Text>
+        <Text variant="title-6">{formatPrice(cart.total)}</Text>
+      </View>
+    </View>
+  );
+}
 
 export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,53 +98,12 @@ export default function CheckoutPage() {
 
   // Handle loading and authentication states after all hooks
   if (!isReady) {
-    return <AppContainer><Text align="center">Loading checkout...</Text></AppContainer>;
+    return <AppContainer maxWidth={800}><FormSkeleton /></AppContainer>;
   }
 
   if (!authenticated) {
     return null;
   }
-
-  // Cart summary component
-  const CartSummary = () => {
-    if (!cart || cart.items.length === 0) {
-      return (
-        <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-          <Text color="critical">Cart is empty</Text>
-        </View>
-      );
-    }
-    
-    // Format currency
-    const formatPrice = (price: number) => {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(price);
-    };
-    
-    return (
-      <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-        <Text variant="title-3">Order Summary</Text>
-        <Divider />
-        
-        {cart.items.map((item: any) => (
-          <View key={item.id} direction="row" justify="space-between" padding={1}>
-            <Text>
-              {item.product.name} ({item.quantity})
-            </Text>
-            <Text>{formatPrice(item.price * item.quantity)}</Text>
-          </View>
-        ))}
-        
-        <Divider />
-        <View direction="row" justify="space-between">
-          <Text variant="title-4">Total</Text>
-          <Text variant="title-4">{formatPrice(cart.total)}</Text>
-        </View>
-      </View>
-    );
-  };
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
@@ -166,7 +166,6 @@ export default function CheckoutPage() {
       setClientSecret(data.clientSecret);
       
     } catch (error) {
-      console.error('Payment intent creation error:', error);
       setError(error instanceof Error ? error.message : 'Failed to initialize payment');
     } finally {
       setIsLoading(false);
@@ -184,9 +183,9 @@ export default function CheckoutPage() {
 
   return (
     <StripeProvider>
-      <AppContainer>
+      <AppContainer maxWidth={800}>
         <View direction="column" gap={4} padding={4}>
-          <Text variant="title-1" align="center">Checkout</Text>
+          <Text variant="title-4" align="center">Checkout</Text>
           
           {error && (
             <View direction="column" align="center" padding={4} backgroundColor="critical-faded">
@@ -198,7 +197,7 @@ export default function CheckoutPage() {
             {/* Shipping Information */}
             <View direction="column" gap={4} attributes={{ style: { flex: 1 } }}>
               <View direction="column" gap={2} padding={4} backgroundColor="elevation-base" attributes={{ style: { borderRadius: '8px' } }}>
-                <Text variant="title-3">Shipping Information</Text>
+                <Text variant="featured-1">Shipping Information</Text>
                 <Divider />
                 
                 <View direction="column" gap={3}>
@@ -340,7 +339,7 @@ export default function CheckoutPage() {
             
             {/* Order Summary */}
             <View width={{ s: '100%', m: '300px' }}>
-              <CartSummary />
+              <CartSummary cart={cart} />
             </View>
           </View>
         </View>

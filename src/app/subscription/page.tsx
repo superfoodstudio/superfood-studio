@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { Suspense } from 'react';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 
 interface Plan {
   id: string;
@@ -20,7 +21,7 @@ function SubscriptionContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planParam = searchParams.get('plan');
-  const { ready, authenticated, user } = usePrivy();
+  const { ready, authenticated, user, getAccessToken } = usePrivy();
 
   const plans: Plan[] = [
     {
@@ -75,21 +76,46 @@ function SubscriptionContent() {
     setIsLoading(true);
 
     try {
-      // In a real implementation, we would call the subscription API
-      // For now, simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Redirect to dashboard membership page (in real app, we'd redirect to Stripe)
-      router.push('/dashboard/membership?success=true');
-    } catch (error) {
-      console.error('Subscription error:', error);
-      alert('There was an error processing your subscription. Please try again.');
+      const token = await getAccessToken();
+
+      const response = await fetch('/api/subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          planId: selectedPlan.toUpperCase(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create subscription');
+      }
+
+      const data = await response.json();
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        router.push('/dashboard/membership?success=true');
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'There was an error processing your subscription. Please try again.');
       setIsLoading(false);
     }
   }
 
   if (!ready || (ready && !authenticated)) {
-    return <div>Loading...</div>;
+    return (
+      <div className="container mx-auto p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -238,7 +264,7 @@ function SubscriptionContent() {
 
 export default function SubscriptionPage() {
   return (
-    <Suspense fallback={<div className="container mx-auto p-4 text-center">Loading subscription options...</div>}>
+    <Suspense fallback={<div className="container mx-auto p-4"><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><SkeletonCard /><SkeletonCard /></div></div>}>
       <SubscriptionContent />
     </Suspense>
   );

@@ -39,7 +39,6 @@ export default function RecipesContent() {
         const RealRecipesComponent = await import('./RealRecipesComponent').then(mod => mod.default);
         setComponent(() => RealRecipesComponent);
       } catch (error) {
-        console.error('Failed to load recipes component:', error);
         // If loading fails, show an error message
         setComponent(() => () => (
           <Text variant="body-1" color="critical">Failed to load recipes. Please try again later.</Text>

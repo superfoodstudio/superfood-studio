@@ -71,7 +71,6 @@ export class AuthService {
 
       return user;
     } catch (error) {
-      console.error('Auth verification error:', error);
       throw error;
     }
   }
@@ -88,7 +87,6 @@ export class AuthService {
       
       // For testing only - return ADMIN role if the override header is present
       if (adminOverride && (process.env.NODE_ENV === 'test' || process.env.TESTING === 'true')) {
-        console.log('⚠️ Using admin override for testing - NEVER USE IN PRODUCTION');
         return 'ADMIN';
       }
       
@@ -99,7 +97,6 @@ export class AuthService {
 
       return user?.role || 'PUBLIC';
     } catch (error) {
-      console.error('Error getting user role:', error);
       return 'PUBLIC';
     }
   }
@@ -113,7 +110,6 @@ export class AuthService {
 
       return user;
     } catch (error) {
-      console.error('Error promoting user to admin:', error);
       throw error;
     }
   }

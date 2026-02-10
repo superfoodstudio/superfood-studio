@@ -201,22 +201,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1];
-    
-    // Check if we're in test mode using a mock token
-    const isTestToken = token.includes('mock_token');
-    
+
     try {
-      let userId;
-      
-      if (isTestToken) {
-        // For test tokens, create a mock user ID
-        userId = 'mock-user-id';
-      } else {
-        // For real tokens, verify with Privy
-        const authService = AuthService.getInstance();
-        const user = await authService.verifyToken(token);
-        userId = user.id;
-      }
+      const authService = AuthService.getInstance();
+      const user = await authService.verifyToken(token);
+      const userId = user.id;
 
       // Parse request body
       const { firstName, lastName, shippingAddress, billingAddress } = await request.json();
@@ -231,27 +220,11 @@ export async function PUT(request: NextRequest) {
 
       // Prepare update data
       const updateData: any = {};
-      
+
       if (firstName) updateData.firstName = firstName;
       if (lastName) updateData.lastName = lastName;
       if (shippingAddress) updateData.shippingAddress = shippingAddress;
       if (billingAddress) updateData.billingAddress = billingAddress;
-
-      // For test tokens, just return mock data
-      if (isTestToken) {
-        return NextResponse.json({ 
-          profile: {
-            id: userId,
-            email: 'test@example.com',
-            firstName: firstName || 'Test',
-            lastName: lastName || 'User',
-            role: 'SUBSCRIBER',
-            billingAddress: billingAddress || null,
-            shippingAddress: shippingAddress || null,
-            updatedAt: new Date()
-          }
-        });
-      }
 
       // Update user in database
       const updatedUser = await prisma.user.update({

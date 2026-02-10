@@ -27,8 +27,6 @@ export function Navigation() {
   // Calculate cart count directly from localStorage data
   const cartItemCount = localCart.reduce((sum, item) => sum + item.quantity, 0);
 
-  console.log('Navigation cart data:', localCart, 'count:', cartItemCount);
-
   // Fetch user role
   useEffect(() => {
     if (authenticated) {
@@ -36,7 +34,6 @@ export function Navigation() {
         try {
           const token = await getAccessToken();
           if (!token) {
-            console.error('No access token available');
             setUserRole('PUBLIC');
             return;
           }
@@ -48,14 +45,10 @@ export function Navigation() {
           });
           if (response.ok) {
             const data = await response.json();
-            console.log('DEBUG: User role response:', data);
-            console.log('DEBUG: userRole value:', data.role);
-            console.log('DEBUG: userRole type:', typeof data.role);
-            console.log('DEBUG: userRole === "ADMIN":', data.role === 'ADMIN');
             setUserRole(data.role);
           }
         } catch (error) {
-          console.error('Error fetching user role:', error);
+          // Failed to fetch user role
         }
       };
 
@@ -70,12 +63,8 @@ export function Navigation() {
 
     // Get the access token
     getAccessToken().then(token => {
-      if (!token) {
-        console.error('No access token received');
-        return;
-      }
+      if (!token) return;
 
-      // Call our auth callback endpoint
       fetch('/api/auth/callback', {
         method: 'POST',
         headers: {
@@ -92,7 +81,7 @@ export function Navigation() {
         }
         return response.json();
       })
-      .catch(error => console.error('Auth callback error:', error));
+      .catch(() => {});
     });
   }, [ready, authenticated, user, getAccessToken]);
 

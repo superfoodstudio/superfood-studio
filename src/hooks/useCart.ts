@@ -36,7 +36,6 @@ interface LocalCartItem {
 const CART_STORAGE_KEY = 'superfood_cart';
 
 export function useCart() {
-  console.log('useCart hook created/re-rendered');
   const { authenticated, ready } = usePrivy();
   const [localCart, setLocalCart] = useLocalStorage<LocalCartItem[]>(CART_STORAGE_KEY, []);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,22 +43,19 @@ export function useCart() {
 
   // Add item to cart
   const addToCart = useCallback((productId: string, quantity: number, price: number, product: any) => {
-    console.log('useCart addToCart called with:', { productId, quantity, price, product });
     setIsLoading(true);
     setError(null);
 
     try {
       setLocalCart(prev => {
-        console.log('Current cart before update:', prev);
         const existing = prev.find(item => item.productId === productId);
         let newCart;
         
         if (existing) {
-          console.log('Found existing item, updating quantity');
           newCart = prev.map(item =>
             item.productId === productId
-              ? { 
-                  ...item, 
+              ? {
+                  ...item,
                   quantity: item.quantity + quantity,
                   productName: product?.name || item.productName,
                   productPhoto: product?.photoUrl || item.productPhoto
@@ -67,21 +63,18 @@ export function useCart() {
               : item
           );
         } else {
-          console.log('Adding new item to cart');
-          newCart = [...prev, { 
-            productId, 
-            quantity, 
+          newCart = [...prev, {
+            productId,
+            quantity,
             price,
             productName: product?.name || 'Product',
             productPhoto: product?.photoUrl || '/placeholder.jpg'
           }];
         }
-        
-        console.log('New cart after update:', newCart);
+
         return newCart;
       });
     } catch (e) {
-      console.error('Error adding to cart:', e);
       setError('Failed to add item to cart');
     } finally {
       setIsLoading(false);

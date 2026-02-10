@@ -2,10 +2,12 @@
 
 import { Suspense } from 'react';
 import { View, Text, Card, Button } from 'reshaped';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useLazyLoadQuery } from 'react-relay';
 import { useRouter } from 'next/navigation';
 import { FeaturedProductQuery } from '@/graphql/queries/FeaturedProductQuery';
 import { stripHtml } from '@/lib/textUtils';
+import { ipfsUrl } from '@/lib/ipfs';
 import type { FeaturedProductQueryQuery } from '@/__generated__/FeaturedProductQueryQuery.graphql';
 
 function FeaturedProductContent() {
@@ -47,7 +49,7 @@ function FeaturedProductContent() {
           }}
         >
           <img
-            src={product.photoUrl}
+            src={ipfsUrl(product.photoUrl)}
             alt={product.name}
             style={{
               width: '100%',
@@ -139,22 +141,7 @@ function FeaturedProductContent() {
 
 function FeaturedProductLoading() {
   return (
-    <Card
-      padding={6}
-      attributes={{
-        style: {
-          border: '1px solid #e5e5e5',
-          borderRadius: '12px',
-          height: '200px'
-        }
-      }}
-    >
-      <View direction="column" align="center" justify="center" height="100%">
-        <Text variant="body-2" color="neutral-faded">
-          Loading featured product...
-        </Text>
-      </View>
-    </Card>
+    <SkeletonCard />
   );
 }
 

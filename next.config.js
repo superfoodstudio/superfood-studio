@@ -4,7 +4,8 @@ const nextConfig = {
     domains: [
       'images.unsplash.com',
       'gateway.pinata.cloud',
-      'ipfs.io'
+      'ipfs.io',
+      'ivory-historic-penguin-632.mypinata.cloud'
     ],
   },
 };

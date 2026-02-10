@@ -1,47 +1,93 @@
 import { prisma } from '@/lib/prisma';
+import { GraphQLContext } from '../context';
+import Stripe from 'stripe';
+
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2023-08-16' as Stripe.LatestApiVersion,
+  });
+}
+
+async function requireAdmin(context: GraphQLContext) {
+  const user = await context.getFullUser();
+  if (!user?.isAuthenticated || user.role !== 'ADMIN') {
+    throw new Error('Admin access required');
+  }
+  return user;
+}
 
 export const adminResolvers = {
   Query: {
     // Admin dashboard metrics
-    adminMetrics: async () => {
+    adminMetrics: async (_parent: any, _args: any, context: GraphQLContext) => {
+      await requireAdmin(context);
       try {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
         // Get total orders count
         const totalOrders = await prisma.order.count();
-        
-        // Get total revenue (sum of all completed orders)
-        const revenueResult = await prisma.order.aggregate({
+
+        // Get order revenue from last 30 days (non-canceled)
+        const orderRevenueResult = await prisma.order.aggregate({
           where: {
-            status: {
-              in: ['PROCESSING', 'DELIVERED'] // Include both processing and delivered for revenue
-            }
+            status: { in: ['PENDING', 'PROCESSING', 'DELIVERED'] as any },
+            createdAt: { gte: thirtyDaysAgo }
           },
           _sum: {
             total: true
           }
         });
-        
+
+        // Get subscription revenue from Stripe for active subscriptions
+        let subscriptionRevenue = 0;
+        if (process.env.STRIPE_SECRET_KEY) {
+          try {
+            const stripe = getStripe();
+            const activeSubs = await prisma.subscription.findMany({
+              where: { status: 'ACTIVE' },
+              select: { stripeSubscriptionId: true }
+            });
+            for (const sub of activeSubs) {
+              if (sub.stripeSubscriptionId) {
+                try {
+                  const stripeSub = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
+                  const amount = stripeSub.items.data[0]?.price?.unit_amount || 0;
+                  subscriptionRevenue += amount / 100; // cents to dollars
+                } catch {
+                  // Individual subscription fetch failed, skip
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Failed to fetch subscription revenue from Stripe:', e);
+          }
+        }
+
+        const totalRevenue = (orderRevenueResult._sum.total || 0) + subscriptionRevenue;
+
         // Get active subscriptions count
         const activeSubscriptions = await prisma.subscription.count({
           where: {
             status: 'ACTIVE'
           }
         });
-        
+
         // Get pending orders count
         const pendingOrders = await prisma.order.count({
           where: {
             status: 'PENDING'
           }
         });
-        
+
         return {
           totalOrders,
-          totalRevenue: revenueResult._sum.total || 0,
+          totalRevenue,
           activeSubscriptions,
           pendingOrders
         };
       } catch (error) {
-        console.error('Error fetching admin metrics:', error);
+        console.error(error);
         return {
           totalOrders: 0,
           totalRevenue: 0,
@@ -52,7 +98,8 @@ export const adminResolvers = {
     },
 
     // Recent orders for admin dashboard
-    recentOrders: async (_parent: any, args: { limit?: number }) => {
+    recentOrders: async (_parent: any, args: { limit?: number }, context: GraphQLContext) => {
+      await requireAdmin(context);
       try {
         const limit = args.limit || 5;
         
@@ -91,13 +138,14 @@ export const adminResolvers = {
           itemCount: order.items.length
         }));
       } catch (error) {
-        console.error('Error fetching recent orders:', error);
+        console.error(error);
         return [];
       }
     },
 
     // Single order for admin management
-    adminOrder: async (_parent: any, args: { orderId: string }) => {
+    adminOrder: async (_parent: any, args: { orderId: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
       try {
         const order = await prisma.order.findUnique({
           where: { id: args.orderId },
@@ -161,13 +209,14 @@ export const adminResolvers = {
             })),
         };
       } catch (error) {
-        console.error('Error fetching admin order:', error);
+        console.error(error);
         throw new Error('Failed to fetch order');
       }
     },
 
     // All orders for admin management
-    adminOrders: async (_parent: any, args: { limit?: number; offset?: number }) => {
+    adminOrders: async (_parent: any, args: { limit?: number; offset?: number }, context: GraphQLContext) => {
+      await requireAdmin(context);
       try {
         const limit = args.limit || 50;
         const offset = args.offset || 0;
@@ -215,16 +264,18 @@ export const adminResolvers = {
           }))
         }));
       } catch (error) {
-        console.error('Error fetching admin orders:', error);
+        console.error(error);
         return [];
       }
     },
 
     // Admin orders connection for infinite scrolling
     adminOrdersConnection: async (
-      _parent: any, 
-      { first = 10, after, status }: { first?: number; after?: string; status?: string }
+      _parent: any,
+      { first = 10, after, status }: { first?: number; after?: string; status?: string },
+      context: GraphQLContext
     ) => {
+      await requireAdmin(context);
       try {
         const where: any = {};
         
@@ -296,7 +347,7 @@ export const adminResolvers = {
           }
         };
       } catch (error) {
-        console.error('Error fetching admin orders connection:', error);
+        console.error(error);
         return {
           edges: [],
           pageInfo: {
@@ -312,7 +363,8 @@ export const adminResolvers = {
 
   Mutation: {
     // Update order status
-    updateOrderStatus: async (_parent: any, args: { orderId: string; status: string }) => {
+    updateOrderStatus: async (_parent: any, args: { orderId: string; status: string }, context: GraphQLContext) => {
+      await requireAdmin(context);
       try {
         const { orderId, status } = args;
         
@@ -345,7 +397,7 @@ export const adminResolvers = {
           date: updatedOrder.createdAt.toISOString()
         };
       } catch (error) {
-        console.error('Error updating order status:', error);
+        console.error(error);
         throw new Error('Failed to update order status');
       }
     }

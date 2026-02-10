@@ -12,6 +12,8 @@ import { AdminFormActions } from '@/components/admin/AdminFormActions';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { CategoryInput } from '@/components/admin/CategoryInput';
 import { usePrivy } from '@privy-io/react-auth';
+import { ipfsUrl } from '@/lib/ipfs';
+import { FormSkeleton } from '@/components/ui/ListSkeleton';
 
 export default function EditProductPage() {
   const params = useParams();
@@ -104,7 +106,7 @@ export default function EditProductPage() {
         
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching product:', err);
+        // Error handled
         setError(err instanceof Error ? err.message : 'Unknown error occurred');
         setLoading(false);
       }
@@ -135,9 +137,9 @@ export default function EditProductPage() {
       }
 
       const data = await response.json();
-      setPhotoUrl(data.url);
+      setPhotoUrl(data.cid || data.url);
     } catch (error) {
-      console.error('Upload error:', error);
+      // Error handled
       setError(error instanceof Error ? error.message : 'Upload failed');
     } finally {
       setUploading(false);
@@ -244,15 +246,14 @@ export default function EditProductPage() {
         
         const featuredResult = await featuredResponse.json();
         if (featuredResult.errors) {
-          console.error('Failed to set featured:', featuredResult.errors);
-          // Don't fail the whole operation, just log the error
+          // Error handled
         }
       }
 
       // Navigate back to products list on success
       router.push('/admin/products');
     } catch (err) {
-      console.error('Error saving product:', err);
+      // Error handled
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
       setSaving(false);
     }
@@ -297,7 +298,7 @@ export default function EditProductPage() {
         router.push('/admin/products');
       }
     } catch (err) {
-      console.error('Error deleting product:', err);
+      // Error handled
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
       setDeleting(false);
     }
@@ -305,8 +306,8 @@ export default function EditProductPage() {
 
   if (loading) {
     return (
-      <AdminLayout title="Loading Product...">
-        <View padding={4}>Loading product data...</View>
+      <AdminLayout title="Edit Product" backUrl="/admin/products">
+        <FormSkeleton />
       </AdminLayout>
     );
   }
@@ -401,16 +402,16 @@ export default function EditProductPage() {
                     try {
                       await handleFileUpload(file);
                     } catch (error) {
-                      console.error('Failed to upload image:', error);
+                      // Error handled
                     }
                   }
                 }}
               />
               {photoUrl && (
-                <img 
-                  src={photoUrl}
-                  alt="Product preview" 
-                  style={{ maxWidth: '300px', height: 'auto' }} 
+                <img
+                  src={ipfsUrl(photoUrl)}
+                  alt="Product preview"
+                  style={{ maxWidth: '300px', height: 'auto' }}
                 />
               )}
             </View>

@@ -16,9 +16,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Verify the secret key matches our environment variable or a fallback for tests
-    const validSecretKey = process.env.ADMIN_SECRET_KEY || 'test_secret_for_promotion';
-    if (secretKey !== validSecretKey) {
+    // Verify the secret key matches our environment variable
+    const validSecretKey = process.env.ADMIN_SECRET_KEY;
+    if (!validSecretKey || secretKey !== validSecretKey) {
       return NextResponse.json(
         { error: 'Invalid secret key' },
         { status: 401 }

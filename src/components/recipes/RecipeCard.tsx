@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { View, Text, Card } from 'reshaped';
 import { StarRating } from '@/components/ratings/StarRating';
 import { stripHtml } from '@/lib/textUtils';
+import { ipfsUrl } from '@/lib/ipfs';
 
 // Use a unique name with proper module prefix
 export const recipeCardFragment = graphql`
@@ -69,7 +70,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             >
               {data.previewImageUrl ? (
                 <img
-                  src={data.previewImageUrl}
+                  src={ipfsUrl(data.previewImageUrl)}
                   alt={data.name}
                   style={{
                     width: "100%",
@@ -81,12 +82,12 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
                     if (target.parentElement) {
-                      target.parentElement.style.backgroundColor = '#6b4c7a';
+                      target.parentElement.style.backgroundColor = '#e0ddd8';
                       target.parentElement.style.display = 'flex';
                       target.parentElement.style.alignItems = 'center';
                       target.parentElement.style.justifyContent = 'center';
                       target.parentElement.innerHTML = `
-                        <span style="color: white; font-size: 24px;">🎬</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
                       `;
                     }
                   }}
@@ -96,13 +97,13 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
                   style={{
                     width: "100%",
                     height: "100%",
-                    backgroundColor: "#6b4c7a",
+                    backgroundColor: "#e0ddd8",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center"
                   }}
                 >
-                  <span style={{ color: "white", fontSize: "24px" }}>🎬</span>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
                 </div>
               )}
             </View>

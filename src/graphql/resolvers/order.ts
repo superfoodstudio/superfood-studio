@@ -22,7 +22,6 @@ async function getCurrentUserId(context: any): Promise<string | null> {
     
     return context.user.id || null;
   } catch (error) {
-    console.error('Error getting current user:', error);
     return null;
   }
 }
@@ -32,18 +31,12 @@ export const orderResolvers = {
     // Get current user's orders with pagination
     userOrders: async (_parent: any, args: CursorPaginationArgs, context: any) => {
       try {
-        console.log('userOrders resolver called');
-        console.log('Context user:', context.user);
-        
         const userId = await getCurrentUserId(context);
-        console.log('Resolved userId:', userId);
         
         if (!userId) {
           throw new Error('Authentication required');
         }
 
-        console.log('Querying orders for userId:', userId);
-        
         // Use pagination utility with custom query to include relations
         const paginatedOrders = await paginateQuery(
           {
@@ -95,9 +88,6 @@ export const orderResolvers = {
           }
         );
 
-        console.log('Found orders:', paginatedOrders.edges.length);
-        console.log('Orders data:', paginatedOrders.edges.map(e => ({ id: (e.node as any).id, userId: (e.node as any).userId, status: (e.node as any).status })));
-
         // Transform the paginated result to match expected format
         return {
           ...paginatedOrders,
@@ -129,7 +119,7 @@ export const orderResolvers = {
           })
         };
       } catch (error) {
-        console.error('Error fetching user orders:', error);
+        console.error(error);
         throw new Error('Failed to fetch orders');
       }
     },
@@ -137,8 +127,6 @@ export const orderResolvers = {
     // Get single order by ID for current user
     userOrder: async (_parent: any, args: { orderId: string }, context: any) => {
       try {
-        console.log('userOrder resolver called for orderId:', args.orderId);
-        
         const userId = await getCurrentUserId(context);
         if (!userId) {
           throw new Error('Authentication required');
@@ -209,7 +197,7 @@ export const orderResolvers = {
             })),
         };
       } catch (error) {
-        console.error('Error fetching user order:', error);
+        console.error(error);
         throw new Error('Failed to fetch order');
       }
     },
@@ -287,7 +275,7 @@ export const orderResolvers = {
             })),
         };
       } catch (error) {
-        console.error('Error fetching order by payment intent:', error);
+        console.error(error);
         throw new Error('Failed to fetch order');
       }
     },

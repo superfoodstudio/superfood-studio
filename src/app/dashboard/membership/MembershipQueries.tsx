@@ -11,5 +11,13 @@ export const MembershipQuery = graphql`
       cancelAtPeriodEnd
       stripeSubscriptionId
     }
+    userPaymentMethods {
+      id
+      brand
+      last4
+      expMonth
+      expYear
+      isDefault
+    }
   }
 `;

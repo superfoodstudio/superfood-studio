@@ -4,21 +4,17 @@ import { executeQuery } from '@/lib/relay/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Ensure CORS headers are set properly for Vercel deployment
+// CORS headers — restrict to production domain
+const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000';
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, HEAD',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-  console.log('GraphQL POST request received at:', new Date().toISOString());
-  
   try {
     const { query, variables } = await request.json();
-    console.log('Query parsed, length:', query?.length || 0);
-    console.log('Variables count:', Object.keys(variables || {}).length);
 
     if (!query) {
       return NextResponse.json(
@@ -27,23 +23,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Starting query execution...');
     const data = await Promise.race([
       executeQuery(query, variables || {}, request),
-      new Promise((_, reject) => 
+      new Promise((_, reject) =>
         setTimeout(() => reject(new Error('GraphQL execution timeout')), 25000)
       )
     ]);
-    
-    const duration = Date.now() - startTime;
-    console.log(`Query executed successfully in ${duration}ms`);
 
     return NextResponse.json({ data });
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error(`GraphQL API Error after ${duration}ms:`, error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-    
     // Return timeout-specific error for 504 issues
     if (error instanceof Error && error.message.includes('timeout')) {
       return NextResponse.json(
@@ -105,11 +93,7 @@ export async function GET(request: NextRequest) {
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, HEAD',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
+    headers: corsHeaders,
   });
 }
 

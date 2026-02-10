@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         break;
         
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        // Unhandled event type
     }
     
     return NextResponse.json({ received: true });
@@ -129,41 +129,28 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
 
 async function handlePaymentIntentSucceeded(event: Stripe.Event) {
   const paymentIntent = event.data.object as Stripe.PaymentIntent;
-  
+
   // Find order by payment intent ID
   const order = await prisma.order.findFirst({
     where: { stripeSessionId: paymentIntent.id },
-    include: { items: true },
   });
-  
+
   if (!order) {
-    console.error('Order not found for payment intent:', paymentIntent.id);
+    // Not all payment intents have orders (e.g. subscription payments)
     return;
   }
-  
-  // Update order status to DELIVERED
-  await prisma.order.update({
-    where: { id: order.id },
-    data: { 
-      status: 'DELIVERED',
-      updatedAt: new Date(),
-    },
-  });
-  
-  // Reduce product inventory for each item in the order
-  for (const item of order.items) {
-    await prisma.product.update({
-      where: { id: item.productId },
+
+  // Only update to PROCESSING if still PENDING (idempotency — checkout.session.completed may have already handled this)
+  if (order.status === 'PENDING') {
+    await prisma.order.update({
+      where: { id: order.id },
       data: {
-        inventory: {
-          decrement: item.quantity,
-        },
+        status: 'PROCESSING',
+        updatedAt: new Date(),
       },
     });
   }
-  
-  console.log('Order completed for payment intent:', paymentIntent.id);
-  // TODO: Send order confirmation email to customer
+  // NOTE: Inventory decrement is handled exclusively in handleCheckoutSessionCompleted
 }
 
 async function handlePaymentIntentFailed(event: Stripe.Event) {
@@ -180,7 +167,6 @@ async function handlePaymentIntentFailed(event: Stripe.Event) {
     },
   });
   
-  console.log('Order marked as failed for payment intent:', paymentIntent.id);
   // TODO: Send payment failed email to customer
 }
 
@@ -212,11 +198,19 @@ async function handleSubscriptionEvent(event: Stripe.Event) {
       break;
       
     case 'customer.subscription.updated':
+      const updatedPriceId = stripeSubscription.items?.data?.[0]?.price?.id;
       await prisma.subscription.update({
         where: { id: dbSubscription.id },
         data: {
           status: getSubscriptionStatus(stripeSubscription.status),
           endDate: new Date(stripeSubscription.current_period_end * 1000),
+          currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+          currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+          cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end ?? false,
+          ...(updatedPriceId ? {
+            stripePriceId: updatedPriceId,
+            plan: updatedPriceId === process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ? 'MONTHLY' : 'YEARLY',
+          } : {}),
         },
       });
       break;

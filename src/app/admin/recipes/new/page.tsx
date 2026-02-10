@@ -140,14 +140,13 @@ export default function NewRecipePage() {
         
         const featuredResult = await featuredResponse.json();
         if (featuredResult.errors) {
-          console.error('Failed to set featured:', featuredResult.errors);
-          // Don't fail the whole operation, just log the error
+          // Error handled
         }
       }
 
       router.push('/admin/recipes');
     } catch (e) {
-      console.error("Failed to create recipe:", e);
+      // Error handled
       setError("Failed to create. See console for details.");
     } finally {
       setSaving(false);

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { FeaturedRecipeQuery } from "@/graphql/queries/FeaturedRecipeQuery";
 import { stripHtml } from "@/lib/textUtils";
 import { StarRating } from "@/components/ratings/StarRating";
+import { ipfsUrl } from "@/lib/ipfs";
 import type { FeaturedRecipeQueryQuery } from "@/__generated__/FeaturedRecipeQueryQuery.graphql";
 
 function FeaturedRecipeContent() {
@@ -87,7 +88,7 @@ function FeaturedRecipeContent() {
             <>
               <video
                 ref={videoRef}
-                src={recipe.mediaUrl}
+                src={ipfsUrl(recipe.mediaUrl)}
                 style={{
                   width: "100%",
                   height: "320px",
@@ -99,7 +100,7 @@ function FeaturedRecipeContent() {
                 loop
               />
               <img
-                src={recipe.previewImageUrl || recipe.mediaUrl}
+                src={ipfsUrl(recipe.previewImageUrl || recipe.mediaUrl)}
                 alt={recipe.name}
                 style={{
                   width: "100%",
@@ -112,7 +113,7 @@ function FeaturedRecipeContent() {
             </>
           ) : (
             <img
-              src={recipe.previewImageUrl || recipe.mediaUrl}
+              src={ipfsUrl(recipe.previewImageUrl || recipe.mediaUrl)}
               alt={recipe.name}
               style={{
                 width: "100%",

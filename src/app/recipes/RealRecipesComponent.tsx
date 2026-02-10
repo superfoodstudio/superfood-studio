@@ -41,7 +41,6 @@ const RecipeList = ({ queryRef }: { queryRef: any }) => {
       </View>
     );
   } catch (error) {
-    console.error("Error rendering recipe list:", error);
     return <RecipeListSkeleton />;
   }
 };
@@ -58,7 +57,7 @@ export default function RealRecipesComponent() {
         after: null
       });
     } catch (error) {
-      console.error("Error loading recipes:", error);
+      // Recipe loading failed
     }
   }, [loadQuery]);
 

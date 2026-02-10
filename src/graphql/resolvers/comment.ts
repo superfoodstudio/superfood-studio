@@ -1,5 +1,13 @@
 import { GraphQLContext } from '../context';
 
+async function requireAdmin(context: GraphQLContext) {
+  const user = await context.getFullUser();
+  if (!user?.isAuthenticated || user.role !== 'ADMIN') {
+    throw new Error('Admin access required');
+  }
+  return user;
+}
+
 interface CreateCommentInput {
   content: string;
   author: string;
@@ -75,8 +83,12 @@ export const commentResolvers = {
     createComment: async (
       _parent: unknown,
       { input }: { input: CreateCommentInput },
-      { prisma }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      if (!context.user?.isAuthenticated) {
+        throw new Error('Authentication required to create comments');
+      }
+      const { prisma } = context;
       // Validate content length (max 500 characters)
       if (input.content.length > 500) {
         throw new Error('Comment content cannot exceed 500 characters');
@@ -104,8 +116,10 @@ export const commentResolvers = {
     hideComment: async (
       _parent: unknown,
       { id }: { id: string },
-      { prisma }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       const comment = await prisma.comment.update({
         where: { id },
         data: { isHidden: true },
@@ -120,8 +134,10 @@ export const commentResolvers = {
     deleteComment: async (
       _parent: unknown,
       { id }: { id: string },
-      { prisma }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      await requireAdmin(context);
+      const { prisma } = context;
       await prisma.comment.delete({
         where: { id }
       });
@@ -132,5 +148,12 @@ export const commentResolvers = {
 
   Comment: {
     recipe: (parent: any) => parent.recipe,
+    author: (parent: any) => {
+      const author = parent.author;
+      if (!author || author === 'null null' || !author.trim()) {
+        return parent.email || 'Anonymous';
+      }
+      return author;
+    },
   },
 };

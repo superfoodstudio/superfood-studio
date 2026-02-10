@@ -25,17 +25,15 @@ export default function PaginatedProducts({ queryRef }: PaginatedProductsProps) 
   // To be implemented with useQueryLoader in parent component
   const handleLoadMore = useCallback(() => {
     // Will be implemented with pagination
-    console.log("Load more clicked");
   }, []);
 
   const handleLoadPrevious = useCallback(() => {
     // Will be implemented with pagination
-    console.log("Load previous clicked");
   }, []);
 
   return (
     <View direction="column" gap={6}>
-      <Text variant="title-2">Products</Text>
+      <Text variant="title-5">Products</Text>
       
       {products.length === 0 ? (
         <View align="center" justify="center" padding={8}>

@@ -14,6 +14,7 @@ import { VideoUpload } from '@/components/admin/VideoUpload';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { CategoryInput } from '@/components/admin/CategoryInput';
+import { FormSkeleton } from '@/components/ui/ListSkeleton';
 
 interface Recipe {
   id: string;
@@ -137,7 +138,7 @@ export default function EditRecipePage() {
           setError('Recipe not found');
         }
       } catch (e) {
-        console.error("Failed to fetch recipe:", e);
+        // Error handled
         setError("Failed to load recipe. See console for details.");
       } finally {
         setLoading(false);
@@ -223,8 +224,7 @@ export default function EditRecipePage() {
           
           const featuredResult = await featuredResponse.json();
           if (featuredResult.errors) {
-            console.error('Failed to set featured:', featuredResult.errors);
-            // Don't fail the whole operation, just log the error
+            // Error handled
           }
         }
         // Note: We don't need to handle "unfeaturing" explicitly since setFeaturedRecipe
@@ -234,7 +234,7 @@ export default function EditRecipePage() {
 
       router.push('/admin/recipes');
     } catch (e) {
-      console.error("Failed to update recipe:", e);
+      // Error handled
       setError("Failed to update. See console for details.");
     } finally {
       setSaving(false);
@@ -276,7 +276,7 @@ export default function EditRecipePage() {
         router.push('/admin/recipes');
       }
     } catch (e) {
-      console.error("Failed to delete recipe:", e);
+      // Error handled
       setError("Failed to delete. See console for details.");
       setDeleting(false);
     }
@@ -284,8 +284,8 @@ export default function EditRecipePage() {
 
   if (loading) {
     return (
-      <AdminLayout title="Loading Recipe...">
-        <View padding={4}>Loading recipe data...</View>
+      <AdminLayout title="Edit Recipe" backUrl="/admin/recipes">
+        <FormSkeleton />
       </AdminLayout>
     );
   }

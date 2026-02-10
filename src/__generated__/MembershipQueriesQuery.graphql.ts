@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dc51b037692f861878b8f03141b49ac2>>
+ * @generated SignedSource<<66f8fd45ad95e016727b227919703433>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,14 @@
 import { ConcreteRequest, Query } from 'relay-runtime';
 export type MembershipQueriesQuery$variables = {};
 export type MembershipQueriesQuery$data = {
+  readonly userPaymentMethods: ReadonlyArray<{
+    readonly brand: string;
+    readonly expMonth: number;
+    readonly expYear: number;
+    readonly id: string;
+    readonly isDefault: boolean;
+    readonly last4: string;
+  }>;
   readonly userSubscription: {
     readonly cancelAtPeriodEnd: boolean;
     readonly currentPeriodEnd: string;
@@ -27,7 +35,14 @@ export type MembershipQueriesQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v1 = [
   {
     "alias": null,
     "args": null,
@@ -36,13 +51,7 @@ var v0 = [
     "name": "userSubscription",
     "plural": false,
     "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "id",
-        "storageKey": null
-      },
+      (v0/*: any*/),
       {
         "alias": null,
         "args": null,
@@ -87,6 +96,53 @@ var v0 = [
       }
     ],
     "storageKey": null
+  },
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "PaymentMethod",
+    "kind": "LinkedField",
+    "name": "userPaymentMethods",
+    "plural": true,
+    "selections": [
+      (v0/*: any*/),
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "brand",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "last4",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "expMonth",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "expYear",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "isDefault",
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
   }
 ];
 return {
@@ -95,7 +151,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "MembershipQueriesQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -104,19 +160,19 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "MembershipQueriesQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "c5bda3a9c68b5b00627d18ca91de3bd9",
+    "cacheID": "aa7a4516a4fc27eed1c52cbd13d95cb8",
     "id": null,
     "metadata": {},
     "name": "MembershipQueriesQuery",
     "operationKind": "query",
-    "text": "query MembershipQueriesQuery {\n  userSubscription {\n    id\n    status\n    plan\n    currentPeriodStart\n    currentPeriodEnd\n    cancelAtPeriodEnd\n    stripeSubscriptionId\n  }\n}\n"
+    "text": "query MembershipQueriesQuery {\n  userSubscription {\n    id\n    status\n    plan\n    currentPeriodStart\n    currentPeriodEnd\n    cancelAtPeriodEnd\n    stripeSubscriptionId\n  }\n  userPaymentMethods {\n    id\n    brand\n    last4\n    expMonth\n    expYear\n    isDefault\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "7d88bdaee5c3a53445ae9721827f4dd7";
+(node as any).hash = "ce485fee64648f6fca7ba3c49469fd10";
 
 export default node;

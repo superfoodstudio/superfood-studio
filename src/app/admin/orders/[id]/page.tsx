@@ -6,16 +6,19 @@ import React, { useState, Suspense } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { View, Text, Card, Button, Grid, Divider } from 'reshaped';
+import { ContentSkeleton } from '@/components/ui/ListSkeleton';
 import { useLazyLoadQuery } from 'react-relay';
 import { AdminOrderQuery } from './AdminOrderQueries';
 import type { AdminOrderQueries_AdminOrderQuery } from '@/__generated__/AdminOrderQueries_AdminOrderQuery.graphql';
+import { ipfsUrl } from '@/lib/ipfs';
 
 function AdminOrderContent({ orderId }: { orderId: string }) {
+  const router = useRouter();
   const data = useLazyLoadQuery<AdminOrderQueries_AdminOrderQuery>(
     AdminOrderQuery,
     { orderId }
   );
-  
+
   const [newStatus, setNewStatus] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -81,7 +84,6 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
       // Refresh the page to show updated status
       window.location.reload();
     } catch (error) {
-      console.error('Error updating order status:', error);
       alert('Failed to update order status');
     } finally {
       setIsUpdating(false);
@@ -91,7 +93,7 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
   if (!order) {
     return (
       <View direction="column" align="center" justify="center" height="300px" gap={4}>
-        <Text variant="title-3">Order Not Found</Text>
+        <Text variant="featured-1">Order Not Found</Text>
         <Text>The requested order could not be found.</Text>
         <Link href="/admin/orders" passHref>
           <Button>Back to Orders</Button>
@@ -105,22 +107,26 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
     : 'Unknown Customer';
 
   return (
-    <View direction="column" gap={6} padding={8}>
+    <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <View direction="row" justify="space-between" align="center">
-        <View direction="column" gap={1}>
-          <Text variant="title-2">Order #{order.id.slice(-8).toUpperCase()}</Text>
-          <Text>{formatDate(order.createdAt)}</Text>
+        <View direction="row" align="center" gap={2}>
+          <Button
+            variant="ghost"
+            size="small"
+            onClick={() => router.push('/admin/orders')}
+          >
+            ← Back
+          </Button>
+          <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
+            Order #{order.id.slice(-8).toUpperCase()}
+          </Text>
         </View>
-        
-        <Link href="/admin/orders" passHref>
-          <Button variant="outline">Back to Orders</Button>
-        </Link>
       </View>
       
       <Grid columns={{ s: "1fr", m: "1fr 1fr" }} gap={4}>
         <Card padding={6}>
           <View direction="column" gap={4}>
-            <Text variant="title-3">Customer Information</Text>
+            <Text variant="featured-1">Customer Information</Text>
             <Divider />
             
             <View direction="column" gap={2}>
@@ -142,7 +148,7 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
         
         <Card padding={6}>
           <View direction="column" gap={4}>
-            <Text variant="title-3">Order Information</Text>
+            <Text variant="featured-1">Order Information</Text>
             <Divider />
             
             <View direction="column" gap={2}>
@@ -171,7 +177,7 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
         {order.shippingAddress && (
           <Card padding={6} attributes={{ style: { gridColumn: "1 / -1" } }}>
             <View direction="column" gap={4}>
-              <Text variant="title-3">Shipping Address</Text>
+              <Text variant="featured-1">Shipping Address</Text>
               <Divider />
               
               <View direction="column" gap={2}>
@@ -187,7 +193,7 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
         
         <Card padding={6} attributes={{ style: { gridColumn: "1 / -1" } }}>
           <View direction="column" gap={4}>
-            <Text variant="title-3">Order Items</Text>
+            <Text variant="featured-1">Order Items</Text>
             <Divider />
             
             {order.items.map((item, index) => (
@@ -215,8 +221,8 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
                     }
                   }}
                 >
-                  <img 
-                    src={item.product.photoUrl} 
+                  <img
+                    src={ipfsUrl(item.product.photoUrl)}
                     alt={item.product.name} 
                     width={60}
                     height={60}
@@ -252,33 +258,15 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
         
         <Card padding={6} attributes={{ style: { gridColumn: "1 / -1" } }}>
           <View direction="column" gap={4}>
-            <Text variant="title-3">Order Status</Text>
+            <Text variant="featured-1">Order Status</Text>
             <Divider />
             
             <View direction="row" justify="space-between" align="center">
               <View direction="column" gap={2}>
                 <Text>Current Status:</Text>
-                <View
-                  attributes={{
-                    style: {
-                      padding: '6px 12px',
-                      borderRadius: '4px',
-                      display: 'inline-block',
-                      backgroundColor: 
-                        order.status === 'PENDING' ? '#FEF3C7' :
-                        order.status === 'PROCESSING' ? '#DBEAFE' :
-                        order.status === 'DELIVERED' ? '#D1FAE5' : 
-                        order.status === 'CANCELED' ? '#FEE2E2' : '#F3F4F6',
-                      color:
-                        order.status === 'PENDING' ? '#92400E' :
-                        order.status === 'PROCESSING' ? '#1E40AF' :
-                        order.status === 'DELIVERED' ? '#065F46' : 
-                        order.status === 'CANCELED' ? '#B91C1C' : '#374151',
-                    }
-                  }}
-                >
-                  <Text>{order.status}</Text>
-                </View>
+                <Text weight="medium">
+                  {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
+                </Text>
               </View>
               
               <View direction="row" gap={2} align="center">
@@ -309,15 +297,13 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
           </View>
         </Card>
       </Grid>
-    </View>
+    </div>
   );
 }
 
 function LoadingFallback() {
   return (
-    <View direction="column" align="center" justify="center" height="300px">
-      <Text>Loading order details...</Text>
-    </View>
+    <ContentSkeleton />
   );
 }
 
@@ -328,7 +314,7 @@ export default function AdminOrderDetailPage() {
   if (!orderId) {
     return (
       <View direction="column" align="center" justify="center" height="300px" gap={4}>
-        <Text variant="title-3">Invalid Order ID</Text>
+        <Text variant="featured-1">Invalid Order ID</Text>
         <Link href="/admin/orders" passHref>
           <Button>Back to Orders</Button>
         </Link>

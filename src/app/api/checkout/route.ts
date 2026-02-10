@@ -100,17 +100,17 @@ export async function POST(req: NextRequest) {
       }
     });
     
-    // Create cart-like structure for compatibility
+    // Create cart-like structure using DB prices (ignore client-sent prices)
     const cartWithProducts = {
       items: cartItems.map(cartItem => {
-        const product = products.find(p => p.id === cartItem.productId);
+        const product = products.find((p: any) => p.id === cartItem.productId);
         if (!product) {
           throw new Error(`Product ${cartItem.productId} not found or archived`);
         }
         return {
           productId: cartItem.productId,
           quantity: cartItem.quantity,
-          price: cartItem.price,
+          price: product.price, // Use DB price, not client-sent price
           product: product
         };
       })

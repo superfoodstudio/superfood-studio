@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, Suspense } from 'react';
 import { View, Text, Button, Divider } from 'reshaped';
+import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { HideCommentMutation, DeleteCommentMutation } from '@/graphql/queries/CommentQueries';
@@ -98,14 +99,14 @@ function AdminCommentsContent() {
       )}
 
       <View direction="column" gap={2}>
-        <Text variant="title-1">Comment Moderation</Text>
+        <Text variant="title-5">Comment Moderation</Text>
         <Text variant="body-1" color="neutral-faded">
           Manage comments across all recipes. You can hide inappropriate comments or delete them permanently.
         </Text>
       </View>
 
       <View direction="column" gap={4}>
-        <Text variant="title-3">All Comments ({allComments.length})</Text>
+        <Text variant="featured-1">All Comments ({allComments.length})</Text>
         
         {allComments.length === 0 ? (
           <View padding={6} align="center">
@@ -179,12 +180,7 @@ function AdminCommentsContent() {
 
 function AdminCommentsLoading() {
   return (
-    <View direction="column" gap={4}>
-      <Text variant="title-1">Comment Moderation</Text>
-      <View padding={4}>
-        <Text>Loading comments...</Text>
-      </View>
-    </View>
+    <ListSkeleton rows={8} columns={3} />
   );
 }
 

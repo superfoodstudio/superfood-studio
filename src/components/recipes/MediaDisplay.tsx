@@ -1,6 +1,7 @@
 'use client';
 
 import { View, Text } from 'reshaped';
+import { ipfsUrl } from '@/lib/ipfs';
 
 interface MediaDisplayProps {
   mediaUrl: string;
@@ -56,16 +57,19 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
               style: {
                 width: '48px',
                 height: '48px',
-                backgroundColor: '#6b4c7a',
+                backgroundColor: '#e9ecef',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '20px'
               }
             }}
           >
-            🎵
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b6b6b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
           </View>
           <View direction="column">
             <Text variant="title-4">{altText}</Text>
@@ -76,7 +80,7 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
         </View>
         
         <audio
-          src={mediaUrl}
+          src={ipfsUrl(mediaUrl)}
           controls
           style={{ width: '100%' }}
         >
@@ -103,7 +107,7 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
         }}
       >
         <video
-          src={mediaUrl}
+          src={ipfsUrl(mediaUrl)}
           controls
           style={{
             width: '100%',
@@ -132,7 +136,7 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
       }}
     >
       <img
-        src={mediaUrl}
+        src={ipfsUrl(mediaUrl)}
         alt={altText}
         style={{
           width: '100%',

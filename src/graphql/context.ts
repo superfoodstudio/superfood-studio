@@ -10,15 +10,11 @@ export interface GraphQLContext {
 }
 
 export async function createContext({ req }: { req: any }): Promise<GraphQLContext> {
-  console.log('Creating lightweight GraphQL context...');
-  
   const authToken = req.cookies?.['privy-token'] || req.headers?.authorization?.replace('Bearer ', '');
   
   // Fast token verification only (no DB queries)
   const user = authToken ? await verifyPrivyTokenFast(authToken) : { isAuthenticated: false };
   
-  console.log('Context created, user authenticated:', user.isAuthenticated);
-
   return {
     prisma,
     user,
@@ -33,7 +29,6 @@ export async function createContext({ req }: { req: any }): Promise<GraphQLConte
         const { getUserFromPrivyToken } = await import('@/lib/auth-utils');
         return await getUserFromPrivyToken(authToken);
       } catch (error) {
-        console.error('Error loading full user:', error);
         return { isAuthenticated: false };
       }
     }

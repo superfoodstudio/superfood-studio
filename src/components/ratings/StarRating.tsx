@@ -69,7 +69,7 @@ export function StarRating({
         }
       }
     } catch (error) {
-      console.error(`Error fetching user ${itemType} rating:`, error);
+      // Failed to fetch user rating
     }
   };
 
@@ -98,7 +98,7 @@ export function StarRating({
         throw new Error('Failed to submit rating');
       }
     } catch (error) {
-      console.error(`Error rating ${itemType}:`, error);
+      // Rating submission failed
     } finally {
       setIsSubmitting(false);
     }

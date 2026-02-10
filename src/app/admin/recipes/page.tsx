@@ -3,13 +3,14 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, Suspense } from 'react';
-import { View, Text, Table, Button, Card } from 'reshaped';
+import { View, Text, Table, Button } from 'reshaped';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import { LoadMore } from '@/components/ui/LoadMore';
+import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { stripHtml } from '@/lib/textUtils';
 import { FeaturedRecipeQuery } from '@/graphql/queries/FeaturedRecipeQuery';
 
@@ -79,21 +80,19 @@ import type { FeaturedRecipeQueryQuery } from '@/__generated__/FeaturedRecipeQue
 function AdminRecipesContent() {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('');
-  const [searchFilter, setSearchFilter] = useState<string>('');
   const [sortFilter, setSortFilter] = useState<string>('newest');
-  
+
+  // Use STATIC default variables so filter changes don't trigger Suspense
   const queryData = useLazyLoadQuery<pageRecipesPageQuery>(
     AdminRecipesPageQuery,
     {
       first: 20,
       after: null,
-      category: categoryFilter || null,
-      status: statusFilter === 'all' ? null : statusFilter,
-      search: searchFilter || null,
-      sort: sortFilter,
-    },
-    { fetchPolicy: 'store-and-network' } // Force refetch when variables change
+      category: null,
+      status: null,
+      search: null,
+      sort: 'newest',
+    }
   );
 
   const featuredData = useLazyLoadQuery<FeaturedRecipeQueryQuery>(
@@ -108,214 +107,119 @@ function AdminRecipesContent() {
     isLoadingNext,
     refetch,
   } = usePaginationFragment<pageRecipesPageQuery, pageRecipesPaginationFragment$key>(
-    AdminRecipesPaginationFragment, 
+    AdminRecipesPaginationFragment,
     queryData
   );
 
-  // Refetch when filters change
+  // Refetch when filters change (does NOT trigger Suspense)
   useEffect(() => {
     refetch({
       first: 20,
       after: null,
-      category: categoryFilter || null,
+      category: null,
       status: statusFilter === 'all' ? null : statusFilter,
-      search: searchFilter || null,
+      search: null,
       sort: sortFilter,
     });
-  }, [statusFilter, categoryFilter, searchFilter, sortFilter, refetch]);
+  }, [statusFilter, sortFilter, refetch]);
 
   const recipes = data.recipesConnection?.edges?.map(edge => edge.node) || [];
-  
-  // Debug logging
-  console.log('Admin Recipes Debug:', {
-    statusFilter,
-    categoryFilter, 
-    searchFilter,
-    sortFilter,
-    recipesConnectionExists: !!data.recipesConnection,
-    edgesCount: data.recipesConnection?.edges?.length || 0,
-    recipes: recipes.length
-  });
-  
+
   const handleLoadMore = () => {
     loadNext(20);
   };
 
-  const handleStatusFilter = (status: string) => {
-    setStatusFilter(status);
-  };
-
-  const handleCategoryFilter = (category: string) => {
-    setCategoryFilter(category);
-  };
-
-  const handleSearchFilter = (search: string) => {
-    setSearchFilter(search);
-  };
-
-  const handleSortFilter = (sort: string) => {
-    setSortFilter(sort);
-  };
-
-  // Handler for navigating to the edit page
-  const handleEditClick = (id: string) => {
-    router.push(`/admin/recipes/${id}`);
-  };
-
   return (
-    <View direction="column" gap={6} padding={8}>
+    <View direction="column" gap={6}>
       <View direction="row" justify="space-between" align="center">
-        <Text 
-          variant="body-1" 
-          weight="medium"
-          attributes={{
-            style: {
-              fontFamily: 'var(--font-midruns-sans)',
-              fontSize: '1.25rem'
-            }
-          }}
-        >
-          Manage Recipes
-        </Text>
+        <View direction="row" align="center" gap={2}>
+          <Button variant="ghost" size="small" onClick={() => router.push('/admin')}>
+            ← Back
+          </Button>
+          <Text variant="body-1" weight="medium" attributes={{ style: { fontSize: '1.1rem' } }}>
+            Recipes
+          </Text>
+        </View>
         <Link href="/admin/recipes/new" passHref>
-          <Button>Create New Recipe</Button>
+          <Button color="primary">Create New Recipe</Button>
         </Link>
       </View>
 
       {/* Filters */}
-      <View direction="column" gap={4}>
+      <View direction="column" gap={3}>
         <View direction="row" gap={2} align="center" wrap>
-          <Text>Status:</Text>
-          <Button
-            variant={statusFilter === 'all' ? 'solid' : 'outline'}
-            size="small"
-            onClick={() => handleStatusFilter('all')}
-          >
-            All
-          </Button>
-          <Button
-            variant={statusFilter === 'live' ? 'solid' : 'outline'}
-            size="small"
-            onClick={() => handleStatusFilter('live')}
-          >
-            Published
-          </Button>
-          <Button
-            variant={statusFilter === 'not-live' ? 'solid' : 'outline'}
-            size="small"
-            onClick={() => handleStatusFilter('not-live')}
-          >
-            Draft
-          </Button>
+          <Text variant="caption-1" color="neutral-faded">Status:</Text>
+          {(['all', 'live', 'not-live'] as const).map((status) => (
+            <Button
+              key={status}
+              variant={statusFilter === status ? 'outline' : 'ghost'}
+              size="small"
+              onClick={() => setStatusFilter(status)}
+            >
+              {status === 'all' ? 'All' : status === 'live' ? 'Published' : 'Draft'}
+            </Button>
+          ))}
         </View>
 
         <View direction="row" gap={2} align="center" wrap>
-          <Text>Sort:</Text>
-          <Button
-            variant={sortFilter === 'newest' ? 'solid' : 'outline'}
-            size="small"
-            onClick={() => handleSortFilter('newest')}
-          >
-            Newest
-          </Button>
-          <Button
-            variant={sortFilter === 'oldest' ? 'solid' : 'outline'}
-            size="small"
-            onClick={() => handleSortFilter('oldest')}
-          >
-            Oldest
-          </Button>
-          <Button
-            variant={sortFilter === 'a-z' ? 'solid' : 'outline'}
-            size="small"
-            onClick={() => handleSortFilter('a-z')}
-          >
-            A-Z
-          </Button>
-          <Button
-            variant={sortFilter === 'z-a' ? 'solid' : 'outline'}
-            size="small"
-            onClick={() => handleSortFilter('z-a')}
-          >
-            Z-A
-          </Button>
+          <Text variant="caption-1" color="neutral-faded">Sort:</Text>
+          {(['newest', 'oldest', 'a-z', 'z-a'] as const).map((sort) => (
+            <Button
+              key={sort}
+              variant={sortFilter === sort ? 'outline' : 'ghost'}
+              size="small"
+              onClick={() => setSortFilter(sort)}
+            >
+              {sort === 'newest' ? 'Newest' : sort === 'oldest' ? 'Oldest' : sort.toUpperCase()}
+            </Button>
+          ))}
         </View>
       </View>
 
       {/* Featured Recipe */}
       {featuredData.featuredRecipe && (
-        <View direction="column" gap={3}>
-          <Text variant="title-4" weight="medium">Featured Recipe</Text>
-          <Card padding={4} attributes={{ style: { backgroundColor: '#fff8e1', border: '2px solid #ffcc02' } }}>
-            <Table>
-              <Table.Head>
-                <Table.Row>
-                  <Table.Heading>Name</Table.Heading>
-                  <Table.Heading>Category</Table.Heading>
-                  <Table.Heading>Published</Table.Heading>
-                  <Table.Heading>Upload Date</Table.Heading>
-                  <Table.Heading>Actions</Table.Heading>
-                </Table.Row>
-              </Table.Head>
-              <Table.Body>
-                <Table.Row>
-                  <Table.Cell>
-                    <View direction="column" gap={1}>
-                      <Text weight="medium">⭐ {featuredData.featuredRecipe.name}</Text>
-                      {featuredData.featuredRecipe.description && (
-                        <Text variant="caption-1" color="neutral-faded">
-                          {stripHtml(featuredData.featuredRecipe.description, 50)}
-                        </Text>
-                      )}
-                    </View>
-                  </Table.Cell>
-                  <Table.Cell>{featuredData.featuredRecipe.category}</Table.Cell>
-                  <Table.Cell>
-                    <span 
-                      style={{ 
-                        color: '#2e7d32',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: '#e8f5e9',
-                        fontSize: '12px',
-                        fontWeight: '500'
-                      }}
-                    >
-                      Published
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text variant="caption-1">{formatDate(featuredData.featuredRecipe.uploadDate)}</Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <View direction="row" gap={2}>
-                      <Button 
-                        variant="outline" 
-                        size="small" 
-                        onClick={() => featuredData.featuredRecipe && handleEditClick(featuredData.featuredRecipe.id)}
-                      >
-                        Edit
-                      </Button>
-                      {featuredData.featuredRecipe && (
-                        <Link href={`/recipes/${featuredData.featuredRecipe.slug}`}>
-                        <Button variant="ghost" size="small">
-                          View
-                        </Button>
-                        </Link>
-                      )}
-                    </View>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            </Table>
-          </Card>
+        <View direction="column" gap={2}>
+          <Text variant="caption-1" color="neutral-faded" weight="medium">Featured</Text>
+          <View
+            padding={4}
+            attributes={{
+              style: {
+                border: '1px solid var(--rs-color-border-neutral-faded)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'background-color 0.15s ease',
+              },
+              onClick: () => router.push(`/admin/recipes/${featuredData.featuredRecipe!.id}`),
+              onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => {
+                e.currentTarget.style.backgroundColor = 'var(--rs-color-background-neutral-faded)';
+              },
+              onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => {
+                e.currentTarget.style.backgroundColor = '';
+              },
+            }}
+          >
+            <View direction="row" justify="space-between" align="center">
+              <View direction="column" gap={1}>
+                <Text weight="medium">{featuredData.featuredRecipe.name}</Text>
+                {featuredData.featuredRecipe.description && (
+                  <Text variant="caption-1" color="neutral-faded">
+                    {stripHtml(featuredData.featuredRecipe.description, 80)}
+                  </Text>
+                )}
+              </View>
+              <View direction="row" gap={4} align="center">
+                <Text variant="caption-1" color="neutral-faded">{featuredData.featuredRecipe.category}</Text>
+                <Text variant="caption-1" color="neutral-faded">{formatDate(featuredData.featuredRecipe.uploadDate)}</Text>
+              </View>
+            </View>
+          </View>
         </View>
       )}
 
       {/* Recipes Table */}
       {recipes.length === 0 ? (
         <View direction="column" align="center" justify="center" height="300px">
-          <Text>No recipes found.</Text>
+          <Text color="neutral-faded">No recipes found.</Text>
         </View>
       ) : (
         <>
@@ -324,15 +228,20 @@ function AdminRecipesContent() {
               <Table.Row>
                 <Table.Heading>Name</Table.Heading>
                 <Table.Heading>Category</Table.Heading>
-                <Table.Heading>Published</Table.Heading>
+                <Table.Heading>Status</Table.Heading>
                 <Table.Heading>Comments</Table.Heading>
-                <Table.Heading>Upload Date</Table.Heading>
-                <Table.Heading>Actions</Table.Heading>
+                <Table.Heading>Date</Table.Heading>
               </Table.Row>
             </Table.Head>
             <Table.Body>
               {recipes.map((recipe) => (
-                <Table.Row key={recipe.id}>
+                <Table.Row
+                  key={recipe.id}
+                  attributes={{
+                    style: { cursor: 'pointer' },
+                    onClick: () => router.push(`/admin/recipes/${recipe.id}`),
+                  }}
+                >
                   <Table.Cell>
                     <View direction="column" gap={1}>
                       <Text weight="medium">{recipe.name}</Text>
@@ -343,43 +252,25 @@ function AdminRecipesContent() {
                       )}
                     </View>
                   </Table.Cell>
-                  <Table.Cell>{recipe.category}</Table.Cell>
                   <Table.Cell>
-                    <span 
-                      style={{ 
-                        color: recipe.isPublished ? '#2e7d32' : '#c62828',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: recipe.isPublished ? '#e8f5e9' : '#ffebee',
-                        fontSize: '12px',
-                        fontWeight: '500'
-                      }}
-                    >
+                    <Text variant="caption-1">{recipe.category}</Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text variant="caption-1" color={recipe.isPublished ? 'neutral' : 'neutral-faded'}>
                       {recipe.isPublished ? 'Published' : 'Draft'}
-                    </span>
+                    </Text>
                   </Table.Cell>
                   <Table.Cell>
-                    <Text variant="caption-1">{recipe.comments?.length || 0} comments</Text>
+                    <Text variant="caption-1" color="neutral-faded">{recipe.comments?.length || 0}</Text>
                   </Table.Cell>
                   <Table.Cell>
-                    <Text variant="caption-1">{formatDate(recipe.uploadDate)}</Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <View direction="row" gap={2}>
-                      <Button 
-                        variant="outline" 
-                        size="small" 
-                        onClick={() => handleEditClick(recipe.id)}
-                      >
-                        Edit
-                      </Button>
-                    </View>
+                    <Text variant="caption-1" color="neutral-faded">{formatDate(recipe.uploadDate)}</Text>
                   </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
           </Table>
-          
+
           <LoadMore
             hasNext={hasNext}
             isLoadingNext={isLoadingNext}
@@ -391,21 +282,10 @@ function AdminRecipesContent() {
   );
 }
 
-function AdminRecipesLoading() {
-  return (
-    <View direction="column" gap={4}>
-      <View padding={4}>
-        <Text>Loading recipes...</Text>
-      </View>
-    </View>
-  );
-}
-
 export default function AdminRecipesPage() {
   const router = useRouter();
   const { ready, authenticated } = usePrivy();
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (ready && !authenticated) {
       router.push('/');
@@ -414,15 +294,17 @@ export default function AdminRecipesPage() {
 
   if (!ready || !authenticated) {
     return (
-      <View direction="column" align="center" justify="center" height="300px">
-        <Text>Loading...</Text>
-      </View>
+      <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px' }}>
+        <ListSkeleton rows={8} columns={5} />
+      </div>
     );
   }
 
   return (
-    <Suspense fallback={<AdminRecipesLoading />}>
-      <AdminRecipesContent />
-    </Suspense>
+    <div style={{ width: '100%', maxWidth: '1100px', margin: '0 auto', padding: '16px' }}>
+      <Suspense fallback={<ListSkeleton rows={8} columns={5} />}>
+        <AdminRecipesContent />
+      </Suspense>
+    </div>
   );
-} 
+}

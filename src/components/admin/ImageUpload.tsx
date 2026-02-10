@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { View, Text, Button } from 'reshaped';
+import { ipfsUrl } from '@/lib/ipfs';
 
 interface ImageUploadProps {
   value?: string;
@@ -39,27 +40,14 @@ export function ImageUpload({ value, onChange, disabled = false, label = "Upload
       
       const result = await response.json();
       
-      if (result.url) {
-        // Handle different URL formats from the API
-        let uploadedUrl;
-        if (result.url.startsWith('https://ipfs.io/ipfs/')) {
-          // Already a full IPFS gateway URL
-          uploadedUrl = result.url;
-        } else if (result.url.startsWith('ipfs://')) {
-          // IPFS protocol URL, convert to gateway URL
-          uploadedUrl = `https://ipfs.io/ipfs/${result.url.replace('ipfs://', '')}`;
-        } else {
-          // Assume it's just the hash
-          uploadedUrl = `https://ipfs.io/ipfs/${result.url}`;
-        }
-        
-        setPreview(uploadedUrl);
-        onChange(uploadedUrl);
-      } else {
-        throw new Error('No URL returned from upload');
+      // Store the CID (the upload API returns { cid })
+      const cid = result.cid || result.url;
+      if (!cid) {
+        throw new Error('No CID returned from upload');
       }
+      setPreview(cid);
+      onChange(cid);
     } catch (error) {
-      console.error('Upload error:', error);
       alert('Failed to upload image. Please try again.');
       // Revert preview on error
       setPreview(value || null);
@@ -127,7 +115,7 @@ export function ImageUpload({ value, onChange, disabled = false, label = "Upload
             }}
           >
             <img
-              src={preview}
+              src={preview.startsWith('blob:') ? preview : ipfsUrl(preview)}
               alt="Preview"
               style={{
                 width: '100%',
@@ -162,9 +150,9 @@ export function ImageUpload({ value, onChange, disabled = false, label = "Upload
           padding={6}
           attributes={{
             style: {
-              border: `2px dashed ${dragOver ? '#6b4c7a' : '#ccc'}`,
+              border: `2px dashed ${dragOver ? '#999' : '#ccc'}`,
               borderRadius: '8px',
-              backgroundColor: dragOver ? '#f8f6fb' : '#fafafa',
+              backgroundColor: dragOver ? '#f5f5f5' : '#fafafa',
               cursor: disabled || uploading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s ease'
             },
@@ -178,18 +166,21 @@ export function ImageUpload({ value, onChange, disabled = false, label = "Upload
             <View
               attributes={{
                 style: {
-                  width: '48px',
-                  height: '48px',
+                  width: '40px',
+                  height: '40px',
                   backgroundColor: '#e9ecef',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px'
                 }
               }}
             >
-              🖼️
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b6b6b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
             </View>
             
             <View direction="column" align="center" gap={1}>

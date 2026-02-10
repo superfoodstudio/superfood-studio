@@ -34,6 +34,11 @@ body {
   font-family: var(--font-nunito);
 }
 
+/* Tables should fill their container */
+table {
+  width: 100%;
+}
+
 /* Rich text display paragraph spacing */
 div p {
   margin-bottom: 1em;

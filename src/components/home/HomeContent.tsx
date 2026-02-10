@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { useLazyLoadQuery } from "react-relay";
 import { SiteSettingsQuery } from "@/graphql/queries/SiteSettingsQueries";
+import { ipfsUrl } from "@/lib/ipfs";
 import type { SiteSettingsQueriesQuery } from "@/__generated__/SiteSettingsQueriesQuery.graphql";
 
 function HeroVideoSection() {
@@ -34,7 +35,7 @@ function HeroVideoSection() {
           display: "block",
         }}
       >
-        <source src={videoUrl} type="video/mp4" />
+        <source src={ipfsUrl(videoUrl)} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </View>

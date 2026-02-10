@@ -12,13 +12,31 @@ export interface UserContext {
 // Cache for user data to avoid repeated DB queries
 const userCache = new Map<string, { user: UserContext; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 1000;
+
+function evictExpiredEntries() {
+  if (userCache.size <= MAX_CACHE_SIZE) return;
+  const now = Date.now();
+  for (const [key, value] of userCache) {
+    if (now - value.timestamp >= CACHE_TTL) {
+      userCache.delete(key);
+    }
+  }
+  // If still over limit, remove oldest entries
+  if (userCache.size > MAX_CACHE_SIZE) {
+    const entries = [...userCache.entries()].sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const toRemove = entries.slice(0, entries.length - MAX_CACHE_SIZE);
+    for (const [key] of toRemove) {
+      userCache.delete(key);
+    }
+  }
+}
 
 export async function getUserFromPrivyToken(token: string): Promise<UserContext> {
   try {
     // Check cache first
     const cached = userCache.get(token);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      console.log('Using cached user data');
       return cached.user;
     }
 
@@ -48,11 +66,9 @@ export async function getUserFromPrivyToken(token: string): Promise<UserContext>
           select: { id: true, email: true, role: true }
         });
       } else {
-        console.warn('Prisma client accessed in browser environment');
         return { isAuthenticated: false };
       }
     } catch (dbError) {
-      console.error('Database error in auth:', dbError);
       return { isAuthenticated: false };
     }
 
@@ -64,12 +80,12 @@ export async function getUserFromPrivyToken(token: string): Promise<UserContext>
       privyUserId: verifiedUser.userId
     } : { isAuthenticated: false };
 
-    // Cache the result
+    // Cache the result (with eviction to prevent memory leaks)
+    evictExpiredEntries();
     userCache.set(token, { user, timestamp: Date.now() });
 
     return user;
   } catch (error) {
-    console.error('Auth error:', error);
     return { isAuthenticated: false };
   }
 }

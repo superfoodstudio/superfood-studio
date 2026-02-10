@@ -2,13 +2,13 @@
 
 export const dynamic = 'force-dynamic';
 
-import { View, Text, Button, Modal, Card, useToggle } from 'reshaped';
+import { View, Text, Button, Modal, Skeleton } from 'reshaped';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle } from 'phosphor-react';
 import type { MembershipQueriesQuery } from '@/__generated__/MembershipQueriesQuery.graphql';
-import type { SetupIntentQueryQuery } from '@/__generated__/SetupIntentQueryQuery.graphql';
 import { MembershipQuery } from './MembershipQueries';
-import { SetupIntentQuery } from './SetupIntentQuery';
 import { StripePaymentForm } from './StripePaymentForm';
 import {
   CreateSubscriptionMutation,
@@ -17,14 +17,14 @@ import {
   ReactivateSubscriptionMutation
 } from './SubscriptionMutations';
 
+type ModalStep = 'select-plan' | 'confirm-change' | 'payment' | 'cancel' | 'success' | null;
+
 function MembershipContent() {
   const data = useLazyLoadQuery<MembershipQueriesQuery>(MembershipQuery, {});
-  const editModal = useToggle();
-  const walletModal = useToggle();
-  const cancelModal = useToggle();
+  const [modalStep, setModalStep] = useState<ModalStep>(null);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string>('');
 
   // Mutation hooks
   const [createSubscription] = useMutation(CreateSubscriptionMutation);
@@ -33,6 +33,22 @@ function MembershipContent() {
   const [reactivateSubscription] = useMutation(ReactivateSubscriptionMutation);
 
   const subscription = data.userSubscription;
+
+  const defaultCard = data.userPaymentMethods?.find(pm => pm.isDefault)
+    || data.userPaymentMethods?.[0] || null;
+
+  const closeModal = () => {
+    setModalStep(null);
+    setSelectedPlan(null);
+    setIsProcessing(false);
+    setSuccessMessage('');
+  };
+
+  const showSuccess = (message: string) => {
+    setSuccessMessage(message);
+    setIsProcessing(false);
+    setModalStep('success');
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -52,122 +68,551 @@ function MembershipContent() {
     return getMembershipType(subscription.plan);
   };
 
-  const getJoinDate = (subscription: any) => {
-    if (!subscription?.currentPeriodStart) return '—';
-    return formatDate(subscription.currentPeriodStart);
+  const getJoinDate = (sub: typeof subscription) => {
+    if (!sub?.currentPeriodStart) return '—';
+    return formatDate(sub.currentPeriodStart);
   };
 
-  // Handler for subscription plan selection and payment
-  const handleSubscriptionPlan = async (plan: 'monthly' | 'yearly', paymentMethodId: string) => {
+  // Handler for updating an existing subscription (plan change)
+  const handlePlanChange = async (plan: 'monthly' | 'yearly') => {
     setIsProcessing(true);
-
     try {
       const priceId = plan === 'monthly'
         ? process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!
         : process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!;
 
-      if (subscription) {
-        // Update existing subscription
-        await new Promise((resolve, reject) => {
-          updateSubscription({
-            variables: {
-              input: { priceId }
-            },
-            updater: (store) => {
-              const updatedSubscription = store.getRootField('updateSubscription');
-              const root = store.getRoot();
-              root.setLinkedRecord(updatedSubscription, 'userSubscription');
-            },
-            onCompleted: () => {
-              console.log('Subscription updated successfully');
-              editModal.deactivate();
-              setSelectedPlan(null);
-              resolve(void 0);
-            },
-            onError: (error) => {
-              console.error('Failed to update subscription:', error);
-              reject(error);
-            }
-          });
+      await new Promise((resolve, reject) => {
+        updateSubscription({
+          variables: { input: { priceId } },
+          updater: (store) => {
+            const updated = store.getRootField('updateSubscription');
+            if (updated) store.getRoot().setLinkedRecord(updated, 'userSubscription');
+          },
+          onCompleted: () => resolve(void 0),
+          onError: reject
         });
-      } else {
-        // Create new subscription
-        await new Promise((resolve, reject) => {
-          createSubscription({
-            variables: {
-              input: { priceId, paymentMethodId }
-            },
-            updater: (store) => {
-              const newSubscription = store.getRootField('createSubscription');
-              const root = store.getRoot();
-              root.setLinkedRecord(newSubscription, 'userSubscription');
-            },
-            onCompleted: (response) => {
-              console.log('Subscription created successfully');
-              editModal.deactivate();
-              setSelectedPlan(null);
-              resolve(void 0);
-            },
-            onError: (error) => {
-              console.error('Failed to create subscription:', error);
-              reject(error);
-            }
-          });
-        });
-      }
-    } catch (error) {
-      console.error('Subscription error:', error);
-    } finally {
+      });
+      showSuccess(`Your plan has been changed to ${plan}.`);
+    } catch {
       setIsProcessing(false);
     }
   };
 
-  // Handler for payment method update
-  const handlePaymentMethodUpdate = async (paymentMethodId: string) => {
-    console.log('Payment method updated:', paymentMethodId);
-    walletModal.deactivate();
+  // Handler for creating a new subscription with payment
+  const handleNewSubscription = async (plan: 'monthly' | 'yearly', paymentMethodId: string) => {
+    setIsProcessing(true);
+    try {
+      const priceId = plan === 'monthly'
+        ? process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!
+        : process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!;
+
+      await new Promise((resolve, reject) => {
+        createSubscription({
+          variables: { input: { priceId, paymentMethodId } },
+          updater: (store) => {
+            const created = store.getRootField('createSubscription');
+            if (created) store.getRoot().setLinkedRecord(created, 'userSubscription');
+          },
+          onCompleted: () => resolve(void 0),
+          onError: reject
+        });
+      });
+      showSuccess('Your subscription is now active.');
+    } catch {
+      setIsProcessing(false);
+    }
   };
 
-  // Handler for payment method errors
-  const handlePaymentError = (error: string) => {
-    console.error('Payment error:', error);
+  // Handler for cancelling subscription
+  const handleCancel = async () => {
+    setIsProcessing(true);
+    try {
+      await new Promise((resolve, reject) => {
+        cancelSubscription({
+          variables: {},
+          updater: (store) => {
+            const cancelled = store.getRootField('cancelSubscription');
+            if (cancelled) store.getRoot().setLinkedRecord(cancelled, 'userSubscription');
+          },
+          onCompleted: () => resolve(void 0),
+          onError: reject
+        });
+      });
+      showSuccess('Auto-renewal has been turned off.');
+    } catch {
+      setIsProcessing(false);
+    }
   };
 
-  return (
-    <View
-      direction="column"
-      gap={10}
-      padding={10}
-      minHeight="100vh"
-    >
-      <View
-        maxWidth={400}
-        direction="column"
-        gap={10}
-        width="100%"
-        paddingTop={10}
-        attributes={{ style: { margin: 'auto' } }}
-      >
-        <Card
-          padding={8}
+  // Handler for reactivating subscription (turn auto-renewal back on)
+  const handleReactivate = async () => {
+    setIsProcessing(true);
+    try {
+      await new Promise((resolve, reject) => {
+        reactivateSubscription({
+          variables: {},
+          updater: (store) => {
+            const reactivated = store.getRootField('reactivateSubscription');
+            if (reactivated) store.getRoot().setLinkedRecord(reactivated, 'userSubscription');
+          },
+          onCompleted: () => resolve(void 0),
+          onError: reject
+        });
+      });
+      showSuccess('Auto-renewal has been turned back on.');
+    } catch {
+      setIsProcessing(false);
+    }
+  };
+
+  const stepAnimation = {
+    initial: { opacity: 0, x: 20 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -20 },
+    transition: { duration: 0.2 }
+  };
+
+  // ── Select Plan View ──
+  const SelectPlanView = () => {
+    const isActive = subscription && subscription.status === 'ACTIVE';
+    const isMonthlyCurrent = getCurrentPlanType() === 'monthly';
+    const isYearlyCurrent = getCurrentPlanType() === 'yearly';
+    const showMonthlyHighlight = selectedPlan === 'monthly' || (isMonthlyCurrent && !selectedPlan);
+    const showYearlyHighlight = selectedPlan === 'yearly' || (isYearlyCurrent && !selectedPlan);
+    const isSameAsCurrent = selectedPlan === getCurrentPlanType();
+    const showContinue = selectedPlan && !isSameAsCurrent;
+
+    return (
+      <View direction="column">
+        <View paddingBottom={2}>
+          <Text
+            attributes={{
+              style: {
+                fontSize: '13px', fontWeight: '600', letterSpacing: '1.2px',
+                textTransform: 'uppercase', color: '#8a8a8a'
+              }
+            }}
+          >
+            {isActive ? 'EDIT SUBSCRIPTION' : 'CHOOSE A PLAN'}
+          </Text>
+        </View>
+        <View paddingBottom={6}>
+          <Text attributes={{ style: { fontSize: '13px', color: '#6b6b6b' } }}>
+            Choose your subscription plan:
+          </Text>
+        </View>
+
+        <View direction="column" gap={3}>
+          {/* Monthly card */}
+          <View
+            padding={4}
+            attributes={{
+              style: {
+                border: showMonthlyHighlight ? '2px solid #3d3d3d' : '1px solid #e0ddd8',
+                borderRadius: '6px', cursor: 'pointer',
+                backgroundColor: showMonthlyHighlight ? '#fafaf9' : '#ffffff',
+                transition: 'all 0.15s ease',
+              },
+              onClick: () => setSelectedPlan('monthly'),
+            }}
+          >
+            <View direction="row" justify="space-between" align="center">
+              <View direction="column" gap={1}>
+                <View direction="row" gap={2} align="center">
+                  <Text attributes={{ style: { fontSize: '14px', fontWeight: '600', color: '#2d2d2d' } }}>
+                    Monthly
+                  </Text>
+                  {isMonthlyCurrent && (
+                    <Text attributes={{
+                      style: {
+                        fontSize: '10px', fontWeight: '600', letterSpacing: '0.5px',
+                        textTransform: 'uppercase', color: '#8a8a8a',
+                        backgroundColor: '#f0eeeb', padding: '2px 8px', borderRadius: '10px',
+                      }
+                    }}>
+                      current
+                    </Text>
+                  )}
+                </View>
+                <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>
+                  Billed monthly
+                </Text>
+              </View>
+              <Text attributes={{ style: { fontSize: '16px', fontWeight: '600', color: '#2d2d2d' } }}>
+                $10<Text attributes={{ style: { fontSize: '12px', fontWeight: '400', color: '#8a8a8a' } }}>/mo</Text>
+              </Text>
+            </View>
+          </View>
+
+          {/* Yearly card */}
+          <View
+            padding={4}
+            attributes={{
+              style: {
+                border: showYearlyHighlight ? '2px solid #3d3d3d' : '1px solid #e0ddd8',
+                borderRadius: '6px', cursor: 'pointer',
+                backgroundColor: showYearlyHighlight ? '#fafaf9' : '#ffffff',
+                transition: 'all 0.15s ease',
+              },
+              onClick: () => setSelectedPlan('yearly'),
+            }}
+          >
+            <View direction="row" justify="space-between" align="center">
+              <View direction="column" gap={1}>
+                <View direction="row" gap={2} align="center">
+                  <Text attributes={{ style: { fontSize: '14px', fontWeight: '600', color: '#2d2d2d' } }}>
+                    Yearly
+                  </Text>
+                  {isYearlyCurrent && (
+                    <Text attributes={{
+                      style: {
+                        fontSize: '10px', fontWeight: '600', letterSpacing: '0.5px',
+                        textTransform: 'uppercase', color: '#8a8a8a',
+                        backgroundColor: '#f0eeeb', padding: '2px 8px', borderRadius: '10px',
+                      }
+                    }}>
+                      current
+                    </Text>
+                  )}
+                  <Text attributes={{
+                    style: {
+                      fontSize: '10px', fontWeight: '600', letterSpacing: '0.5px',
+                      textTransform: 'uppercase', color: '#5a8a5a',
+                      backgroundColor: '#f0f7f0', padding: '2px 8px', borderRadius: '10px',
+                    }
+                  }}>
+                    save $25
+                  </Text>
+                </View>
+                <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>
+                  Billed annually
+                </Text>
+              </View>
+              <Text attributes={{ style: { fontSize: '16px', fontWeight: '600', color: '#2d2d2d' } }}>
+                $95<Text attributes={{ style: { fontSize: '12px', fontWeight: '400', color: '#8a8a8a' } }}>/yr</Text>
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Hint for new subscribers */}
+        {selectedPlan && !isActive && (
+          <View paddingTop={4}>
+            <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>
+              You'll be prompted to enter payment information after clicking Continue.
+            </Text>
+          </View>
+        )}
+
+        {/* Footer */}
+        <View direction="row" gap={3} paddingTop={8} justify="space-between" align="center">
+          {/* Auto-renewal toggle link for active subs */}
+          <View>
+            {isActive && !subscription?.cancelAtPeriodEnd && (
+              <Text
+                attributes={{
+                  style: {
+                    fontSize: '12px', color: '#8a8a8a', cursor: 'pointer',
+                    textDecoration: 'underline', textUnderlineOffset: '2px',
+                  },
+                  onClick: () => setModalStep('cancel'),
+                }}
+              >
+                turn off auto-renewal
+              </Text>
+            )}
+            {isActive && subscription?.cancelAtPeriodEnd && (
+              <Text
+                attributes={{
+                  style: {
+                    fontSize: '12px', color: '#8a8a8a', cursor: 'pointer',
+                    textDecoration: 'underline', textUnderlineOffset: '2px',
+                  },
+                  onClick: handleReactivate,
+                }}
+              >
+                {isProcessing ? 'reactivating...' : 'turn on auto-renewal'}
+              </Text>
+            )}
+          </View>
+
+          <View direction="row" gap={3}>
+            <Button
+              variant="ghost"
+              onClick={closeModal}
+              attributes={{ style: { fontSize: '13px', color: '#6b6b6b' } }}
+            >
+              Close
+            </Button>
+            {showContinue && (
+              <Button
+                onClick={() => {
+                  if (!selectedPlan) return;
+                  if (isActive) {
+                    setModalStep('confirm-change');
+                  } else {
+                    setModalStep('payment');
+                  }
+                }}
+                attributes={{
+                  style: {
+                    backgroundColor: '#3d3d3d', color: '#ffffff', border: 'none',
+                    borderRadius: '6px', fontSize: '13px', fontWeight: '500', padding: '8px 20px',
+                  }
+                }}
+              >
+                {isActive ? 'Change Plan' : 'Continue'}
+              </Button>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  // ── Confirm Change View ──
+  const ConfirmChangeView = () => (
+    <View direction="column">
+      <View paddingBottom={2}>
+        <Text
           attributes={{
             style: {
-              backgroundColor: '#ffffff',
-              border: '1px solid #e0ddd8',
-              borderRadius: '2px'
+              fontSize: '13px', fontWeight: '600', letterSpacing: '1.2px',
+              textTransform: 'uppercase', color: '#8a8a8a'
             }
           }}
         >
+          CONFIRM PLAN CHANGE
+        </Text>
+      </View>
+      <View paddingBottom={4}>
+        <Text attributes={{ style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.5' } }}>
+          {selectedPlan === 'yearly'
+            ? 'You are switching from Monthly ($10/mo) to Yearly ($95/yr). Your card on file will be charged a prorated amount for the remainder of this billing cycle.'
+            : `You are switching from Yearly ($95/yr) to Monthly ($10/mo). Your yearly plan stays active until ${subscription ? formatDate(subscription.currentPeriodEnd) : 'the end of your current period'}. After that, you'll be billed $10/month.`
+          }
+        </Text>
+      </View>
+
+      {/* Plan comparison */}
+      <View
+        padding={4}
+        attributes={{
+          style: {
+            backgroundColor: '#fafaf9', border: '1px solid #e0ddd8',
+            borderRadius: '6px', marginBottom: '16px',
+          }
+        }}
+      >
+        <View direction="column" gap={1}>
+          <View direction="row" justify="space-between">
+            <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>
+              Current plan
+            </Text>
+            <Text attributes={{ style: { fontSize: '12px', fontWeight: '500', color: '#4a4a4a' } }}>
+              {getCurrentPlanType() === 'monthly' ? 'Monthly — $10/mo' : 'Yearly — $95/yr'}
+            </Text>
+          </View>
+          <View direction="row" justify="space-between">
+            <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>
+              New plan
+            </Text>
+            <Text attributes={{ style: { fontSize: '12px', fontWeight: '500', color: '#2d2d2d' } }}>
+              {selectedPlan === 'monthly' ? 'Monthly — $10/mo' : 'Yearly — $95/yr'}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Card on file */}
+      {defaultCard && (
+        <View paddingBottom={4}>
+          <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>
+            Charging {defaultCard.brand} ending in {defaultCard.last4}
+          </Text>
+        </View>
+      )}
+
+      {/* Footer */}
+      <View direction="row" gap={3} paddingTop={4} justify="end">
+        <Button
+          variant="ghost"
+          onClick={() => setModalStep('select-plan')}
+          disabled={isProcessing}
+          attributes={{ style: { fontSize: '13px', color: '#6b6b6b' } }}
+        >
+          Back
+        </Button>
+        <Button
+          disabled={isProcessing}
+          onClick={() => {
+            if (selectedPlan) handlePlanChange(selectedPlan);
+          }}
+          attributes={{
+            style: {
+              backgroundColor: isProcessing ? '#e0ddd8' : '#3d3d3d',
+              color: '#ffffff', border: 'none', borderRadius: '6px',
+              fontSize: '13px', fontWeight: '500', padding: '8px 20px',
+            }
+          }}
+        >
+          {isProcessing ? 'Processing...' : 'Confirm Change'}
+        </Button>
+      </View>
+    </View>
+  );
+
+  // ── Payment View (new subscription) ──
+  const PaymentView = () => (
+    <View direction="column">
+      <View paddingBottom={2}>
+        <Text
+          attributes={{
+            style: {
+              fontSize: '13px', fontWeight: '600', letterSpacing: '1.2px',
+              textTransform: 'uppercase', color: '#8a8a8a'
+            }
+          }}
+        >
+          COMPLETE SUBSCRIPTION
+        </Text>
+      </View>
+      <View paddingBottom={6}>
+        <Text attributes={{ style: { fontSize: '13px', color: '#6b6b6b' } }}>
+          {`Enter your payment details for the ${selectedPlan} plan.`}
+        </Text>
+      </View>
+
+      {/* Plan summary */}
+      {selectedPlan && (
+        <View
+          padding={4}
+          attributes={{
+            style: {
+              backgroundColor: '#fafaf9', border: '1px solid #e0ddd8',
+              borderRadius: '6px', marginBottom: '20px',
+            }
+          }}
+        >
+          <View direction="column" gap={1}>
+            <View direction="row" justify="space-between">
+              <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>Plan</Text>
+              <Text attributes={{ style: { fontSize: '12px', fontWeight: '500', color: '#4a4a4a' } }}>
+                {selectedPlan === 'monthly' ? 'Monthly' : 'Yearly'}
+              </Text>
+            </View>
+            <View direction="row" justify="space-between">
+              <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>Amount</Text>
+              <Text attributes={{ style: { fontSize: '12px', fontWeight: '500', color: '#4a4a4a' } }}>
+                {selectedPlan === 'monthly' ? '$10/month' : '$95/year'}
+              </Text>
+            </View>
+            <View direction="row" justify="space-between">
+              <Text attributes={{ style: { fontSize: '12px', color: '#8a8a8a' } }}>Renewal</Text>
+              <Text attributes={{ style: { fontSize: '12px', fontWeight: '500', color: '#4a4a4a' } }}>
+                Auto-renews {selectedPlan === 'monthly' ? 'monthly' : 'annually'}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Stripe Elements Form */}
+      <Suspense fallback={
+        <View direction="column" gap={3} padding={4}>
+          <Skeleton height="2.5rem" width="100%" borderRadius="small" />
+          <Skeleton height="2.5rem" width="100%" borderRadius="small" />
+        </View>
+      }>
+        <StripePaymentForm
+          selectedPlan={selectedPlan}
+          onSuccess={(paymentMethodId) => {
+            if (selectedPlan) handleNewSubscription(selectedPlan, paymentMethodId);
+          }}
+          onError={() => {}}
+          onCancel={() => setModalStep('select-plan')}
+        />
+      </Suspense>
+    </View>
+  );
+
+  // ── Cancel View ──
+  const CancelView = () => (
+    <View direction="column">
+      <View paddingBottom={2}>
+        <Text
+          attributes={{
+            style: {
+              fontSize: '13px', fontWeight: '600', letterSpacing: '1.2px',
+              textTransform: 'uppercase', color: '#8a8a8a'
+            }
+          }}
+        >
+          TURN OFF AUTO-RENEWAL
+        </Text>
+      </View>
+      <View paddingBottom={6}>
+        <Text attributes={{ style: { fontSize: '13px', color: '#6b6b6b', lineHeight: '1.5' } }}>
+          This will turn off auto-renewal. You'll keep full access until {subscription ? formatDate(subscription.currentPeriodEnd) : ''}.
+        </Text>
+      </View>
+
+      <View direction="row" gap={3} justify="end">
+        <Button
+          variant="ghost"
+          onClick={() => setModalStep('select-plan')}
+          disabled={isProcessing}
+          attributes={{ style: { fontSize: '13px', color: '#6b6b6b' } }}
+        >
+          Back
+        </Button>
+        <Button
+          disabled={isProcessing}
+          onClick={handleCancel}
+          attributes={{
+            style: {
+              backgroundColor: isProcessing ? '#e0ddd8' : '#3d3d3d',
+              color: '#ffffff', border: 'none', borderRadius: '6px',
+              fontSize: '13px', fontWeight: '500', padding: '8px 20px',
+            }
+          }}
+        >
+          {isProcessing ? 'Cancelling...' : 'Confirm'}
+        </Button>
+      </View>
+    </View>
+  );
+
+  // ── Success View ──
+  const SuccessView = () => (
+    <View direction="column" align="center" gap={4} padding={4}>
+      <CheckCircle size={48} weight="light" color="#3d3d3d" />
+      <Text attributes={{ style: { fontSize: '14px', fontWeight: '500', color: '#2d2d2d', textAlign: 'center' } }}>
+        {successMessage}
+      </Text>
+      <Button
+        variant="ghost"
+        onClick={closeModal}
+        attributes={{ style: { fontSize: '13px', color: '#6b6b6b', marginTop: '8px' } }}
+      >
+        Done
+      </Button>
+    </View>
+  );
+
+  return (
+    <View direction="column" padding={6}>
+      <View
+        direction="column" gap={6} width="100%"
+        attributes={{ style: { maxWidth: '500px', margin: '0 auto' } }}
+      >
+        <View direction="column" gap={6}>
           {/* Section Title */}
           <Text
             attributes={{
               style: {
-                color: '#8a8a8a',
-                fontSize: '14px',
-                fontWeight: '600',
-                letterSpacing: '1.2px',
-                textTransform: 'uppercase',
-                marginBottom: '25px'
+                color: '#8a8a8a', fontSize: '14px', fontWeight: '600',
+                letterSpacing: '1.2px', textTransform: 'uppercase',
               }
             }}
           >
@@ -178,154 +623,72 @@ function MembershipContent() {
           <View direction="column">
             {/* Join Date Row */}
             <View
-              direction="row"
-              justify="space-between"
+              direction="row" justify="space-between"
               attributes={{
-                style: {
-                  height: '35px',
-                  padding: '12px 0',
-                  borderBottom: '1px solid #e0ddd8',
-                  alignItems: 'center'
-                }
+                style: { height: '35px', padding: '12px 0', borderBottom: '1px solid #e0ddd8', alignItems: 'center' }
               }}
             >
-              <Text
-                attributes={{
-                  style: {
-                    fontSize: '13px',
-                    fontWeight: '400',
-                    color: '#4a4a4a',
-                    textTransform: 'lowercase'
-                  }
-                }}
-              >
+              <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textTransform: 'lowercase' } }}>
                 join date
               </Text>
-              <Text
-                attributes={{
-                  style: {
-                    fontSize: '13px',
-                    fontWeight: '400',
-                    color: '#4a4a4a',
-                    textAlign: 'right'
-                  }
-                }}
-              >
+              <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textAlign: 'right' } }}>
                 {getJoinDate(subscription)}
               </Text>
             </View>
 
             {/* Membership Type Row */}
             <View
-              direction="row"
-              justify="space-between"
+              direction="row" justify="space-between"
               attributes={{
-                style: {
-                  height: '35px',
-                  padding: '12px 0',
-                  borderBottom: '1px solid #e0ddd8',
-                  alignItems: 'center'
-                }
+                style: { height: '35px', padding: '12px 0', borderBottom: '1px solid #e0ddd8', alignItems: 'center' }
               }}
             >
-              <Text
-                attributes={{
-                  style: {
-                    fontSize: '13px',
-                    fontWeight: '400',
-                    color: '#4a4a4a',
-                    textTransform: 'lowercase'
-                  }
-                }}
-              >
+              <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textTransform: 'lowercase' } }}>
                 membership type
               </Text>
-              <Text
-                attributes={{
-                  style: {
-                    fontSize: '13px',
-                    fontWeight: '400',
-                    color: '#4a4a4a',
-                    textAlign: 'right'
-                  }
-                }}
-              >
+              <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textAlign: 'right' } }}>
                 {getMembershipType(subscription?.plan || null)}
               </Text>
             </View>
 
-            {/* Details Row - Show subscription status */}
+            {/* Status Row */}
             <View
-              direction="row"
-              justify="space-between"
+              direction="row" justify="space-between"
               attributes={{
-                style: {
-                  height: '35px',
-                  padding: '12px 0',
-                  alignItems: 'center'
-                }
+                style: { height: '35px', padding: '12px 0', alignItems: 'center' }
               }}
             >
-              <Text
-                attributes={{
-                  style: {
-                    fontSize: '13px',
-                    fontWeight: '400',
-                    color: '#4a4a4a',
-                    textTransform: 'lowercase'
-                  }
-                }}
-              >
+              <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textTransform: 'lowercase' } }}>
                 status
               </Text>
               <Text
                 attributes={{
                   style: {
-                    fontSize: '13px',
-                    fontWeight: '400',
+                    fontSize: '13px', fontWeight: '400',
                     color: subscription?.status === 'ACTIVE' ? '#6b4c7a' : '#4a4a4a',
                     textAlign: 'right'
                   }
                 }}
               >
-                {subscription ?
-                  subscription.status.toLowerCase() :
-                  'inactive'
-                }
+                {subscription ? subscription.status.toLowerCase() : 'inactive'}
               </Text>
             </View>
 
             {/* Auto-renewal status */}
             {subscription?.status === 'ACTIVE' && (
               <View
-                direction="row"
-                justify="space-between"
+                direction="row" justify="space-between"
                 attributes={{
-                  style: {
-                    height: '35px',
-                    padding: '12px 0',
-                    borderBottom: '1px solid #e0ddd8',
-                    alignItems: 'center'
-                  }
+                  style: { height: '35px', padding: '12px 0', borderBottom: '1px solid #e0ddd8', alignItems: 'center' }
                 }}
               >
-                <Text
-                  attributes={{
-                    style: {
-                      fontSize: '13px',
-                      fontWeight: '400',
-                      color: '#4a4a4a',
-                      textTransform: 'lowercase'
-                    }
-                  }}
-                >
+                <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textTransform: 'lowercase' } }}>
                   auto-renewal
                 </Text>
                 <Text
                   attributes={{
                     style: {
-                      fontSize: '13px',
-                      fontWeight: '400',
+                      fontSize: '13px', fontWeight: '400',
                       color: subscription.cancelAtPeriodEnd ? '#ef4444' : '#6b4c7a',
                       textAlign: 'right'
                     }
@@ -339,38 +702,15 @@ function MembershipContent() {
             {/* Next billing/expiry date */}
             {subscription?.status === 'ACTIVE' && (
               <View
-                direction="row"
-                justify="space-between"
+                direction="row" justify="space-between"
                 attributes={{
-                  style: {
-                    height: '35px',
-                    padding: '12px 0',
-                    alignItems: 'center'
-                  }
+                  style: { height: '35px', padding: '12px 0', alignItems: 'center' }
                 }}
               >
-                <Text
-                  attributes={{
-                    style: {
-                      fontSize: '13px',
-                      fontWeight: '400',
-                      color: '#4a4a4a',
-                      textTransform: 'lowercase'
-                    }
-                  }}
-                >
+                <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textTransform: 'lowercase' } }}>
                   {subscription.cancelAtPeriodEnd ? 'expires' : 'next billing'}
                 </Text>
-                <Text
-                  attributes={{
-                    style: {
-                      fontSize: '13px',
-                      fontWeight: '400',
-                      color: '#4a4a4a',
-                      textAlign: 'right'
-                    }
-                  }}
-                >
+                <Text attributes={{ style: { fontSize: '13px', fontWeight: '400', color: '#4a4a4a', textAlign: 'right' } }}>
                   {formatDate(subscription.currentPeriodEnd)}
                 </Text>
               </View>
@@ -378,399 +718,40 @@ function MembershipContent() {
           </View>
 
           {/* Button Section */}
-          <View
-            direction="column"
-            align="center"
-            gap={4}
-            attributes={{
-              style: {
-                marginTop: '40px'
-              }
-            }}
-          >
-            {/* Edit Button */}
-            <Button
-              onClick={() => {
-                console.log('Edit button clicked!');
-                editModal.activate();
-              }}
-              attributes={{
-                style: {
-                  width: '200px',
-                  height: '45px',
-                  backgroundColor: '#6b4c7a',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: '500',
-                  letterSpacing: '0.5px',
-                  borderRadius: '25px',
-                  cursor: 'pointer'
-                }
-              }}
-            >
-              EDIT
-            </Button>
-
-            {/* Manage Wallet Button */}
+          <View direction="column" align="center" paddingTop={4}>
             <Button
               variant="outline"
-              onClick={() => walletModal.activate()}
-              attributes={{
-                style: {
-                  width: '200px',
-                  height: '45px',
-                  backgroundColor: 'transparent',
-                  border: '1px solid #6b4c7a',
-                  color: '#6b4c7a',
-                  fontSize: '11px',
-                  fontWeight: '500',
-                  letterSpacing: '0.5px',
-                  borderRadius: '25px',
-                  cursor: 'pointer'
-                }
-              }}
+              size="small"
+              onClick={() => setModalStep('select-plan')}
             >
-              MANAGE WALLET
+              Edit Membership
             </Button>
           </View>
-        </Card>
+        </View>
       </View>
 
-      {/* Edit Subscription Modal */}
+      {/* Single Modal with Animated Frames */}
       <Modal
-        active={editModal.active}
-        onClose={editModal.deactivate}
-        size="medium"
+        active={modalStep !== null}
+        onClose={closeModal}
+        size="500px"
       >
-        <View padding={6}>
-          <View paddingBottom={4}>
-            <Text variant="title-4" weight="bold">
-              Edit Subscription
-            </Text>
-          </View>
-          <View paddingBottom={6}>
-            <Text>
-              Choose your subscription plan:
-            </Text>
-          </View>
-
-          <View direction="column" gap={4}>
-            <Button
-              size="large"
-              variant={selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? 'solid' : 'outline'}
-              onClick={() => setSelectedPlan('monthly')}
-              attributes={{
-                style: {
-                  justifyContent: 'space-between',
-                  padding: '16px 20px',
-                  backgroundColor: selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? '#6b4c7a' : 'transparent',
-                  color: selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? '#ffffff' : '#6b4c7a',
-                  border: `1px solid #6b4c7a`
-                }
-              }}
+        <View padding={5}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={modalStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
             >
-              <View>
-                <Text weight="bold" color={selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? 'primary' : undefined}>Monthly Plan</Text>
-                <Text variant="caption-1" color={selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? 'primary' : 'neutral-faded'}>
-                  Billed monthly{getCurrentPlanType() === 'monthly' ? ' (active)' : ''}
-                </Text>
-              </View>
-              <Text weight="bold" color={selectedPlan === 'monthly' || getCurrentPlanType() === 'monthly' ? 'primary' : undefined}>$10/month</Text>
-            </Button>
-
-            <Button
-              size="large"
-              variant={selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? 'solid' : 'outline'}
-              onClick={() => setSelectedPlan('yearly')}
-              attributes={{
-                style: {
-                  justifyContent: 'space-between',
-                  padding: '16px 20px',
-                  backgroundColor: selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? '#6b4c7a' : 'transparent',
-                  color: selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? '#ffffff' : '#6b4c7a',
-                  border: `1px solid #6b4c7a`
-                }
-              }}
-            >
-              <View>
-                <Text weight="bold" color={selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? 'primary' : undefined}>Yearly Plan</Text>
-                <Text variant="caption-1" color={selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? 'primary' : 'neutral-faded'}>
-                  Billed annually - Save $25!{getCurrentPlanType() === 'yearly' ? ' (active)' : ''}
-                </Text>
-              </View>
-              <Text weight="bold" color={selectedPlan === 'yearly' || getCurrentPlanType() === 'yearly' ? 'primary' : undefined}>$95/year</Text>
-            </Button>
-          </View>
-
-          {selectedPlan && !subscription && (
-            <View paddingTop={4}>
-              <Text variant="caption-1" color="neutral-faded">
-                You'll be prompted to enter your payment information after clicking Continue.
-              </Text>
-            </View>
-          )}
-
-          {/* Cancel/Reactivate Subscription Section */}
-          {subscription && subscription.status === 'ACTIVE' && (
-            <View paddingTop={6}>
-              <View
-                padding={3}
-                attributes={{
-                  style: {
-                    backgroundColor: subscription.cancelAtPeriodEnd ? '#f0f8ff' : '#fff5f5',
-                    border: `1px solid ${subscription.cancelAtPeriodEnd ? '#6b4c7a' : '#ef4444'}`,
-                    borderRadius: '4px',
-                  }
-                }}
-              >
-                <Text variant="caption-1" color="neutral" weight="medium">
-                  {subscription.cancelAtPeriodEnd ? '🔄 Reactivate Subscription' : '⚠️ Cancel Subscription'}
-                </Text>
-                <Text variant="caption-1" color="neutral">
-                  {subscription.cancelAtPeriodEnd
-                    ? 'Turn auto-renewal back on to continue your subscription beyond the expiry date.'
-                    : `Your subscription will remain active until ${formatDate(subscription.currentPeriodEnd)}`
-                  }
-                </Text>
-              </View>
-            </View>
-          )}
-
-          <View direction="row" gap={3} paddingTop={6} justify={subscription ? 'space-between' : 'end'}>
-            {/* Cancel/Reactivate subscription buttons */}
-            {subscription && subscription.status === 'ACTIVE' && (
-              subscription.cancelAtPeriodEnd ? (
-                <Button
-                  variant="outline"
-                  disabled={isProcessing}
-                  onClick={async () => {
-                    setIsProcessing(true);
-                    try {
-                      await new Promise((resolve, reject) => {
-                        reactivateSubscription({
-                          variables: {},
-                          updater: (store) => {
-                            const reactivatedSubscription = store.getRootField('reactivateSubscription');
-                            const root = store.getRoot();
-                            root.setLinkedRecord(reactivatedSubscription, 'userSubscription');
-                          },
-                          onCompleted: () => {
-                            console.log('Subscription reactivated successfully');
-                            editModal.deactivate();
-                            setSelectedPlan(null);
-                            resolve(void 0);
-                          },
-                          onError: (error) => {
-                            console.error('Failed to reactivate subscription:', error);
-                            reject(error);
-                          }
-                        });
-                      });
-                    } catch (error) {
-                      console.error('Reactivate subscription error:', error);
-                    } finally {
-                      setIsProcessing(false);
-                    }
-                  }}
-                  attributes={{
-                    style: {
-                      borderColor: '#6b4c7a',
-                      color: '#6b4c7a'
-                    }
-                  }}
-                >
-                  Reactivate Subscription
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  color="critical"
-                  disabled={isProcessing}
-                  onClick={() => cancelModal.activate()}
-                  attributes={{
-                    style: {
-                      borderColor: '#ef4444',
-                      color: '#ef4444'
-                    }
-                  }}
-                >
-                  Cancel Subscription
-                </Button>
-              )
-            )}
-
-            <View direction="row" gap={3}>
-              <Button
-                variant="outline"
-                onClick={editModal.deactivate}
-                disabled={isProcessing}
-              >
-                Close
-              </Button>
-              {(!subscription || selectedPlan) && (
-                <Button
-                  disabled={!selectedPlan || isProcessing}
-                  onClick={() => {
-                    if (selectedPlan) {
-                      if (subscription) {
-                        // Update existing subscription (no payment method needed)
-                        handleSubscriptionPlan(selectedPlan, '');
-                      } else {
-                        // New subscription - need to collect payment method first
-                        editModal.deactivate();
-                        walletModal.activate();
-                      }
-                    }
-                  }}
-                >
-                  {isProcessing ? 'Processing...' : subscription ? 'Update Plan' : 'Continue to Payment'}
-                </Button>
-              )}
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Manage Wallet Modal */}
-      <Modal
-        active={walletModal.active}
-        onClose={walletModal.deactivate}
-        size="large"
-      >
-        <View padding={6}>
-          <View paddingBottom={4}>
-            <Text variant="title-4" weight="bold">
-              {selectedPlan ? 'Complete Your Subscription' : 'Manage Payment Methods'}
-            </Text>
-          </View>
-          <View paddingBottom={4}>
-            <Text>
-              {selectedPlan
-                ? `Enter your payment information to subscribe to the ${selectedPlan} plan.`
-                : 'Update your payment information and billing address.'
-              }
-            </Text>
-          </View>
-
-          {selectedPlan && (
-            <View
-              padding={3}
-              attributes={{
-                style: {
-                  backgroundColor: '#f8f4ff',
-                  border: '1px solid #6b4c7a',
-                  borderRadius: '4px',
-                  marginBottom: '16px',
-                }
-              }}
-            >
-              <Text variant="caption-1" color="neutral" weight="medium">
-                📋 Subscription Details:
-              </Text>
-              <Text variant="caption-1" color="neutral">
-                • You will be charged ${selectedPlan === 'monthly' ? '$10 per month' : '$95 per year'}
-              </Text>
-              <Text variant="caption-1" color="neutral">
-                • Your subscription will auto-renew {selectedPlan === 'monthly' ? 'monthly' : 'annually'}
-              </Text>
-              <Text variant="caption-1" color="neutral">
-                • You can cancel anytime in your membership settings
-              </Text>
-            </View>
-          )}
-
-          {/* Stripe Elements Form */}
-          <Suspense fallback={<Text>Loading payment form...</Text>}>
-            <StripePaymentForm
-              selectedPlan={selectedPlan}
-              onSuccess={(paymentMethodId) => {
-                if (selectedPlan) {
-                  // Complete subscription with payment method
-                  handleSubscriptionPlan(selectedPlan, paymentMethodId);
-                  walletModal.deactivate();
-                } else {
-                  // Just update payment method
-                  handlePaymentMethodUpdate(paymentMethodId);
-                }
-              }}
-              onError={handlePaymentError}
-              onCancel={walletModal.deactivate}
-            />
-          </Suspense>
-        </View>
-      </Modal>
-
-      {/* Cancel Confirmation Modal */}
-      <Modal
-        active={cancelModal.active}
-        onClose={cancelModal.deactivate}
-        size="small"
-      >
-        <View padding={6}>
-          <View paddingBottom={4}>
-            <Text variant="title-4" weight="bold">
-              Turn Off Auto-Renewal?
-            </Text>
-          </View>
-          <View paddingBottom={6}>
-            <Text>
-              This will turn off auto-renewal for your subscription. You'll continue to have full access until your subscription expires on {subscription ? formatDate(subscription.currentPeriodEnd) : ''}.
-            </Text>
-          </View>
-
-          <View direction="row" gap={3} justify="end">
-            <Button
-              variant="outline"
-              onClick={cancelModal.deactivate}
-              disabled={isProcessing}
-            >
-              Keep Subscription
-            </Button>
-            <Button
-              variant="solid"
-              color="critical"
-              disabled={isProcessing}
-              onClick={async () => {
-                setIsProcessing(true);
-                try {
-                  await new Promise((resolve, reject) => {
-                    cancelSubscription({
-                      variables: {},
-                      updater: (store) => {
-                        const cancelledSubscription = store.getRootField('cancelSubscription');
-                        const root = store.getRoot();
-                        root.setLinkedRecord(cancelledSubscription, 'userSubscription');
-                      },
-                      onCompleted: () => {
-                        console.log('Subscription cancelled successfully');
-                        cancelModal.deactivate();
-                        editModal.deactivate();
-                        setSelectedPlan(null);
-                        resolve(void 0);
-                      },
-                      onError: (error) => {
-                        console.error('Failed to cancel subscription:', error);
-                        reject(error);
-                      }
-                    });
-                  });
-                } catch (error) {
-                  console.error('Cancel subscription error:', error);
-                } finally {
-                  setIsProcessing(false);
-                }
-              }}
-              attributes={{
-                style: {
-                  backgroundColor: '#ef4444',
-                  borderColor: '#ef4444'
-                }
-              }}
-            >
-              {isProcessing ? 'Cancelling...' : 'Yes, Cancel'}
-            </Button>
-          </View>
+              {modalStep === 'select-plan' && <SelectPlanView />}
+              {modalStep === 'confirm-change' && <ConfirmChangeView />}
+              {modalStep === 'payment' && <PaymentView />}
+              {modalStep === 'cancel' && <CancelView />}
+              {modalStep === 'success' && <SuccessView />}
+            </motion.div>
+          </AnimatePresence>
         </View>
       </Modal>
     </View>
@@ -779,13 +760,26 @@ function MembershipContent() {
 
 function LoadingFallback() {
   return (
-    <View
-      direction="column"
-      align="center"
-      justify="center"
-      height="100vh"
-    >
-      <Text>Loading membership...</Text>
+    <View direction="column" padding={6}>
+      <View
+        direction="column" gap={6} width="100%"
+        attributes={{ style: { maxWidth: '500px', margin: '0 auto' } }}
+      >
+        <Skeleton height="0.85rem" width="140px" borderRadius="small" />
+        <View direction="column" gap={3}>
+          {[...Array(4)].map((_, i) => (
+            <View key={i} direction="row" justify="space-between" padding={2}
+              attributes={{ style: { borderBottom: i < 3 ? '1px solid #e0ddd8' : 'none' } }}
+            >
+              <Skeleton height="0.75rem" width="100px" borderRadius="small" />
+              <Skeleton height="0.75rem" width="60px" borderRadius="small" />
+            </View>
+          ))}
+        </View>
+        <View direction="column" align="center" gap={2} paddingTop={4}>
+          <Skeleton height="2.25rem" width="140px" borderRadius="medium" />
+        </View>
+      </View>
     </View>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { View, Text, Button } from 'reshaped';
 import { usePrivy } from '@privy-io/react-auth';
+import { ipfsUrl } from '@/lib/ipfs';
 
 interface VideoUploadProps {
   value?: string;
@@ -13,37 +14,17 @@ interface VideoUploadProps {
 export function VideoUpload({ value, onChange, disabled }: VideoUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(value || null);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { getAccessToken } = usePrivy();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // The displayed preview: use localPreview (blob URL during upload) or fall back to value
+  const displayUrl = localPreview || value || null;
 
-  // Update preview when value changes
-  useEffect(() => {
-    if (value && value !== preview) {
-      setPreview(value);
-    }
-  }, [value]);
-
-  // Initialize fileType for existing values  
-  useEffect(() => {
-    if (value && !fileType) {
-      // Try to detect file type from URL patterns
-      if (value.includes('video') || value.includes('.mp4') || value.toLowerCase().includes('mp4')) {
-        setFileType('video/mp4');
-      } else if (value.includes('audio') || value.includes('.wav') || value.toLowerCase().includes('wav')) {
-        setFileType('audio/wav');
-      } else {
-        // For video-centric recipes, default to video if we can't detect
-        setFileType('video/mp4');
-      }
-    }
-  }, [value, fileType]);
+  // Detect media type
+  const isAudio = displayUrl && (fileType?.startsWith('audio/') || displayUrl.includes('.wav') || displayUrl.includes('audio/') || displayUrl.toLowerCase().includes('wav'));
+  const isVideo = displayUrl && !isAudio;
 
   const handleFileUpload = async (file: File) => {
     if (!file) return;
@@ -56,13 +37,14 @@ export function VideoUpload({ value, onChange, disabled }: VideoUploadProps) {
     }
 
     // Create local preview immediately
-    const localPreview = URL.createObjectURL(file);
-    setPreview(localPreview);
+    const blobUrl = URL.createObjectURL(file);
+    setLocalPreview(blobUrl);
+    setFileType(file.type);
 
     try {
       setUploading(true);
       const token = await getAccessToken();
-      
+
       const formData = new FormData();
       formData.append('file', file);
 
@@ -79,34 +61,18 @@ export function VideoUpload({ value, onChange, disabled }: VideoUploadProps) {
       }
 
       const data = await response.json();
-      
-      // Store file type for media detection
-      setFileType(file.type);
-      
-      // Clean up local preview and use uploaded URL
-      URL.revokeObjectURL(localPreview);
-      
-      // Handle different URL formats from the API
-      let uploadedUrl;
-      if (data.url.startsWith('https://ipfs.io/ipfs/')) {
-        // Already a full IPFS gateway URL
-        uploadedUrl = data.url;
-      } else if (data.url.startsWith('ipfs://')) {
-        // IPFS protocol URL, convert to gateway URL
-        uploadedUrl = `https://ipfs.io/ipfs/${data.url.replace('ipfs://', '')}`;
-      } else {
-        // Assume it's just the hash
-        uploadedUrl = `https://ipfs.io/ipfs/${data.url}`;
-      }
-      
-      setPreview(uploadedUrl);
-      onChange(uploadedUrl);
-      
+
+      // Clean up blob URL and notify parent
+      URL.revokeObjectURL(blobUrl);
+      setLocalPreview(null);
+
+      const cid = data.cid || data.url;
+      onChange(cid);
+
     } catch (error) {
-      console.error('Upload error:', error);
-      // Revert to original preview on error
-      URL.revokeObjectURL(localPreview);
-      setPreview(value || null);
+      // Revert on error
+      URL.revokeObjectURL(blobUrl);
+      setLocalPreview(null);
       alert('Upload failed. Please try again.');
     } finally {
       setUploading(false);
@@ -128,7 +94,7 @@ export function VideoUpload({ value, onChange, disabled }: VideoUploadProps) {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     if (disabled) return;
 
     const files = Array.from(e.dataTransfer.files);
@@ -148,21 +114,73 @@ export function VideoUpload({ value, onChange, disabled }: VideoUploadProps) {
     fileInputRef.current?.click();
   };
 
-  // Use stored file type or fallback to URL-based detection
-  const isVideo = preview && (fileType?.startsWith('video/') || preview.includes('.mp4') || preview.includes('video/') || preview.toLowerCase().includes('mp4'));
-  const isAudio = preview && (fileType?.startsWith('audio/') || preview.includes('.wav') || preview.includes('audio/') || preview.toLowerCase().includes('wav'));
+  const hasExistingVideo = !!value;
 
   return (
     <View direction="column" gap={4}>
+      {/* Preview of existing/uploading video */}
+      {displayUrl && (
+        <View direction="column" gap={2}>
+          <View direction="row" justify="space-between" align="center">
+            <Text variant="body-2" color="neutral">Current video</Text>
+            {hasExistingVideo && !localPreview && (
+              <Button
+                variant="ghost"
+                size="small"
+                onClick={() => onChange('')}
+                disabled={disabled || uploading}
+              >
+                Remove
+              </Button>
+            )}
+          </View>
+          <View
+            attributes={{
+              style: {
+                maxWidth: '500px',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                backgroundColor: '#000'
+              }
+            }}
+          >
+            {isVideo ? (
+              <video
+                src={displayUrl.startsWith('blob:') ? displayUrl : ipfsUrl(displayUrl)}
+                controls
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: '300px',
+                  borderRadius: '8px'
+                }}
+              >
+                Your browser does not support video playback.
+              </video>
+            ) : isAudio ? (
+              <View padding={4} backgroundColor="neutral-faded">
+                <audio
+                  src={displayUrl.startsWith('blob:') ? displayUrl : ipfsUrl(displayUrl)}
+                  controls
+                  style={{ width: '100%' }}
+                >
+                  Your browser does not support audio playback.
+                </audio>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      )}
+
       {/* Upload Area */}
       <View
         attributes={{
           style: {
-            border: isDragging ? '2px dashed #6b4c7a' : '2px dashed #e2e8f0',
+            border: isDragging ? '2px dashed #999' : '2px dashed #e2e8f0',
             borderRadius: '8px',
-            padding: '32px',
+            padding: hasExistingVideo ? '20px' : '32px',
             textAlign: 'center',
-            backgroundColor: isDragging ? '#f8f5ff' : '#fafafa',
+            backgroundColor: isDragging ? '#f5f5f5' : '#fafafa',
             cursor: disabled ? 'not-allowed' : 'pointer',
             transition: 'all 0.2s ease'
           },
@@ -180,111 +198,66 @@ export function VideoUpload({ value, onChange, disabled }: VideoUploadProps) {
           onChange={handleFileSelect}
           disabled={disabled || uploading}
         />
-        
-        <View direction="column" gap={3} align="center">
-          <View
-            attributes={{
-              style: {
-                width: '48px',
-                height: '48px',
-                backgroundColor: '#6b4c7a',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '20px'
-              }
-            }}
-          >
-            🎬
-          </View>
-          
-          <Text variant="title-4">
-            {uploading ? 'Uploading...' : 'Drop your video here or click to browse'}
+
+        <View direction="column" gap={2} align="center">
+          {!hasExistingVideo && (
+            <View
+              attributes={{
+                style: {
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: '#e9ecef',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b6b6b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7" />
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+              </svg>
+            </View>
+          )}
+
+          <Text variant="body-2">
+            {uploading ? 'Uploading...' : hasExistingVideo ? 'Drop a new video to replace or click to browse' : 'Drop your video here or click to browse'}
           </Text>
-          
-          <Text variant="body-2" color="neutral-faded">
-            Supports MP4 videos and WAV audio files
-          </Text>
-          
+
+          {!hasExistingVideo && (
+            <Text variant="body-2" color="neutral-faded">
+              Supports MP4 videos and WAV audio files
+            </Text>
+          )}
+
           {!uploading && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="small"
               disabled={disabled}
             >
-              Browse Files
+              {hasExistingVideo ? 'Replace' : 'Browse Files'}
             </Button>
           )}
         </View>
       </View>
 
-      {/* Preview */}
-      {preview && (
-        <View direction="column" gap={2}>
-          <Text variant="body-2" color="neutral">Preview:</Text>
-          <View
-            attributes={{
-              style: {
-                maxWidth: '400px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                backgroundColor: '#000'
-              }
-            }}
-          >
-{isVideo ? (
-              <video
-                src={preview}
-                controls
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  maxHeight: '300px',
-                  borderRadius: '8px'
-                }}
-              >
-                <Text>Your browser does not support video playback.</Text>
-              </video>
-            ) : isAudio ? (
-              <View padding={4} backgroundColor="neutral-faded">
-                <audio
-                  src={preview}
-                  controls
-                  style={{ width: '100%' }}
-                >
-                  <Text>Your browser does not support audio playback.</Text>
-                </audio>
-                <Text variant="body-2" align="center" color="neutral-faded">
-                  Audio File: {preview.split('/').pop()}
-                </Text>
-              </View>
-            ) : (
-              <Text variant="body-2" color="neutral-faded">
-                Preview not available
-              </Text>
-            )}
-          </View>
-          
-          {preview !== value && (
-            <Button
-              variant="ghost"
-              size="small"
-              onClick={() => {
-                if (preview && preview.startsWith('blob:')) {
-                  URL.revokeObjectURL(preview);
-                }
-                setPreview(value || null);
-              }}
-              disabled={uploading}
-            >
-              Cancel Upload
-            </Button>
-          )}
-        </View>
+      {/* Cancel local preview */}
+      {localPreview && (
+        <Button
+          variant="ghost"
+          size="small"
+          onClick={() => {
+            URL.revokeObjectURL(localPreview);
+            setLocalPreview(null);
+          }}
+          disabled={uploading}
+        >
+          Cancel
+        </Button>
       )}
-      
+
       {uploading && (
         <View
           attributes={{

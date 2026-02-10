@@ -35,7 +35,6 @@ export async function withRetry<T>(
       
       // Wait before retrying with exponential backoff
       const waitTime = delay * Math.pow(backoffMultiplier, attempt);
-      console.log(`Database operation failed, retrying in ${waitTime}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
   }
@@ -66,8 +65,6 @@ export async function safeDbOperation<T>(
   try {
     return await withRetry(operation, { maxRetries: 2, delay: 500 });
   } catch (error) {
-    console.error('Database operation failed after retries:', error);
-    
     if (fallback !== undefined) {
       return fallback;
     }

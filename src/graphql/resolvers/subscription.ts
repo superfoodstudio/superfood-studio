@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-08-27.basil' as Stripe.LatestApiVersion,
+  apiVersion: '2023-08-16' as Stripe.LatestApiVersion,
 });
 
 export const subscriptionResolvers = {
@@ -10,14 +10,10 @@ export const subscriptionResolvers = {
     // Create setup intent for payment method collection
     createSetupIntent: async (_parent: any, _args: any, context: any) => {
       try {
-        console.log('CreateSetupIntent called with context keys:', Object.keys(context));
-        
         // Get full user data including ID and email
         const user = await context.getFullUser();
-        console.log('Full user from context:', JSON.stringify(user, null, 2));
-        
+
         if (!user?.isAuthenticated || !user?.id) {
-          console.log('Authentication failed:', { isAuthenticated: user?.isAuthenticated, id: user?.id });
           throw new Error('User must be authenticated');
         }
 
@@ -61,10 +57,8 @@ export const subscriptionResolvers = {
           clientSecret: setupIntent.client_secret
         };
       } catch (error) {
-        console.error('Error creating setup intent:', error);
-        console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
-        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-        throw error; // Throw the original error instead of a generic one
+        console.error(error);
+        throw error;
       }
     },
 
@@ -77,7 +71,7 @@ export const subscriptionResolvers = {
         }
 
         // Find user's active subscription
-        const subscription = await prisma.subscription.findFirst({
+        let subscription = await prisma.subscription.findFirst({
           where: {
             userId: user.id,
             status: {
@@ -93,6 +87,20 @@ export const subscriptionResolvers = {
           return null;
         }
 
+        // Check if subscription has expired (currentPeriodEnd < now)
+        if (
+          subscription.status === 'ACTIVE' &&
+          subscription.currentPeriodEnd &&
+          subscription.currentPeriodEnd < new Date()
+        ) {
+          // Expire the subscription in DB
+          await prisma.subscription.update({
+            where: { id: subscription.id },
+            data: { status: 'EXPIRED' },
+          });
+          subscription = { ...subscription, status: 'EXPIRED' };
+        }
+
         return {
           id: subscription.id,
           status: subscription.status,
@@ -103,7 +111,7 @@ export const subscriptionResolvers = {
           stripeSubscriptionId: subscription.stripeSubscriptionId
         };
       } catch (error) {
-        console.error('Error fetching user subscription:', error);
+        console.error(error);
         return null;
       }
     },
@@ -125,11 +133,18 @@ export const subscriptionResolvers = {
           return [];
         }
 
-        // Get payment methods from Stripe
-        const paymentMethods = await stripe.paymentMethods.list({
-          customer: dbUser.stripeCustomerId,
-          type: 'card',
-        });
+        // Get payment methods and customer default from Stripe
+        const [paymentMethods, customer] = await Promise.all([
+          stripe.paymentMethods.list({
+            customer: dbUser.stripeCustomerId,
+            type: 'card',
+          }),
+          stripe.customers.retrieve(dbUser.stripeCustomerId),
+        ]);
+
+        const defaultPmId = (typeof customer !== 'string' && !customer.deleted)
+          ? customer.invoice_settings?.default_payment_method
+          : null;
 
         return paymentMethods.data.map(pm => ({
           id: pm.id,
@@ -137,10 +152,10 @@ export const subscriptionResolvers = {
           last4: pm.card?.last4 || '0000',
           expMonth: pm.card?.exp_month || 1,
           expYear: pm.card?.exp_year || 2000,
-          isDefault: false // We'll need to get this from the customer's default payment method
+          isDefault: pm.id === defaultPmId,
         }));
       } catch (error) {
-        console.error('Error fetching payment methods:', error);
+        console.error(error);
         return [];
       }
     }
@@ -150,16 +165,9 @@ export const subscriptionResolvers = {
     // Create a new subscription
     createSubscription: async (_parent: any, args: { input: { priceId: string; paymentMethodId: string } }, context: any) => {
       try {
-        console.log('CreateSubscription called with context keys:', Object.keys(context));
         const user = await context.getFullUser();
-        console.log('Full user from context:', JSON.stringify(user, null, 2));
-        
+
         if (!user?.isAuthenticated || !user?.id) {
-          console.log('Authentication failed:', { 
-            isAuthenticated: user?.isAuthenticated, 
-            id: user?.id,
-            userKeys: user ? Object.keys(user) : 'no user object' 
-          });
           throw new Error('User must be authenticated');
         }
 
@@ -171,15 +179,12 @@ export const subscriptionResolvers = {
           throw new Error('Invalid price ID');
         }
 
-        // Check if user already has an active subscription
+        // Check if user already has a subscription record
         const existingSubscription = await prisma.subscription.findFirst({
-          where: {
-            userId: user.id,
-            status: 'ACTIVE'
-          }
+          where: { userId: user.id }
         });
 
-        if (existingSubscription) {
+        if (existingSubscription?.status === 'ACTIVE') {
           throw new Error('User already has an active subscription');
         }
 
@@ -242,19 +247,26 @@ export const subscriptionResolvers = {
         const currentPeriodStart = subscription_data.current_period_start ? new Date(subscription_data.current_period_start * 1000) : new Date();
         const currentPeriodEnd = subscription_data.current_period_end ? new Date(subscription_data.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
 
-        const subscription = await prisma.subscription.create({
-          data: {
-            userId: user.id,
-            stripeSubscriptionId: stripeSubscription.id,
-            stripePriceId: priceId,
-            status: 'ACTIVE',
-            plan: priceId === process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ? 'MONTHLY' : 'YEARLY',
-            startDate: currentPeriodStart,
-            currentPeriodStart: currentPeriodStart,
-            currentPeriodEnd: currentPeriodEnd,
-            cancelAtPeriodEnd: false
-          }
-        });
+        const subscriptionFields = {
+          stripeSubscriptionId: stripeSubscription.id,
+          stripePriceId: priceId,
+          status: 'ACTIVE' as const,
+          plan: (priceId === process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ? 'MONTHLY' : 'YEARLY') as 'MONTHLY' | 'YEARLY',
+          startDate: currentPeriodStart,
+          currentPeriodStart: currentPeriodStart,
+          currentPeriodEnd: currentPeriodEnd,
+          cancelAtPeriodEnd: false
+        };
+
+        // If an expired/cancelled subscription exists, update it; otherwise create new
+        const subscription = existingSubscription
+          ? await prisma.subscription.update({
+              where: { id: existingSubscription.id },
+              data: subscriptionFields
+            })
+          : await prisma.subscription.create({
+              data: { ...subscriptionFields, user: { connect: { id: user.id } } }
+            });
 
         return {
           id: subscription.id,
@@ -266,8 +278,7 @@ export const subscriptionResolvers = {
           stripeSubscriptionId: subscription.stripeSubscriptionId
         };
       } catch (error) {
-        console.error('Error creating subscription:', error);
-        throw new Error('Failed to create subscription');
+        throw new Error(error instanceof Error ? error.message : 'Failed to create subscription');
       }
     },
 
@@ -306,6 +317,10 @@ export const subscriptionResolvers = {
         // Get current Stripe subscription
         const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
 
+        // Determine upgrade vs downgrade for proration behavior
+        const isUpgrade = priceId === process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
+        const isDowngrade = !isUpgrade;
+
         // Update subscription in Stripe
         const updatedStripeSubscription = await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
           items: [
@@ -314,20 +329,33 @@ export const subscriptionResolvers = {
               price: priceId,
             },
           ],
+          proration_behavior: isUpgrade ? 'create_prorations' : 'none',
         });
 
         // Update subscription in database
+        // For downgrades (yearly -> monthly), preserve the existing period dates
+        // so the user keeps their yearly access until the year ends
         const updated_subscription_data = updatedStripeSubscription as any;
-        const currentPeriodStart = updated_subscription_data.current_period_start ? new Date(updated_subscription_data.current_period_start * 1000) : new Date();
-        const currentPeriodEnd = updated_subscription_data.current_period_end ? new Date(updated_subscription_data.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+        const dbUpdateData: any = {
+          stripePriceId: priceId,
+          plan: priceId === process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ? 'MONTHLY' : 'YEARLY',
+        };
+
+        if (!isDowngrade) {
+          // For upgrades, use Stripe's returned period dates
+          dbUpdateData.currentPeriodStart = updated_subscription_data.current_period_start
+            ? new Date(updated_subscription_data.current_period_start * 1000)
+            : new Date();
+          dbUpdateData.currentPeriodEnd = updated_subscription_data.current_period_end
+            ? new Date(updated_subscription_data.current_period_end * 1000)
+            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+        }
+        // For downgrades, keep existing currentPeriodStart and currentPeriodEnd
 
         const updatedSubscription = await prisma.subscription.update({
           where: { id: subscription.id },
-          data: {
-            stripePriceId: priceId,
-            currentPeriodStart: currentPeriodStart,
-            currentPeriodEnd: currentPeriodEnd
-          }
+          data: dbUpdateData
         });
 
         return {
@@ -340,8 +368,7 @@ export const subscriptionResolvers = {
           stripeSubscriptionId: updatedSubscription.stripeSubscriptionId
         };
       } catch (error) {
-        console.error('Error updating subscription:', error);
-        throw new Error('Failed to update subscription');
+        throw new Error(error instanceof Error ? error.message : 'Failed to update subscription');
       }
     },
 
@@ -392,8 +419,7 @@ export const subscriptionResolvers = {
           stripeSubscriptionId: updatedSubscription.stripeSubscriptionId
         };
       } catch (error) {
-        console.error('Error canceling subscription:', error);
-        throw new Error('Failed to cancel subscription');
+        throw new Error(error instanceof Error ? error.message : 'Failed to cancel subscription');
       }
     },
 
@@ -445,8 +471,7 @@ export const subscriptionResolvers = {
           stripeSubscriptionId: updatedSubscription.stripeSubscriptionId
         };
       } catch (error) {
-        console.error('Error reactivating subscription:', error);
-        throw new Error('Failed to reactivate subscription');
+        throw new Error(error instanceof Error ? error.message : 'Failed to reactivate subscription');
       }
     }
   }

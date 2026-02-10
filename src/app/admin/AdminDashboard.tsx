@@ -1,6 +1,6 @@
 "use client";
 
-import { View, Text, Button, Grid, Card } from "reshaped";
+import { View, Text, Button, Card } from "reshaped";
 import Link from "next/link";
 import { useLazyLoadQuery } from "react-relay";
 import { Suspense } from "react";
@@ -49,7 +49,7 @@ function AdminDashboardContent() {
         width="100%"
         attributes={{
           style: {
-            maxWidth: '1200px',
+            maxWidth: '900px',
             margin: '0 auto'
           }
         }}
@@ -71,96 +71,29 @@ function AdminDashboardContent() {
             ADMIN
           </Text>
 
-          {/* Admin Navigation Grid */}
-          <Grid columns={{ s: "1fr 1fr 1fr", m: "repeat(3, 180px)" }} gap={4}>
+          {/* Admin Navigation */}
+          <View direction="row" gap={4} wrap>
             <Link href="/admin/recipes">
-              <Button
-                variant="outline"
-                size="medium"
-                attributes={{
-                  style: {
-                    width: "180px",
-                    height: "45px",
-                    border: "1px solid #6b4c7a",
-                    backgroundColor: "#ffffff",
-                    color: "#6b4c7a",
-                    fontSize: "11px",
-                    fontWeight: "500",
-                    letterSpacing: "0.5px",
-                    borderRadius: "2px",
-                  },
-                }}
-              >
-                MANAGE RECIPES
+              <Button variant="outline" size="medium">
+                Recipes
               </Button>
             </Link>
-
             <Link href="/admin/products">
-              <Button
-                variant="outline"
-                size="medium"
-                attributes={{
-                  style: {
-                    width: "180px",
-                    height: "45px",
-                    border: "1px solid #6b4c7a",
-                    backgroundColor: "#ffffff",
-                    color: "#6b4c7a",
-                    fontSize: "11px",
-                    fontWeight: "500",
-                    letterSpacing: "0.5px",
-                    borderRadius: "2px",
-                  },
-                }}
-              >
-                MANAGE PRODUCTS
+              <Button variant="outline" size="medium">
+                Products
               </Button>
             </Link>
-
             <Link href="/admin/orders">
-              <Button
-                variant="outline"
-                size="medium"
-                attributes={{
-                  style: {
-                    width: "180px",
-                    height: "45px",
-                    border: "1px solid #6b4c7a",
-                    backgroundColor: "#ffffff",
-                    color: "#6b4c7a",
-                    fontSize: "11px",
-                    fontWeight: "500",
-                    letterSpacing: "0.5px",
-                    borderRadius: "2px",
-                  },
-                }}
-              >
-                MANAGE ORDERS
+              <Button variant="outline" size="medium">
+                Orders
               </Button>
             </Link>
-
             <Link href="/admin/settings">
-              <Button
-                variant="outline"
-                size="medium"
-                attributes={{
-                  style: {
-                    width: "180px",
-                    height: "45px",
-                    border: "1px solid #6b4c7a",
-                    backgroundColor: "#ffffff",
-                    color: "#6b4c7a",
-                    fontSize: "11px",
-                    fontWeight: "500",
-                    letterSpacing: "0.5px",
-                    borderRadius: "2px",
-                  },
-                }}
-              >
-                SITE SETTINGS
+              <Button variant="outline" size="medium">
+                Settings
               </Button>
             </Link>
-          </Grid>
+          </View>
         </View>
 
         {/* Metrics Cards */}
@@ -172,7 +105,6 @@ function AdminDashboardContent() {
               style: {
                 width: "120px",
                 height: "100px",
-                backgroundColor: "#ffffff",
                 border: "1px solid #e0ddd8",
                 borderRadius: "2px",
               },
@@ -219,7 +151,6 @@ function AdminDashboardContent() {
               style: {
                 width: "120px",
                 height: "100px",
-                backgroundColor: "#ffffff",
                 border: "1px solid #e0ddd8",
                 borderRadius: "2px",
               },
@@ -257,7 +188,7 @@ function AdminDashboardContent() {
                   },
                 }}
               >
-                REVENUE
+                MO/REVENUE
               </Text>
             </View>
           </Card>
@@ -269,7 +200,6 @@ function AdminDashboardContent() {
               style: {
                 width: "120px",
                 height: "100px",
-                backgroundColor: "#ffffff",
                 border: "1px solid #e0ddd8",
                 borderRadius: "2px",
               },
@@ -370,7 +300,7 @@ function AdminDashboardContent() {
               },
             }}
           >
-            MANAGE ORDERS
+            LATEST ORDERS
           </Text>
 
           {/* Orders Table */}
@@ -378,7 +308,6 @@ function AdminDashboardContent() {
             attributes={{
               style: {
                 border: "1px solid #e0ddd8",
-                backgroundColor: "#ffffff",
                 borderRadius: "2px",
               },
             }}
@@ -390,7 +319,7 @@ function AdminDashboardContent() {
               attributes={{
                 style: {
                   height: "50px",
-                  backgroundColor: "#f9f8f6",
+                  backgroundColor: "var(--rs-color-background-page-faded)",
                   borderBottom: "1px solid #e0ddd8",
                 },
               }}
@@ -449,7 +378,6 @@ function AdminDashboardContent() {
                 attributes={{
                   style: {
                     height: "45px",
-                    backgroundColor: "#ffffff",
                   },
                 }}
               >
@@ -473,8 +401,8 @@ function AdminDashboardContent() {
                   padding={6}
                   attributes={{
                     style: {
-                      height: "45px",
-                      backgroundColor: index % 2 === 0 ? "#ffffff" : "#fafaf9",
+                      minHeight: "45px",
+                      backgroundColor: index % 2 === 1 ? "var(--rs-color-background-page-faded)" : "transparent",
                       borderBottom:
                         index < orders.length - 1
                           ? "1px solid #f0efec"

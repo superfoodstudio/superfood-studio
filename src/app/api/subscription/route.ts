@@ -30,31 +30,28 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1];
-    
-    // Check if we're in test mode using a mock token
-    const isTestToken = token.includes('mock_token');
-    
+
     try {
-      // For test tokens, create a mock response
-      if (isTestToken) {
-        return NextResponse.json({ 
-          subscription: {
-            id: 'mock-subscription-id',
-            status: 'ACTIVE',
-            plan: 'MONTHLY',
-            startDate: new Date(),
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          }
-        });
-      }
-      
       const authService = AuthService.getInstance();
       const user = await authService.verifyToken(token);
 
       // Get the user's subscription details
-      const subscription = await prisma.subscription.findUnique({
+      let subscription = await prisma.subscription.findUnique({
         where: { userId: user.id },
       });
+
+      // Check if subscription has expired (currentPeriodEnd < now)
+      if (
+        subscription &&
+        subscription.status === 'ACTIVE' &&
+        subscription.currentPeriodEnd &&
+        subscription.currentPeriodEnd < new Date()
+      ) {
+        subscription = await prisma.subscription.update({
+          where: { id: subscription.id },
+          data: { status: 'EXPIRED' },
+        });
+      }
 
       return NextResponse.json({ subscription: subscription || null });
     } catch (authError) {
@@ -185,11 +182,11 @@ export async function POST(req: NextRequest) {
       },
     });
     
-    // Create a pending subscription in the database
+    // Create a pending subscription in the database (PENDING until payment confirmed by webhook)
     await prisma.subscription.create({
       data: {
         userId,
-        status: SubscriptionStatus.ACTIVE,
+        status: SubscriptionStatus.PENDING,
         plan: planId as 'MONTHLY' | 'YEARLY',
         startDate: new Date(),
         stripePriceId,

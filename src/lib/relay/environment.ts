@@ -17,7 +17,6 @@ const fetchFn: FetchFunction = async (
 ) => {
   // Ensure we're in browser environment
   if (typeof window === 'undefined') {
-    console.warn('Relay fetch attempted during server render - returning empty data');
     return { data: {}, errors: [], extensions: {} };
   }
 
@@ -43,14 +42,9 @@ const fetchFn: FetchFunction = async (
 
     const json = await resp.json();
     
-    if (json.errors) {
-      console.error('GraphQL request errors:', json.errors);
-    }
     
     return json;
   } catch (error) {
-    console.error('Network error:', error);
-    
     // Return a structured error response that Relay can handle
     return {
       data: {},
@@ -85,7 +79,6 @@ export const createRelayEnvironment = () => {
     
     return relayEnvironment;
   } catch (error) {
-    console.error('Error creating Relay environment:', error);
     return null;
   }
 }; 

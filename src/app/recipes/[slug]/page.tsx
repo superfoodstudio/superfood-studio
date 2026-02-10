@@ -63,7 +63,7 @@ function RecipeNotFound() {
   const router = useRouter();
   return (
     <View direction="column" align="center" gap={4} padding={8}>
-      <Text variant="title-2">Recipe not found</Text>
+      <Text variant="title-5">Recipe not found</Text>
       <Button variant="solid" onClick={() => router.push("/recipes")}>
         Back to Recipes
       </Button>
