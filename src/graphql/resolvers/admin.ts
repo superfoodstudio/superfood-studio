@@ -252,10 +252,10 @@ export const adminResolvers = {
           date: order.createdAt.toISOString(),
           items: order.items.map(item => ({
             id: item.id,
-            productName: item.product.name,
+            productName: item.product?.name || 'Deleted product',
             quantity: item.quantity,
             price: item.price,
-            photoUrl: item.product.photoUrl
+            photoUrl: item.product?.photoUrl || ''
           }))
         }));
       } catch (error) {
@@ -324,10 +324,10 @@ export const adminResolvers = {
             shippingAddress: order.shippingAddress,
             items: order.items.map(item => ({
               id: item.id,
-              productName: item.product.name,
+              productName: item.product?.name || 'Deleted product',
               quantity: item.quantity,
               price: item.price,
-              photoUrl: item.product.photoUrl
+              photoUrl: item.product?.photoUrl || ''
             }))
           }
         }));

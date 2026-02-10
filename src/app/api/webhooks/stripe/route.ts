@@ -118,18 +118,20 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
       });
 
       for (const item of order.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            inventory: {
-              decrement: item.quantity,
+        if (item.productId) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              inventory: {
+                decrement: item.quantity,
+              },
             },
-          },
-        });
+          });
+        }
       }
     });
   }
-  
+
   // If cart exists, clear it
   if (cartId) {
     await prisma.cartItem.deleteMany({
@@ -166,14 +168,16 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event) {
       });
 
       for (const item of order.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: {
-            inventory: {
-              decrement: item.quantity,
+        if (item.productId) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              inventory: {
+                decrement: item.quantity,
+              },
             },
-          },
-        });
+          });
+        }
       }
     });
   }
