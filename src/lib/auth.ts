@@ -75,21 +75,8 @@ export class AuthService {
     }
   }
 
-  async getUserRole(email: string, requestHeaders?: Headers) {
+  async getUserRole(email: string) {
     try {
-      // Check for the test admin override header
-      let adminOverride = false;
-      
-      // For browser requests, check the passed headers
-      if (requestHeaders && requestHeaders.get('X-Admin-Test-Override') === 'true') {
-        adminOverride = true;
-      }
-      
-      // For testing only - return ADMIN role if the override header is present
-      if (adminOverride && (process.env.NODE_ENV === 'test' || process.env.TESTING === 'true')) {
-        return 'ADMIN';
-      }
-      
       const user = await prisma.user.findUnique({
         where: { email },
         select: { role: true },

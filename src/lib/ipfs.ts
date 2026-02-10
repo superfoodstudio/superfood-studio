@@ -1,5 +1,5 @@
-const GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL || 'https://ivory-historic-penguin-632.mypinata.cloud';
-const TOKEN = process.env.NEXT_PUBLIC_PINATA_GATEWAY_TOKEN || '';
+const GATEWAY_URL = process.env.NEXT_PUBLIC_PINATA_GATEWAY_URL || 'https://ivory-historic-penguin-632.mypinata.cloud';
+const GATEWAY_TOKEN = process.env.NEXT_PUBLIC_PINATA_GATEWAY_TOKEN || '';
 
 export function ipfsUrl(cidOrUrl: string): string {
   if (!cidOrUrl) return '';
@@ -9,6 +9,6 @@ export function ipfsUrl(cidOrUrl: string): string {
   const cid = cidOrUrl.includes('/ipfs/')
     ? cidOrUrl.split('/ipfs/').pop()!
     : cidOrUrl;
-  const base = `${GATEWAY}/ipfs/${cid}`;
-  return TOKEN ? `${base}?pinataGatewayToken=${TOKEN}` : base;
+  const tokenParam = GATEWAY_TOKEN ? `?pinataGatewayToken=${GATEWAY_TOKEN}` : '';
+  return `${GATEWAY_URL}/ipfs/${cid}${tokenParam}`;
 }

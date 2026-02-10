@@ -144,14 +144,21 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
           objectFit: 'cover'
         }}
         onError={(e) => {
-          // If image fails to load, show placeholder
+          // If image fails to load, show placeholder using safe DOM manipulation
           const target = e.target as HTMLImageElement;
           target.style.display = 'none';
-          target.parentElement!.innerHTML = `
-            <div style="background: #f5f5f5; display: flex; align-items: center; justify-content: center; height: 100%; border-radius: 8px;">
-              <span style="color: #666; font-size: 14px;">Media not available</span>
-            </div>
-          `;
+          const parent = target.parentElement!;
+          while (parent.firstChild) parent.removeChild(parent.firstChild);
+
+          const wrapper = document.createElement('div');
+          wrapper.style.cssText = 'background: #f5f5f5; display: flex; align-items: center; justify-content: center; height: 100%; border-radius: 8px;';
+
+          const message = document.createElement('span');
+          message.style.cssText = 'color: #666; font-size: 14px;';
+          message.textContent = 'Media not available';
+
+          wrapper.appendChild(message);
+          parent.appendChild(wrapper);
         }}
       />
     </View>

@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { View, Text, Card, Button } from 'reshaped';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useLazyLoadQuery } from 'react-relay';
@@ -146,8 +147,10 @@ function FeaturedProductLoading() {
 
 export function FeaturedProduct() {
   return (
-    <Suspense fallback={<FeaturedProductLoading />}>
-      <FeaturedProductContent />
-    </Suspense>
+    <QueryErrorBoundary>
+      <Suspense fallback={<FeaturedProductLoading />}>
+        <FeaturedProductContent />
+      </Suspense>
+    </QueryErrorBoundary>
   );
 }

@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 // This is a special endpoint for testing and initial admin setup
 // It allows promoting a user to admin role using a secret key
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 5 attempts per 15 minutes
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const { allowed, remaining } = checkRateLimit(ip, 5, 900000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '900' } }
+      );
+    }
+
     // Verify the request has a valid secret key
     const { email, secretKey } = await request.json();
     

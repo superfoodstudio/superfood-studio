@@ -3,6 +3,7 @@
 import { View, Text, Button, Skeleton } from "reshaped";
 import Link from "next/link";
 import { Suspense } from "react";
+import { QueryErrorBoundary } from "@/components/ui/QueryErrorBoundary";
 import { useLazyLoadQuery } from "react-relay";
 import { SiteSettingsQuery } from "@/graphql/queries/SiteSettingsQueries";
 import { ipfsUrl } from "@/lib/ipfs";
@@ -77,9 +78,11 @@ export function HomeContent() {
     >
       {/* Hero Video Section */}
       <View padding={{ s: 0, m: 4 }}>
-        <Suspense fallback={<HeroVideoLoading />}>
-          <HeroVideoSection />
-        </Suspense>
+        <QueryErrorBoundary>
+          <Suspense fallback={<HeroVideoLoading />}>
+            <HeroVideoSection />
+          </Suspense>
+        </QueryErrorBoundary>
       </View>
 
       {/* Your Culinary Playhouse Section */}

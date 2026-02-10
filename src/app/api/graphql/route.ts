@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/lib/relay/server';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,16 @@ const corsHeaders = {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 100 requests per minute
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const { allowed } = checkRateLimit(`graphql:${ip}`, 100, 60000);
+    if (!allowed) {
+      return NextResponse.json(
+        { errors: [{ message: 'Too many requests. Please try again later.' }] },
+        { status: 429, headers: { ...corsHeaders, 'Retry-After': '60' } }
+      );
+    }
+
     const { query, variables } = await request.json();
 
     if (!query) {
@@ -21,6 +32,17 @@ export async function POST(request: NextRequest) {
         { error: 'Query is required' },
         { status: 400 }
       );
+    }
+
+    // Block introspection in production
+    if (process.env.NODE_ENV === 'production') {
+      const queryStr = typeof query === 'string' ? query : '';
+      if (queryStr.includes('__schema') || queryStr.includes('__type')) {
+        return NextResponse.json(
+          { errors: [{ message: 'Introspection is disabled' }] },
+          { status: 403, headers: corsHeaders }
+        );
+      }
     }
 
     const data = await Promise.race([
@@ -55,6 +77,16 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Rate limit: 100 requests per minute
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const { allowed } = checkRateLimit(`graphql-get:${ip}`, 100, 60000);
+    if (!allowed) {
+      return NextResponse.json(
+        { errors: [{ message: 'Too many requests. Please try again later.' }] },
+        { status: 429, headers: { ...corsHeaders, 'Retry-After': '60' } }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
     const variablesParam = searchParams.get('variables');
@@ -64,6 +96,17 @@ export async function GET(request: NextRequest) {
         { error: 'Query parameter is required' },
         { status: 400 }
       );
+    }
+
+    // Block introspection in production
+    if (process.env.NODE_ENV === 'production') {
+      const queryStr = typeof query === 'string' ? query : '';
+      if (queryStr.includes('__schema') || queryStr.includes('__type')) {
+        return NextResponse.json(
+          { errors: [{ message: 'Introspection is disabled' }] },
+          { status: 403, headers: corsHeaders }
+        );
+      }
     }
 
     let variables = {};

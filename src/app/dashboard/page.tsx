@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { usePrivy } from "@privy-io/react-auth";
 import { useEffect, useState, Suspense } from "react";
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { View, Text, Button, Skeleton } from "reshaped";
 import { useLazyLoadQuery } from "react-relay";
 import { AppContainer } from "@/components/layout/AppContainer";
@@ -207,8 +208,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardContent />
-    </Suspense>
+    <QueryErrorBoundary>
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardContent />
+      </Suspense>
+    </QueryErrorBoundary>
   );
 }

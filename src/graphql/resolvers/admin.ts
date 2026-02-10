@@ -39,29 +39,24 @@ export const adminResolvers = {
           }
         });
 
-        // Get subscription revenue from Stripe for active subscriptions
+        // Calculate subscription revenue from our own subscription records
+        // instead of fetching each subscription from Stripe individually (N+1)
         let subscriptionRevenue = 0;
-        if (process.env.STRIPE_SECRET_KEY) {
-          try {
-            const stripe = getStripe();
-            const activeSubs = await prisma.subscription.findMany({
-              where: { status: 'ACTIVE' },
-              select: { stripeSubscriptionId: true }
-            });
-            for (const sub of activeSubs) {
-              if (sub.stripeSubscriptionId) {
-                try {
-                  const stripeSub = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
-                  const amount = stripeSub.items.data[0]?.price?.unit_amount || 0;
-                  subscriptionRevenue += amount / 100; // cents to dollars
-                } catch {
-                  // Individual subscription fetch failed, skip
-                }
-              }
+        try {
+          const activeSubscriptions = await prisma.subscription.findMany({
+            where: { status: 'ACTIVE' },
+            select: { plan: true },
+          });
+
+          for (const sub of activeSubscriptions) {
+            if (sub.plan === 'MONTHLY') {
+              subscriptionRevenue += 9.99; // monthly price
+            } else if (sub.plan === 'YEARLY') {
+              subscriptionRevenue += 99.99 / 12; // yearly price divided by 12
             }
-          } catch (e) {
-            console.error('Failed to fetch subscription revenue from Stripe:', e);
           }
+        } catch (e) {
+          console.error('Failed to calculate subscription revenue:', e);
         }
 
         const totalRevenue = (orderRevenueResult._sum.total || 0) + subscriptionRevenue;
@@ -101,8 +96,8 @@ export const adminResolvers = {
     recentOrders: async (_parent: any, args: { limit?: number }, context: GraphQLContext) => {
       await requireAdmin(context);
       try {
-        const limit = args.limit || 5;
-        
+        const limit = Math.min(Math.max(args.limit || 5, 1), 50);
+
         const orders = await prisma.order.findMany({
           take: limit,
           orderBy: {
@@ -218,9 +213,9 @@ export const adminResolvers = {
     adminOrders: async (_parent: any, args: { limit?: number; offset?: number }, context: GraphQLContext) => {
       await requireAdmin(context);
       try {
-        const limit = args.limit || 50;
-        const offset = args.offset || 0;
-        
+        const limit = Math.min(Math.max(args.limit || 50, 1), 100);
+        const offset = Math.max(args.offset || 0, 0);
+
         const orders = await prisma.order.findMany({
           skip: offset,
           take: limit,

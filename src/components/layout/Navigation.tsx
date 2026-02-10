@@ -181,7 +181,7 @@ export function Navigation() {
           {/* Cart Icon with Counter */}
           <Link href="/cart">
             <div style={{ position: 'relative', display: 'inline-block' }}>
-              <Button variant="ghost" size="small">
+              <Button variant="ghost" size="small" attributes={{ 'aria-label': 'Shopping cart' }}>
                 <ShoppingCart size={24} />
               </Button>
               {cartItemCount > 0 && (
@@ -212,7 +212,7 @@ export function Navigation() {
                   <Button
                     variant="ghost"
                     size="small"
-                    attributes={attributes}
+                    attributes={{ ...attributes, 'aria-label': 'User menu' }}
                   >
                     <User size={24} weight="regular" />
                   </Button>

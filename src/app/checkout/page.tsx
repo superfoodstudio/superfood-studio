@@ -203,8 +203,9 @@ export default function CheckoutPage() {
                 <View direction="column" gap={3}>
                   <View direction="row" gap={2}>
                     <View direction="column" gap={1} grow>
-                      <Text>First Name</Text>
+                      <label htmlFor="firstName"><Text>First Name</Text></label>
                       <input
+                        id="firstName"
                         type="text"
                         name="firstName"
                         value={formData.firstName}
@@ -214,8 +215,9 @@ export default function CheckoutPage() {
                       />
                     </View>
                     <View direction="column" gap={1} grow>
-                      <Text>Last Name</Text>
+                      <label htmlFor="lastName"><Text>Last Name</Text></label>
                       <input
+                        id="lastName"
                         type="text"
                         name="lastName"
                         value={formData.lastName}
@@ -227,8 +229,9 @@ export default function CheckoutPage() {
                   </View>
                   
                   <View direction="column" gap={1}>
-                    <Text>Email</Text>
+                    <label htmlFor="email"><Text>Email</Text></label>
                     <input
+                      id="email"
                       type="email"
                       name="email"
                       value={formData.email}
@@ -239,8 +242,9 @@ export default function CheckoutPage() {
                   </View>
                   
                   <View direction="column" gap={1}>
-                    <Text>Street Address</Text>
+                    <label htmlFor="street"><Text>Street Address</Text></label>
                     <input
+                      id="street"
                       type="text"
                       name="street"
                       value={formData.street}
@@ -252,8 +256,9 @@ export default function CheckoutPage() {
                   
                   <View direction="row" gap={2}>
                     <View direction="column" gap={1} grow>
-                      <Text>City</Text>
+                      <label htmlFor="city"><Text>City</Text></label>
                       <input
+                        id="city"
                         type="text"
                         name="city"
                         value={formData.city}
@@ -263,8 +268,9 @@ export default function CheckoutPage() {
                       />
                     </View>
                     <View direction="column" gap={1} grow>
-                      <Text>State</Text>
+                      <label htmlFor="state"><Text>State</Text></label>
                       <input
+                        id="state"
                         type="text"
                         name="state"
                         value={formData.state}
@@ -277,8 +283,9 @@ export default function CheckoutPage() {
                   
                   <View direction="row" gap={2}>
                     <View direction="column" gap={1} grow>
-                      <Text>ZIP Code</Text>
+                      <label htmlFor="zipCode"><Text>ZIP Code</Text></label>
                       <input
+                        id="zipCode"
                         type="text"
                         name="zipCode"
                         value={formData.zipCode}
@@ -288,8 +295,9 @@ export default function CheckoutPage() {
                       />
                     </View>
                     <View direction="column" gap={1} grow>
-                      <Text>Country</Text>
+                      <label htmlFor="country"><Text>Country</Text></label>
                       <select
+                        id="country"
                         name="country"
                         value={formData.country}
                         onChange={handleInputChange}

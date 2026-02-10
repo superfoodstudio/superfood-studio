@@ -28,7 +28,8 @@ export const commentResolvers = {
         },
         orderBy: {
           createdAt: 'asc'
-        }
+        },
+        take: 100
       });
     },
 

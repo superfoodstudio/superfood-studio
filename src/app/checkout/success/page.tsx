@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import Link from 'next/link';
 import { useLazyLoadQuery } from 'react-relay';
 import { AppContainer } from '@/components/layout/AppContainer';
@@ -145,15 +146,17 @@ function CheckoutSuccessContent() {
 
 export default function CheckoutSuccessPage() {
   return (
-    <Suspense fallback={
-      <AppContainer maxWidth={600}>
-        <View direction="column" align="center" padding={8}>
-          <Text variant="featured-3">Processing Your Order...</Text>
-          <Text>Please wait while we confirm your order details.</Text>
-        </View>
-      </AppContainer>
-    }>
-      <CheckoutSuccessContent />
-    </Suspense>
+    <QueryErrorBoundary>
+      <Suspense fallback={
+        <AppContainer maxWidth={600}>
+          <View direction="column" align="center" padding={8}>
+            <Text variant="featured-3">Processing Your Order...</Text>
+            <Text>Please wait while we confirm your order details.</Text>
+          </View>
+        </AppContainer>
+      }>
+        <CheckoutSuccessContent />
+      </Suspense>
+    </QueryErrorBoundary>
   );
 } 

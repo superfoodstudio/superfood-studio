@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useState } from 'react';
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import Link from 'next/link';
 import { View, Text, Button, Divider } from 'reshaped';
 import { useLazyLoadQuery, useFragment } from 'react-relay';
@@ -50,9 +51,11 @@ export default function ProductDetailPage() {
 
   return (
     <AppContainer maxWidth={750}>
-      <Suspense fallback={<ProductDetailSkeleton />}>
-        {isReady && <ProductDetailLazy slug={productSlug} />}
-      </Suspense>
+      <QueryErrorBoundary>
+        <Suspense fallback={<ProductDetailSkeleton />}>
+          {isReady && <ProductDetailLazy slug={productSlug} />}
+        </Suspense>
+      </QueryErrorBoundary>
     </AppContainer>
   );
 }

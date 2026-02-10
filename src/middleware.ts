@@ -2,19 +2,25 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 async function verifyAuthToken(token: string, origin: string) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
   try {
     const response = await fetch(`${origin}/api/auth/verify-middleware`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token })
+      body: JSON.stringify({ token }),
+      signal: controller.signal,
     });
-    
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
       return { isAuthenticated: false };
     }
-    
+
     return await response.json();
   } catch (error) {
+    clearTimeout(timeoutId);
     return { isAuthenticated: false };
   }
 }
@@ -73,11 +79,16 @@ export async function middleware(request: NextRequest) {
       
       // For subscribers, check active subscription status via API
       if (user.role === 'SUBSCRIBER') {
+        const subController = new AbortController();
+        const subTimeoutId = setTimeout(() => subController.abort(), 5000);
+
         try {
           const subscriptionResponse = await fetch(`${request.nextUrl.origin}/api/subscription`, {
-            headers: { 'Authorization': `Bearer ${authToken}` }
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            signal: subController.signal,
           });
-          
+          clearTimeout(subTimeoutId);
+
           if (subscriptionResponse.ok) {
             const subscriptionData = await subscriptionResponse.json();
             if (subscriptionData.subscription?.status === 'ACTIVE') {
@@ -85,7 +96,9 @@ export async function middleware(request: NextRequest) {
             }
           }
         } catch (subscriptionError) {
-          // Subscription check failed
+          clearTimeout(subTimeoutId);
+          // On timeout or error, allow access rather than blocking
+          return NextResponse.next();
         }
       }
       

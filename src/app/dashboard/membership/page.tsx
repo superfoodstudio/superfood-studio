@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { View, Text, Button, Modal, Skeleton } from 'reshaped';
 import { useLazyLoadQuery, useMutation } from 'react-relay';
 import { Suspense, useState } from 'react';
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'phosphor-react';
 import type { MembershipQueriesQuery } from '@/__generated__/MembershipQueriesQuery.graphql';
@@ -786,8 +787,10 @@ function LoadingFallback() {
 
 export default function MembershipPage() {
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <MembershipContent />
-    </Suspense>
+    <QueryErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <MembershipContent />
+      </Suspense>
+    </QueryErrorBoundary>
   );
 }

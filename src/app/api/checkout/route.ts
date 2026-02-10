@@ -116,41 +116,37 @@ export async function POST(req: NextRequest) {
       })
     };
     
-    // Check inventory availability
-    for (const item of cartWithProducts.items) {
-      if (item.quantity > item.product.inventory) {
-        return NextResponse.json(
-          { 
-            error: 'Insufficient inventory', 
-            productId: item.productId,
-            productName: item.product.name,
-            available: item.product.inventory 
-          },
-          { status: 400 }
-        );
-      }
-    }
-    
     // Calculate total
     const total = cartWithProducts.items.reduce((sum, item) => {
       return sum + (item.price * item.quantity);
     }, 0);
-    
-    // Create a pending order in the database
-    const order = await prisma.order.create({
-      data: {
-        userId: userId!, // We know the user is authenticated at this point
-        total,
-        status: 'PENDING',
-        shippingAddress: shippingAddress || undefined, // Include shipping address if provided
-        items: {
-          create: cartWithProducts.items.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
+
+    // Atomically validate inventory and create order in a transaction
+    const order = await prisma.$transaction(async (tx) => {
+      // Re-validate inventory inside transaction
+      for (const item of cartWithProducts.items) {
+        const product = await tx.product.findUnique({ where: { id: item.productId } });
+        if (!product || item.quantity > product.inventory) {
+          throw new Error('Insufficient inventory');
+        }
+      }
+
+      // Create order
+      return tx.order.create({
+        data: {
+          userId: userId!,
+          total,
+          status: 'PENDING',
+          shippingAddress: shippingAddress || undefined,
+          items: {
+            create: cartWithProducts.items.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+          },
         },
-      },
+      });
     });
     
     // Create line items for Stripe

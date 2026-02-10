@@ -76,7 +76,13 @@ export const userResolvers = {
         const updateData: any = {};
         if (firstName !== undefined) updateData.firstName = firstName;
         if (lastName !== undefined) updateData.lastName = lastName;
-        if (email !== undefined) updateData.email = email;
+        if (email !== undefined) {
+          const existing = await prisma.user.findUnique({ where: { email } });
+          if (existing && existing.id !== userId) {
+            throw new Error('Email already in use');
+          }
+          updateData.email = email;
+        }
 
         const updatedUser = await prisma.user.update({
           where: {

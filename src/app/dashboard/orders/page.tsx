@@ -6,6 +6,7 @@ import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { Suspense, useEffect, useCallback } from 'react';
 import { View, Text, Button, Skeleton } from 'reshaped';
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { UserOrdersQuery, UserOrdersPaginationFragment } from './OrderQueries';
 import { LoadMore } from '@/components/ui/LoadMore';
 import { ipfsUrl } from '@/lib/ipfs';
@@ -240,8 +241,10 @@ export default function OrdersPage() {
   }
 
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <OrdersContent />
-    </Suspense>
+    <QueryErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <OrdersContent />
+      </Suspense>
+    </QueryErrorBoundary>
   );
 }

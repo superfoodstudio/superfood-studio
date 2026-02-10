@@ -86,9 +86,25 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
                       target.parentElement.style.display = 'flex';
                       target.parentElement.style.alignItems = 'center';
                       target.parentElement.style.justifyContent = 'center';
-                      target.parentElement.innerHTML = `
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                      `;
+                      while (target.parentElement.firstChild) target.parentElement.removeChild(target.parentElement.firstChild);
+                      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                      svg.setAttribute('width', '24');
+                      svg.setAttribute('height', '24');
+                      svg.setAttribute('viewBox', '0 0 24 24');
+                      svg.setAttribute('fill', 'none');
+                      svg.setAttribute('stroke', '#8a8a8a');
+                      svg.setAttribute('stroke-width', '2');
+                      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                      polygon.setAttribute('points', '23 7 16 12 23 17 23 7');
+                      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                      rect.setAttribute('x', '1');
+                      rect.setAttribute('y', '5');
+                      rect.setAttribute('width', '15');
+                      rect.setAttribute('height', '14');
+                      rect.setAttribute('rx', '2');
+                      svg.appendChild(polygon);
+                      svg.appendChild(rect);
+                      target.parentElement.appendChild(svg);
                     }
                   }}
                 />

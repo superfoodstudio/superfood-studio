@@ -112,7 +112,8 @@ export const productResolvers = {
             }
           }
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        take: 50
       });
     },
 
@@ -183,6 +184,7 @@ export const productResolvers = {
       return prisma.product.findMany({
         where,
         orderBy,
+        take: 100,
       });
     },
 
@@ -201,13 +203,19 @@ export const productResolvers = {
       if (fullUser.role !== 'ADMIN') {
         await requireActiveSubscription(prisma, fullUser.id!);
       }
-      return prisma.product.findUnique({
+      const product = await prisma.product.findUnique({
         where: { slug },
       });
+      if (product && (product as any).isArchived) {
+        return null;
+      }
+      return product;
     },
     
     productsByCategory: async (_parent: unknown, args: PublicProductFilters, { prisma }: GraphQLContext) => {
-      const { category, limit = 20, offset = 0 } = args;
+      const { category } = args;
+      const limit = Math.min(Math.max(args.limit || 20, 1), 100);
+      const offset = Math.max(args.offset || 0, 0);
       
       return prisma.product.findMany({
         where: { 
@@ -417,6 +425,12 @@ export const productResolvers = {
     ) => {
       const user = await requireAdmin(context);
       const { prisma } = context;
+
+      // Input validation
+      if (!input.name?.trim()) throw new Error('Product name is required');
+      if (input.price <= 0) throw new Error('Price must be greater than zero');
+      if (input.inventory !== undefined && input.inventory < 0) throw new Error('Inventory cannot be negative');
+
       try {
         // Check if we're in a test environment
         const isTestEnvironment = process.env.NODE_ENV === 'test' || 
@@ -494,6 +508,11 @@ export const productResolvers = {
     ) => {
       await requireAdmin(context);
       const { prisma } = context;
+
+      // Input validation
+      if (input.price !== undefined && input.price <= 0) throw new Error('Price must be greater than zero');
+      if (input.inventory !== undefined && input.inventory < 0) throw new Error('Inventory cannot be negative');
+
       try {
         // Get the current product from the database
         const currentProduct = await prisma.product.findUnique({
@@ -614,19 +633,16 @@ export const productResolvers = {
     setFeaturedProduct: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
       await requireAdmin(context);
       const { prisma } = context;
-      // First, unfeatured any currently featured product
-      await prisma.product.updateMany({
-        where: { isFeatured: true },
-        data: { isFeatured: false },
+      return prisma.$transaction(async (tx) => {
+        await tx.product.updateMany({
+          where: { isFeatured: true },
+          data: { isFeatured: false },
+        });
+        return tx.product.update({
+          where: { id },
+          data: { isFeatured: true },
+        });
       });
-
-      // Then set the new product as featured
-      const product = await prisma.product.update({
-        where: { id },
-        data: { isFeatured: true },
-      });
-
-      return product;
     },
   },
 }; 

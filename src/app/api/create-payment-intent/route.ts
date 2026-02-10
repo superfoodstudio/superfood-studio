@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
       const product = products.find((p: any) => p.id === cartItem.productId);
       if (!product) {
         return NextResponse.json(
-          { error: `Product ${cartItem.productId} not found or archived` },
+          { error: 'One or more products are unavailable' },
           { status: 400 }
         );
       }
@@ -103,12 +103,7 @@ export async function POST(req: NextRequest) {
       // Check inventory
       if (cartItem.quantity > product.inventory) {
         return NextResponse.json(
-          { 
-            error: 'Insufficient inventory', 
-            productId: cartItem.productId,
-            productName: product.name,
-            available: product.inventory 
-          },
+          { error: 'Insufficient inventory for one or more items' },
           { status: 400 }
         );
       }
@@ -120,24 +115,33 @@ export async function POST(req: NextRequest) {
       return sum + (product.price * item.quantity);
     }, 0);
 
-    // Create a pending order in the database
-    const order = await prisma.order.create({
-      data: {
-        userId: userId!,
-        total,
-        status: 'PENDING',
-        shippingAddress: shippingAddress || undefined,
-        items: {
-          create: cartItems.map(item => {
-            const product = products.find((p: any) => p.id === item.productId)!;
-            return {
-              productId: item.productId,
-              quantity: item.quantity,
-              price: product.price, // Use DB price
-            };
-          }),
+    // Atomically validate inventory and create order
+    const order = await prisma.$transaction(async (tx) => {
+      for (const cartItem of cartItems) {
+        const product = await tx.product.findUnique({ where: { id: cartItem.productId } });
+        if (!product || cartItem.quantity > product.inventory) {
+          throw new Error('Insufficient inventory');
+        }
+      }
+
+      return tx.order.create({
+        data: {
+          userId: userId!,
+          total,
+          status: 'PENDING',
+          shippingAddress: shippingAddress || undefined,
+          items: {
+            create: cartItems.map(item => {
+              const product = products.find((p: any) => p.id === item.productId)!;
+              return {
+                productId: item.productId,
+                quantity: item.quantity,
+                price: product.price,
+              };
+            }),
+          },
         },
-      },
+      });
     });
     
     // Create Stripe payment intent

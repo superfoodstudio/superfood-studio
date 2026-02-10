@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useRef, useState } from "react";
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { View, Text, Card, Button, Skeleton } from "reshaped";
 import { useLazyLoadQuery } from "react-relay";
 import Link from "next/link";
@@ -235,8 +236,10 @@ function FeaturedRecipeLoading() {
 
 export function FeaturedRecipe() {
   return (
-    <Suspense fallback={<FeaturedRecipeLoading />}>
-      <FeaturedRecipeContent />
-    </Suspense>
+    <QueryErrorBoundary>
+      <Suspense fallback={<FeaturedRecipeLoading />}>
+        <FeaturedRecipeContent />
+      </Suspense>
+    </QueryErrorBoundary>
   );
 }

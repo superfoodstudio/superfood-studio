@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       // Only fall back to getUserRole if user.role is not available
       let role = user.role;
       if (!role) {
-        role = await authService.getUserRole(user.email, request.headers);
+        role = await authService.getUserRole(user.email);
       }
       
       return NextResponse.json({ role });

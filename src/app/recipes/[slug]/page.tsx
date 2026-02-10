@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { View, Text, Button, Divider } from "reshaped";
 import { useLazyLoadQuery, useFragment } from "react-relay";
+import { QueryErrorBoundary } from "@/components/ui/QueryErrorBoundary";
 import {
   RecipeDetailBySlugQuery,
   RecipeDetailFragment,
@@ -53,9 +54,11 @@ export default function RecipeDetailPage() {
 
   return (
     <AppContainer maxWidth={1000}>
-      <Suspense fallback={<RecipeDetailSkeleton />}>
-        {isReady && <RecipeDetailLazy slug={recipeSlug} />}
-      </Suspense>
+      <QueryErrorBoundary>
+        <Suspense fallback={<RecipeDetailSkeleton />}>
+          {isReady && <RecipeDetailLazy slug={recipeSlug} />}
+        </Suspense>
+      </QueryErrorBoundary>
     </AppContainer>
   );
 }

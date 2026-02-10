@@ -78,7 +78,8 @@ export const recipeResolvers = {
     comments: async (parent: any, _args: any, { prisma }: GraphQLContext) => {
       return prisma.comment.findMany({
         where: { recipeId: parent.id },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        take: 100
       });
     },
 
@@ -473,19 +474,16 @@ export const recipeResolvers = {
     setFeaturedRecipe: async (_parent: unknown, { id }: { id: string }, context: GraphQLContext) => {
       await requireAdmin(context);
       const { prisma } = context;
-      // First, unfeatured any currently featured recipe
-      await prisma.recipe.updateMany({
-        where: { isFeatured: true },
-        data: { isFeatured: false },
+      return prisma.$transaction(async (tx) => {
+        await tx.recipe.updateMany({
+          where: { isFeatured: true },
+          data: { isFeatured: false },
+        });
+        return tx.recipe.update({
+          where: { id },
+          data: { isFeatured: true },
+        });
       });
-
-      // Then set the new recipe as featured
-      const recipe = await prisma.recipe.update({
-        where: { id },
-        data: { isFeatured: true },
-      });
-
-      return recipe;
     },
   },
 }; 

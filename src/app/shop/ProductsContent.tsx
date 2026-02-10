@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import { View, Text, Button, Hidden } from 'reshaped';
+import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { useLazyLoadQuery, usePaginationFragment, graphql } from 'react-relay';
 import ProductList from './ProductList';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
@@ -196,12 +197,14 @@ function AllProductsSection() {
               style: { flex: 1 }
             }}
           >
-            <Suspense fallback={<ProductListSkeleton />}>
-              <ProductList
-                category={selectedCategory}
-                sort={selectedSort}
-              />
-            </Suspense>
+            <QueryErrorBoundary>
+              <Suspense fallback={<ProductListSkeleton />}>
+                <ProductList
+                  category={selectedCategory}
+                  sort={selectedSort}
+                />
+              </Suspense>
+            </QueryErrorBoundary>
           </View>
         </View>
       </View>

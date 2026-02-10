@@ -242,7 +242,7 @@ export const subscriptionResolvers = {
           expand: ['latest_invoice.payment_intent'],
         });
 
-        // Save subscription to database
+        // Save subscription to database in a transaction
         const subscription_data = stripeSubscription as any;
         const currentPeriodStart = subscription_data.current_period_start ? new Date(subscription_data.current_period_start * 1000) : new Date();
         const currentPeriodEnd = subscription_data.current_period_end ? new Date(subscription_data.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
@@ -258,15 +258,36 @@ export const subscriptionResolvers = {
           cancelAtPeriodEnd: false
         };
 
-        // If an expired/cancelled subscription exists, update it; otherwise create new
-        const subscription = existingSubscription
-          ? await prisma.subscription.update({
-              where: { id: existingSubscription.id },
-              data: subscriptionFields
-            })
-          : await prisma.subscription.create({
-              data: { ...subscriptionFields, user: { connect: { id: user.id } } }
+        // Wrap all DB updates in a single transaction; clean up Stripe on failure
+        let subscription;
+        try {
+          subscription = await prisma.$transaction(async (tx) => {
+            // Ensure stripeCustomerId is persisted
+            await tx.user.update({
+              where: { id: user.id },
+              data: { stripeCustomerId: stripeCustomerId }
             });
+
+            // If an expired/cancelled subscription exists, update it; otherwise create new
+            return existingSubscription
+              ? await tx.subscription.update({
+                  where: { id: existingSubscription.id },
+                  data: subscriptionFields
+                })
+              : await tx.subscription.create({
+                  data: { ...subscriptionFields, user: { connect: { id: user.id } } }
+                });
+          });
+        } catch (dbError) {
+          // DB transaction failed -- attempt to cancel the Stripe subscription as cleanup
+          console.error('DB transaction failed, cancelling Stripe subscription:', dbError);
+          try {
+            await stripe.subscriptions.cancel(stripeSubscription.id);
+          } catch (stripeCleanupError) {
+            console.error('Failed to cancel Stripe subscription during cleanup:', stripeCleanupError);
+          }
+          throw dbError;
+        }
 
         return {
           id: subscription.id,

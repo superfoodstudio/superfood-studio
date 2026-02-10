@@ -7,13 +7,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+if (!endpointSecret) {
+  console.error('STRIPE_WEBHOOK_SECRET is not configured');
+}
 
 export async function POST(req: NextRequest) {
+  if (!endpointSecret) {
+    return NextResponse.json(
+      { error: 'Webhook not configured' },
+      { status: 500 }
+    );
+  }
+
   const payload = await req.text();
   const signature = req.headers.get('stripe-signature');
 
   let event: Stripe.Event;
-  
+
   try {
     event = stripe.webhooks.constructEvent(
       payload,
@@ -85,35 +95,38 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
     country: sessionWithShipping.shipping_details.address.country || '',
   } : undefined;
   
-  // Update order status to PROCESSING and save shipping address
-  await prisma.order.update({
-    where: { id: orderId },
-    data: { 
-      status: 'PROCESSING',
-      shippingAddress: shippingAddress || undefined,
-    },
-  });
-  
-  // Reduce product inventory for each item in the order
+  // Fetch the order with items first
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: { items: true },
   });
-  
+
   if (!order) {
     console.error('Order not found:', orderId);
     return;
   }
-  
-  // Update inventory for each product
-  for (const item of order.items) {
-    await prisma.product.update({
-      where: { id: item.productId },
-      data: {
-        inventory: {
-          decrement: item.quantity,
+
+  // Only process if still PENDING (idempotency)
+  if (order.status === 'PENDING') {
+    await prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id: orderId },
+        data: {
+          status: 'PROCESSING',
+          shippingAddress: shippingAddress || undefined,
         },
-      },
+      });
+
+      for (const item of order.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            inventory: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      }
     });
   }
   
@@ -143,25 +156,26 @@ async function handlePaymentIntentSucceeded(event: Stripe.Event) {
 
   // Only update and decrement inventory if still PENDING (idempotency)
   if (order.status === 'PENDING') {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        status: 'PROCESSING',
-        updatedAt: new Date(),
-      },
-    });
-
-    // Decrement inventory for each product
-    for (const item of order.items) {
-      await prisma.product.update({
-        where: { id: item.productId },
+    await prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id: order.id },
         data: {
-          inventory: {
-            decrement: item.quantity,
-          },
+          status: 'PROCESSING',
+          updatedAt: new Date(),
         },
       });
-    }
+
+      for (const item of order.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            inventory: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      }
+    });
   }
 }
 

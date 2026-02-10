@@ -17,8 +17,8 @@ const pinata = new pinataSDK(
   process.env.PINATA_SECRET_API_KEY
 );
 
-// Maximum file size in bytes (500MB)
-const MAX_FILE_SIZE = 500 * 1024 * 1024;
+// Maximum file size in bytes (2GB - supports HD video uploads)
+const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
 
 // Allowed file types
 const ALLOWED_FILE_TYPES = [
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: 'File too large (max 500MB)' },
+        { error: 'File too large (max 2GB)' },
         { status: 400 }
       );
     }
@@ -142,7 +142,6 @@ export async function POST(req: NextRequest) {
     console.error('Error uploading file:', error);
     return NextResponse.json({
       error: 'Failed to upload file to IPFS.',
-      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
