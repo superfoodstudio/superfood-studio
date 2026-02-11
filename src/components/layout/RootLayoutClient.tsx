@@ -6,12 +6,10 @@ import { Navigation } from '@/components/layout/Navigation';
 import { View } from 'reshaped';
 import dynamic from 'next/dynamic';
 
-// Import the ClientOnly component with SSR disabled completely
-const ClientOnly = dynamic(
-  () => import('@/components/providers/ClientOnly').then(mod => mod.ClientOnly),
-  { 
-    ssr: false
-  }
+// Single dynamic boundary — replaces the triple-nested ClientOnly → RelayProvider chain
+const RelayProvider = dynamic(
+  () => import('@/components/providers/RelayProvider').then(mod => mod.RelayProvider),
+  { ssr: false }
 );
 
 export function RootLayoutClient({ children }: { children: React.ReactNode }) {
@@ -27,14 +25,13 @@ export function RootLayoutClient({ children }: { children: React.ReactNode }) {
       }}
     >
       <ReshapedProvider>
-        {/* Use a client-only wrapper for everything to prevent hydration mismatch */}
-        <ClientOnly>
+        <RelayProvider>
           <View backgroundColor="page" minHeight="100vh">
             <Navigation />
             {children}
           </View>
-        </ClientOnly>
+        </RelayProvider>
       </ReshapedProvider>
     </PrivyProvider>
   );
-} 
+}

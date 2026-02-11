@@ -98,6 +98,12 @@ div li:last-child {
   }
 }
 
+/* Fix oversized decorative SVG in Privy auth modals */
+#privy-modal-content,
+#privy-dialog {
+  overflow: hidden;
+}
+
 /* Navigation logo responsive sizing */
 @media (max-width: 660px) {
   .nav-logo-container {
