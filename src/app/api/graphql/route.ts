@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Block introspection in production
     if (process.env.NODE_ENV === 'production') {
       const queryStr = typeof query === 'string' ? query : '';
-      if (queryStr.includes('__schema') || queryStr.includes('__type')) {
+      if (queryStr.includes('__schema') || /\b__type\b/.test(queryStr)) {
         return NextResponse.json(
           { errors: [{ message: 'Introspection is disabled' }] },
           { status: 403, headers: corsHeaders }
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
     // Block introspection in production
     if (process.env.NODE_ENV === 'production') {
       const queryStr = typeof query === 'string' ? query : '';
-      if (queryStr.includes('__schema') || queryStr.includes('__type')) {
+      if (queryStr.includes('__schema') || /\b__type\b/.test(queryStr)) {
         return NextResponse.json(
           { errors: [{ message: 'Introspection is disabled' }] },
           { status: 403, headers: corsHeaders }

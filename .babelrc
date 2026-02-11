@@ -1,9 +1,0 @@
-{
-  "presets": [
-    "@babel/preset-typescript"
-  ],
-  "plugins": [
-    ["relay", {"artifactDirectory": "./src/__generated__"}],
-    "@babel/plugin-syntax-import-attributes"
-  ]
-} 

@@ -2,6 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: false,
+  compiler: {
+    relay: {
+      src: './src',
+      artifactDirectory: './src/__generated__',
+      language: 'typescript',
+    },
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
