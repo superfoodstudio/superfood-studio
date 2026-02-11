@@ -98,10 +98,16 @@ div li:last-child {
   }
 }
 
-/* Fix oversized decorative SVG in Privy auth modals */
-#privy-modal-content,
-#privy-dialog {
-  overflow: hidden;
+/* Fix oversized input icon in Privy auth modals — the SVG has viewBox but
+   no explicit width/height so it fills the label container */
+#privy-modal-content label svg[data-slot="icon"] {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 /* Navigation logo responsive sizing */
