@@ -7,6 +7,7 @@ export async function GET(
   { params }: { params: { paymentIntentId: string } }
 ) {
   try {
+
     // Verify authentication
     const authHeader = req.headers.get('Authorization');
     const authToken = authHeader?.replace('Bearer ', '');
