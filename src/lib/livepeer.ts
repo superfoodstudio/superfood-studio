@@ -1,5 +1,12 @@
-const LIVEPEER_API_KEY = process.env.LIVEPEER_API_KEY || '';
 const LIVEPEER_API_URL = 'https://livepeer.studio/api';
+
+function getApiKey(): string {
+  const key = process.env.LIVEPEER_API_KEY;
+  if (!key) {
+    throw new Error('LIVEPEER_API_KEY is not configured');
+  }
+  return key;
+}
 
 interface LivepeerStream {
   id: string;
@@ -13,7 +20,7 @@ async function livepeerFetch(path: string, options: RequestInit = {}) {
   const res = await fetch(`${LIVEPEER_API_URL}${path}`, {
     ...options,
     headers: {
-      Authorization: `Bearer ${LIVEPEER_API_KEY}`,
+      Authorization: `Bearer ${getApiKey()}`,
       'Content-Type': 'application/json',
       ...options.headers,
     },
@@ -55,12 +62,17 @@ export async function getStreamStatus(livepeerStreamId: string): Promise<{ isAct
 }
 
 export async function deleteStream(livepeerStreamId: string): Promise<void> {
-  await fetch(`${LIVEPEER_API_URL}/stream/${livepeerStreamId}`, {
+  const res = await fetch(`${LIVEPEER_API_URL}/stream/${livepeerStreamId}`, {
     method: 'DELETE',
     headers: {
-      Authorization: `Bearer ${LIVEPEER_API_KEY}`,
+      Authorization: `Bearer ${getApiKey()}`,
     },
   });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`LivePeer API error ${res.status}: ${body}`);
+  }
 }
 
 export function getRtmpIngestUrl(streamKey: string): string {

@@ -4,19 +4,23 @@ import { AuthService } from '@/lib/auth';
 import { deleteStream, getRtmpIngestUrl, getPlaybackUrl } from '@/lib/livepeer';
 
 async function verifyAdmin(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader?.startsWith('Bearer ')) return null;
+  try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) return null;
 
-  const token = authHeader.split(' ')[1];
-  const authService = AuthService.getInstance();
-  const user = await authService.verifyToken(token);
+    const token = authHeader.split(' ')[1];
+    const authService = AuthService.getInstance();
+    const user = await authService.verifyToken(token);
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { id: true, role: true },
-  });
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { id: true, role: true },
+    });
 
-  return dbUser?.role === 'ADMIN' ? dbUser : null;
+    return dbUser?.role === 'ADMIN' ? dbUser : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(

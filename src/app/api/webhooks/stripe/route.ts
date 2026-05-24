@@ -36,12 +36,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Idempotency: skip already-processed events
-  const existing = await prisma.webhookEvent.findUnique({
-    where: { stripeEventId: event.id },
-  });
-  if (existing) {
-    return NextResponse.json({ received: true });
+  // Idempotency: claim the event via unique constraint before processing.
+  // This prevents race conditions where concurrent webhook deliveries
+  // both pass a findUnique check before either records the event.
+  try {
+    await prisma.webhookEvent.create({
+      data: { stripeEventId: event.id, type: event.type },
+    });
+  } catch (error: any) {
+    // Unique constraint violation = already processed
+    if (error.code === 'P2002') {
+      return NextResponse.json({ received: true });
+    }
+    throw error;
   }
 
   try {
@@ -76,17 +83,15 @@ export async function POST(req: NextRequest) {
         // Unhandled event type
     }
 
-    // Record processed event
-    await prisma.webhookEvent.create({
-      data: { stripeEventId: event.id, type: event.type },
-    });
-
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error(`Webhook handler error [${event.type}]:`, error);
-    // Return 200 for application-level errors to prevent infinite retries.
-    // The event is NOT recorded so it can be reprocessed if the bug is fixed
-    // and Stripe retries, but we don't cause a retry storm.
+    // Delete the record so the event can be reprocessed on retry
+    await prisma.webhookEvent.delete({
+      where: { stripeEventId: event.id },
+    }).catch(() => {});
+    // Return 200 to prevent infinite retries, but the event is
+    // now eligible for reprocessing if Stripe retries
     return NextResponse.json({ received: true, error: 'Handler failed' });
   }
 }
@@ -273,16 +278,25 @@ async function handleInvoicePaid(event: Stripe.Event) {
   const invoice = event.data.object as any;
   const stripeSubscriptionId = invoice.subscription;
 
-  if (!stripeSubscriptionId) return;
+  if (!stripeSubscriptionId) {
+    console.warn('invoice.paid event missing subscription ID');
+    return;
+  }
 
   const dbSubscription = await prisma.subscription.findFirst({
     where: { stripeSubscriptionId },
   });
 
-  if (!dbSubscription) return;
+  if (!dbSubscription) {
+    console.warn('Subscription not found for invoice.paid:', stripeSubscriptionId);
+    return;
+  }
 
   const invoicePeriod = getInvoicePeriod(invoice);
-  if (!invoicePeriod) return;
+  if (!invoicePeriod) {
+    console.warn('Could not extract period from invoice:', invoice.id);
+    return;
+  }
 
   await prisma.subscription.update({
     where: { id: dbSubscription.id },

@@ -3,13 +3,15 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
-    // Verify webhook secret if configured
     const webhookSecret = process.env.LIVEPEER_WEBHOOK_SECRET;
-    if (webhookSecret) {
-      const signature = req.headers.get('livepeer-signature');
-      if (!signature || signature !== webhookSecret) {
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-      }
+    if (!webhookSecret) {
+      console.error('LIVEPEER_WEBHOOK_SECRET is not configured');
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
+    }
+
+    const signature = req.headers.get('livepeer-signature');
+    if (!signature || signature !== webhookSecret) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const body = await req.json();
