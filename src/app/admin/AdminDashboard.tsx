@@ -93,6 +93,11 @@ function AdminDashboardContent() {
                 Settings
               </Button>
             </Link>
+            <Link href="/admin/livestream">
+              <Button variant="outline" size="medium">
+                Livestream
+              </Button>
+            </Link>
           </View>
         </View>
 

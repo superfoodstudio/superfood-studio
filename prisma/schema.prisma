@@ -131,6 +131,8 @@ model Order {
   items           OrderItem[]
   status          OrderStatus
   total           Float
+  shippingAmount  Float     @default(0)
+  taxAmount       Float     @default(0)
   shippingAddress Address?  // Shipping address at time of order
   stripeSessionId String?   // Stripe checkout session ID
   createdAt       DateTime  @default(now())
@@ -195,6 +197,7 @@ enum OrderStatus {
 enum SubscriptionStatus {
   ACTIVE
   PENDING
+  PAST_DUE
   CANCELED
   EXPIRED
 }
@@ -202,6 +205,35 @@ enum SubscriptionStatus {
 enum Plan {
   MONTHLY
   YEARLY
+}
+
+// Livestream
+enum LivestreamStatus {
+  IDLE
+  LIVE
+  ENDED
+}
+
+model Livestream {
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String?
+  streamKey        String           @unique
+  playbackId       String
+  livepeerStreamId String           @unique
+  status           LivestreamStatus @default(IDLE)
+  startedAt        DateTime?
+  endedAt          DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+// Webhook idempotency
+model WebhookEvent {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  stripeEventId String   @unique
+  type          String
+  processedAt   DateTime @default(now())
 }
 
 // Rating models

@@ -24,6 +24,7 @@ interface CreatePaymentIntentBody {
     zipCode: string;
     country: string;
   };
+  taxCalculationId?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
     
     // Parse request body
     const body: CreatePaymentIntentBody = await req.json();
-    const { cartItems, shippingAddress } = body;
+    const { cartItems, shippingAddress, taxCalculationId } = body;
     
     // Authentication is required for checkout
     if (!userId) {
@@ -109,11 +110,23 @@ export async function POST(req: NextRequest) {
       }
     }
     
-    // Calculate total using DB prices (ignore client-sent prices)
-    const total = cartItems.reduce((sum, item) => {
+    // Calculate subtotal using DB prices (ignore client-sent prices)
+    const subtotal = cartItems.reduce((sum, item) => {
       const product = products.find((p: any) => p.id === item.productId)!;
       return sum + (product.price * item.quantity);
     }, 0);
+
+    // Calculate shipping and tax
+    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const shippingAmount = totalQuantity > 5 ? 10.00 : 5.00;
+    let taxAmount = 0;
+
+    if (taxCalculationId) {
+      const taxCalc = await stripe.tax.calculations.retrieve(taxCalculationId);
+      taxAmount = taxCalc.tax_amount_exclusive / 100;
+    }
+
+    const total = subtotal + shippingAmount + taxAmount;
 
     // Atomically validate inventory and create order
     const order = await prisma.$transaction(async (tx) => {
@@ -128,6 +141,8 @@ export async function POST(req: NextRequest) {
         data: {
           userId: userId!,
           total,
+          shippingAmount,
+          taxAmount,
           status: 'PENDING',
           shippingAddress: shippingAddress || undefined,
           items: {
@@ -143,14 +158,17 @@ export async function POST(req: NextRequest) {
         },
       });
     });
-    
+
     // Create Stripe payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(total * 100), // Convert to cents
+      amount: Math.round(total * 100),
       currency: 'usd',
       metadata: {
         orderId: order.id,
         userId: userId,
+        shippingAmount: String(shippingAmount),
+        taxAmount: String(taxAmount),
+        ...(taxCalculationId ? { tax_calculation: taxCalculationId } : {}),
       },
     });
     

@@ -139,14 +139,14 @@ async function handleCancelSubscription(subscription: any) {
       cancel_at_period_end: true,
     });
     
-    // Update subscription status in database
+    // Mark as canceling — the subscription.deleted webhook handles the actual status change
     await prisma.subscription.update({
       where: { id: subscription.id },
-      data: { 
-        status: 'CANCELED',
+      data: {
+        cancelAtPeriodEnd: true,
       },
     });
-    
+
     return NextResponse.json({
       success: true,
       message: 'Subscription will be canceled at the end of the billing period',
@@ -168,28 +168,38 @@ async function handleReactivateSubscription(subscription: any) {
     );
   }
   
-  // Check if the subscription can be reactivated
-  if (subscription.status !== 'CANCELED') {
+  // Check if the subscription is pending cancellation
+  if (!subscription.cancelAtPeriodEnd) {
     return NextResponse.json(
-      { error: 'Subscription is not canceled' },
+      { error: 'Subscription is not pending cancellation' },
       { status: 400 }
     );
   }
-  
+
   try {
+    // Verify the Stripe subscription isn't fully canceled
+    const stripeSub = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+    if ((stripeSub as any).status === 'canceled') {
+      return NextResponse.json(
+        { error: 'Subscription has fully expired. Please create a new subscription.' },
+        { status: 400 }
+      );
+    }
+
     // Reactivate in Stripe by removing the cancel_at_period_end flag
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
       cancel_at_period_end: false,
     });
-    
-    // Update subscription status in database
+
+    // Update subscription in database
     await prisma.subscription.update({
       where: { id: subscription.id },
-      data: { 
-        status: 'ACTIVE',
+      data: {
+        cancelAtPeriodEnd: false,
+        endDate: null,
       },
     });
-    
+
     return NextResponse.json({
       success: true,
       message: 'Subscription has been reactivated',

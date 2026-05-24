@@ -105,7 +105,8 @@ export async function middleware(request: NextRequest) {
 
   // Subscriber content protection (Recipes & Shop)
   if (request.nextUrl.pathname.startsWith('/recipes') ||
-      request.nextUrl.pathname.startsWith('/shop')) {
+      request.nextUrl.pathname.startsWith('/shop') ||
+      request.nextUrl.pathname.startsWith('/livestream')) {
     if (!authToken) {
       return NextResponse.redirect(new URL('/', request.url));
     }
@@ -198,7 +199,8 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/recipes/:path*',
-    '/shop/:path*'
+    '/shop/:path*',
+    '/livestream/:path*'
   ],
   missing: [
     { type: 'header', key: 'next-router-prefetch' },

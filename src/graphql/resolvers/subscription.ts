@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
+import { getSubscriptionPeriod } from '@/lib/stripe-helpers';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-08-16' as Stripe.LatestApiVersion,
@@ -243,9 +244,9 @@ export const subscriptionResolvers = {
         });
 
         // Save subscription to database in a transaction
-        const subscription_data = stripeSubscription as any;
-        const currentPeriodStart = subscription_data.current_period_start ? new Date(subscription_data.current_period_start * 1000) : new Date();
-        const currentPeriodEnd = subscription_data.current_period_end ? new Date(subscription_data.current_period_end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
+        const period = getSubscriptionPeriod(stripeSubscription as any);
+        const currentPeriodStart = period ? new Date(period.start * 1000) : new Date();
+        const currentPeriodEnd = period ? new Date(period.end * 1000) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         const subscriptionFields = {
           stripeSubscriptionId: stripeSubscription.id,
@@ -365,12 +366,11 @@ export const subscriptionResolvers = {
 
         if (!isDowngrade) {
           // For upgrades, use Stripe's returned period dates
-          dbUpdateData.currentPeriodStart = updated_subscription_data.current_period_start
-            ? new Date(updated_subscription_data.current_period_start * 1000)
-            : new Date();
-          dbUpdateData.currentPeriodEnd = updated_subscription_data.current_period_end
-            ? new Date(updated_subscription_data.current_period_end * 1000)
-            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+          const updatedPeriod = getSubscriptionPeriod(updated_subscription_data);
+          if (updatedPeriod) {
+            dbUpdateData.currentPeriodStart = new Date(updatedPeriod.start * 1000);
+            dbUpdateData.currentPeriodEnd = new Date(updatedPeriod.end * 1000);
+          }
         }
         // For downgrades, keep existing currentPeriodStart and currentPeriodEnd
 
@@ -469,8 +469,14 @@ export const subscriptionResolvers = {
           throw new Error('No Stripe subscription ID found');
         }
 
+        // Verify the Stripe subscription isn't fully canceled
+        const currentStripeSub = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+        if ((currentStripeSub as any).status === 'canceled') {
+          throw new Error('Subscription has fully expired. Please create a new subscription.');
+        }
+
         // Reactivate subscription in Stripe
-        const stripeSubscription = await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
+        await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
           cancel_at_period_end: false,
         });
 
@@ -478,7 +484,8 @@ export const subscriptionResolvers = {
         const updatedSubscription = await prisma.subscription.update({
           where: { id: subscription.id },
           data: {
-            cancelAtPeriodEnd: false
+            cancelAtPeriodEnd: false,
+            endDate: null,
           }
         });
 
