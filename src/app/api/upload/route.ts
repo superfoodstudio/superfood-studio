@@ -65,6 +65,51 @@ async function uploadToIPFS(buffer: Buffer, filename: string): Promise<string> {
   }
 }
 
+async function generateVideoThumbnail(videoCid: string): Promise<string> {
+  const { spawn } = await import('child_process');
+  const { existsSync, mkdirSync, readFileSync, unlinkSync } = await import('fs');
+  const { join } = await import('path');
+  const { ipfsUrl } = await import('@/lib/ipfs');
+
+  const tmpDir = '/tmp/video-thumbs';
+  mkdirSync(tmpDir, { recursive: true });
+  const tmpPath = join(tmpDir, `upload-${videoCid}.jpg`);
+
+  const videoUrl = ipfsUrl(videoCid);
+
+  await new Promise<void>((resolve, reject) => {
+    const ffmpeg = spawn('ffmpeg', [
+      '-i', videoUrl,
+      '-ss', '2',
+      '-vframes', '1',
+      '-vf', 'scale=640:-1',
+      '-f', 'image2',
+      '-y', tmpPath,
+    ], { timeout: 30000 });
+
+    ffmpeg.on('close', (code: number) => {
+      if (code === 0 && existsSync(tmpPath)) resolve();
+      else reject(new Error(`ffmpeg exited with code ${code}`));
+    });
+    ffmpeg.on('error', reject);
+
+    setTimeout(() => { try { ffmpeg.kill('SIGKILL'); } catch {} }, 30000);
+  });
+
+  // Optimize with sharp and upload
+  const thumbBuffer = await sharp(readFileSync(tmpPath))
+    .resize({ width: 640, withoutEnlargement: true })
+    .jpeg({ quality: 80 })
+    .toBuffer() as Buffer;
+
+  const thumbnailCid = await uploadToIPFS(thumbBuffer, `thumb-${videoCid}.jpg`);
+
+  // Clean up temp file
+  try { unlinkSync(tmpPath); } catch {}
+
+  return thumbnailCid;
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Verify authentication
@@ -122,7 +167,6 @@ export async function POST(req: NextRequest) {
 
     // Process images to optimize them
     if (file.type.startsWith('image/')) {
-      // Resize and optimize image
       buffer = await sharp(buffer)
         .resize({
           width: 1200,
@@ -132,12 +176,26 @@ export async function POST(req: NextRequest) {
         })
         .jpeg({ quality: 80 })
         .toBuffer() as Buffer;
-      // Update filename extension to .jpg
       filename = filename.replace(/\.[^/.]+$/, '.jpg');
     }
 
     const cid = await uploadToIPFS(buffer, filename);
-    return NextResponse.json({ cid, success: true }, { status: 200 });
+
+    // For videos, generate a thumbnail and upload it too
+    let thumbnailCid: string | null = null;
+    if (file.type.startsWith('video/')) {
+      try {
+        thumbnailCid = await generateVideoThumbnail(cid);
+      } catch (err) {
+        console.warn('Thumbnail generation failed:', err);
+      }
+    }
+
+    return NextResponse.json({
+      cid,
+      ...(thumbnailCid ? { thumbnailCid } : {}),
+      success: true,
+    }, { status: 200 });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json({
