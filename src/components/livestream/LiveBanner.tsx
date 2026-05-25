@@ -118,11 +118,8 @@ export function LiveBanner() {
               </View>
 
               <Text
-                variant="featured-2"
-                weight="bold"
-                attributes={{
-                  style: { fontFamily: 'var(--font-big-caslon)' },
-                }}
+                variant="featured-3"
+                weight="medium"
               >
                 {stream.title}
               </Text>

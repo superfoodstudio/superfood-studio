@@ -1,8 +1,9 @@
 "use client";
 
-import { View, Text, Button, Skeleton } from "reshaped";
+import { View, Text, Button, Skeleton, Modal, useToggle } from "reshaped";
 import Link from "next/link";
 import Image from "next/image";
+import { usePrivy } from "@privy-io/react-auth";
 import { Suspense } from "react";
 import { QueryErrorBoundary } from "@/components/ui/QueryErrorBoundary";
 import { useLazyLoadQuery } from "react-relay";
@@ -65,6 +66,9 @@ function HeroVideoLoading() {
 }
 
 export function HomeContent() {
+  const { login, authenticated } = usePrivy();
+  const joinModal = useToggle();
+
   return (
     <View
       as="main"
@@ -191,20 +195,19 @@ export function HomeContent() {
                   We feature contributions from chefs, food creatives, critics, nutritionists, wellness practitioners, farmers, gardeners, and food justice organizers sharing their distinct perspectives on food.
                 </Text>
               </View>
-              <Link href="/subscription" style={{ textDecoration: 'none' }}>
-                <Button
-                  size="xlarge"
-                  variant="solid"
-                  attributes={{
-                    style: {
-                      backgroundColor: 'var(--rs-color-sky-blue)',
-                      color: '#fff',
-                    }
-                  }}
-                >
-                  Join
-                </Button>
-              </Link>
+              <Button
+                size="xlarge"
+                variant="solid"
+                onClick={() => joinModal.activate()}
+                attributes={{
+                  style: {
+                    backgroundColor: 'var(--rs-color-sky-blue)',
+                    color: '#fff',
+                  }
+                }}
+              >
+                Join
+              </Button>
             </View>
 
             {/* Right Section - Blue Rounded Box */}
@@ -372,6 +375,94 @@ export function HomeContent() {
         </View>
       </View>
 
+      {/* Join Modal */}
+      <Modal
+        active={joinModal.active}
+        onClose={joinModal.deactivate}
+        position="center"
+        size="450px"
+      >
+        <View padding={8} gap={6} attributes={{ style: { backgroundColor: 'var(--rs-color-cream)' } }}>
+          <Text
+            variant="featured-2"
+            weight="bold"
+            align="center"
+            attributes={{ style: { fontFamily: 'var(--font-big-caslon)' } }}
+          >
+            Become a Superfoodie
+          </Text>
+
+          <View gap={3}>
+            <View direction="row" align="center" gap={2}>
+              <Text variant="body-2">&#10003;</Text>
+              <Text variant="body-2">Weekly plant-forward recipes &amp; tutorials</Text>
+            </View>
+            <View direction="row" align="center" gap={2}>
+              <Text variant="body-2">&#10003;</Text>
+              <Text variant="body-2">Beauty &amp; self-care rituals</Text>
+            </View>
+            <View direction="row" align="center" gap={2}>
+              <Text variant="body-2">&#10003;</Text>
+              <Text variant="body-2">Access to the shop &amp; small batch goods</Text>
+            </View>
+            <View direction="row" align="center" gap={2}>
+              <Text variant="body-2">&#10003;</Text>
+              <Text variant="body-2">Quarterly masterclasses with top culinary artists</Text>
+            </View>
+            <View direction="row" align="center" gap={2}>
+              <Text variant="body-2">&#10003;</Text>
+              <Text variant="body-2">Live streams &amp; exclusive content</Text>
+            </View>
+            <View direction="row" align="center" gap={2}>
+              <Text variant="body-2">&#10003;</Text>
+              <Text variant="body-2">Member rates on garden-to-table events</Text>
+            </View>
+          </View>
+
+          <View
+            padding={4}
+            align="center"
+            attributes={{
+              style: {
+                backgroundColor: 'var(--rs-color-lavender)',
+                borderRadius: '12px',
+              }
+            }}
+          >
+            <Text variant="title-5" weight="bold" align="center" attributes={{ style: { color: '#fff' } }}>
+              $24.99<Text variant="body-2" attributes={{ style: { color: 'rgba(255,255,255,0.8)' } }}>/month</Text>
+            </Text>
+            <Text variant="caption-1" align="center" attributes={{ style: { color: 'rgba(255,255,255,0.8)' } }}>
+              or $19.99/mo billed yearly
+            </Text>
+          </View>
+
+          <Button
+            size="xlarge"
+            variant="solid"
+            fullWidth
+            onClick={() => {
+              joinModal.deactivate();
+              if (authenticated) {
+                window.location.href = '/subscription';
+              } else {
+                login();
+              }
+            }}
+          >
+            Join Now
+          </Button>
+
+          <Button
+            size="medium"
+            variant="ghost"
+            fullWidth
+            onClick={joinModal.deactivate}
+          >
+            Maybe later
+          </Button>
+        </View>
+      </Modal>
     </View>
   );
 }
