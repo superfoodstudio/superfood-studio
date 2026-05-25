@@ -5,19 +5,16 @@ import crypto from 'crypto';
 function verifySignature(body: string, signatureHeader: string, secret: string): boolean {
   // Format: t=<timestamp>,v1=<hmac_hex>
   const parts = signatureHeader.split(',');
-  const timestampPart = parts.find(p => p.startsWith('t='));
   const sigPart = parts.find(p => p.startsWith('v1='));
 
-  if (!timestampPart || !sigPart) return false;
+  if (!sigPart) return false;
 
   const signature = sigPart.slice(3); // remove 'v1='
-  const timestamp = timestampPart.slice(2); // remove 't='
 
-  // Verify HMAC-SHA256: sign the timestamp + body
-  const signedPayload = `${timestamp}.${body}`;
+  // LivePeer HMAC-SHA256 signs the raw body only
   const expectedSig = crypto
     .createHmac('sha256', secret)
-    .update(signedPayload)
+    .update(body)
     .digest('hex');
 
   return crypto.timingSafeEqual(
