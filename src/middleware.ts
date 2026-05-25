@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const SESSION_COOKIE = 'sf-session';
-const SESSION_TTL = 5 * 60 * 1000; // 5 minutes
+const SESSION_TTL = 20 * 60 * 1000; // 20 minutes
 
 interface SessionData {
   isAuthenticated: boolean;

@@ -4,6 +4,7 @@ import { View, Text, Card, Button, Loader } from 'reshaped';
 import { useFragment } from 'react-relay';
 import { graphql } from 'relay-runtime';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingCartSimple } from 'phosphor-react';
 import { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
@@ -111,14 +112,12 @@ export function ProductCard({ product }: Props) {
               height="200px"
               overflow="hidden"
             >
-              <img
+              <Image
                 src={ipfsUrl(data.photoUrl)}
                 alt={data.name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: "cover" }}
               />
               {data.inventory <= 0 && (
                 <View

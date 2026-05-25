@@ -28,12 +28,15 @@ function HeroVideoSection() {
         muted
         loop
         playsInline
+        preload="metadata"
+        poster=""
         style={{
           width: "100%",
           maxHeight: "66vh",
           objectFit: "cover",
           borderRadius: "96px",
           display: "block",
+          backgroundColor: "#e0ddd8",
         }}
       >
         <source src={ipfsUrl(videoUrl)} type="video/mp4" />

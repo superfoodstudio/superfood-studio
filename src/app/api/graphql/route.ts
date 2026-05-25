@@ -52,7 +52,15 @@ export async function POST(request: NextRequest) {
       )
     ]);
 
-    return NextResponse.json({ data });
+    // Cache public queries (no auth); private for authenticated
+    const hasAuth = request.headers.get('authorization') || request.cookies.get('privy-token')?.value;
+    const cacheHeader = hasAuth
+      ? 'private, max-age=0, must-revalidate'
+      : 'public, max-age=60, s-maxage=300';
+
+    return NextResponse.json({ data }, {
+      headers: { ...corsHeaders, 'Cache-Control': cacheHeader },
+    });
   } catch (error) {
     // Return timeout-specific error for 504 issues
     if (error instanceof Error && error.message.includes('timeout')) {

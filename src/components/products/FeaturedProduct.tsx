@@ -6,6 +6,7 @@ import { View, Text, Card, Button } from 'reshaped';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { useLazyLoadQuery } from 'react-relay';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FeaturedProductQuery } from '@/graphql/queries/FeaturedProductQuery';
 import { stripHtml } from '@/lib/textUtils';
 import { ipfsUrl } from '@/lib/ipfs';
@@ -47,14 +48,13 @@ function FeaturedProductContent() {
             }
           }}
         >
-          <img
+          <Image
             src={ipfsUrl(product.photoUrl)}
             alt={product.name}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover'
-            }}
+            fill
+            sizes="40vw"
+            priority
+            style={{ objectFit: 'cover' }}
           />
         </View>
 

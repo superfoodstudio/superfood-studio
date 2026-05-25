@@ -3,6 +3,7 @@
 import React from 'react';
 import { graphql, useFragment } from 'react-relay';
 import Link from 'next/link';
+import Image from 'next/image';
 import { View, Text, Card } from 'reshaped';
 import { StarRating } from '@/components/ratings/StarRating';
 import { stripHtml } from '@/lib/textUtils';
@@ -69,44 +70,12 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
               overflow="hidden"
             >
               {data.previewImageUrl ? (
-                <img
+                <Image
                   src={ipfsUrl(data.previewImageUrl)}
                   alt={data.name}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                  onError={(e) => {
-                    // Fallback to solid color if preview image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    if (target.parentElement) {
-                      target.parentElement.style.backgroundColor = '#e0ddd8';
-                      target.parentElement.style.display = 'flex';
-                      target.parentElement.style.alignItems = 'center';
-                      target.parentElement.style.justifyContent = 'center';
-                      while (target.parentElement.firstChild) target.parentElement.removeChild(target.parentElement.firstChild);
-                      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                      svg.setAttribute('width', '24');
-                      svg.setAttribute('height', '24');
-                      svg.setAttribute('viewBox', '0 0 24 24');
-                      svg.setAttribute('fill', 'none');
-                      svg.setAttribute('stroke', '#8a8a8a');
-                      svg.setAttribute('stroke-width', '2');
-                      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                      polygon.setAttribute('points', '23 7 16 12 23 17 23 7');
-                      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                      rect.setAttribute('x', '1');
-                      rect.setAttribute('y', '5');
-                      rect.setAttribute('width', '15');
-                      rect.setAttribute('height', '14');
-                      rect.setAttribute('rx', '2');
-                      svg.appendChild(polygon);
-                      svg.appendChild(rect);
-                      target.parentElement.appendChild(svg);
-                    }
-                  }}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{ objectFit: "cover" }}
                 />
               ) : (
                 <div
