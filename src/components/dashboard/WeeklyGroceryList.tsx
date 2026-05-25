@@ -57,8 +57,9 @@ function WeeklyGroceryListContent() {
         onClose={groceryModal.deactivate}
         position={isMobile ? "bottom" : "center"}
         size="500px"
+        attributes={{ style: { border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' } }}
       >
-        <View padding={6} gap={4} attributes={{ style: { backgroundColor: 'var(--rs-color-cream)' } }}>
+        <View padding={6} gap={4} attributes={{ style: { backgroundColor: 'var(--rs-color-cream)', borderRadius: '12px' } }}>
             <Text
               variant="featured-2"
               align="center"
