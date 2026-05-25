@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react';
 import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import Link from 'next/link';
+import Image from 'next/image';
 import { View, Text, Button, Divider } from 'reshaped';
 import { useLazyLoadQuery, useFragment } from 'react-relay';
 import { ProductDetailBySlugQuery, ProductDetailFragment } from '@/graphql/queries/ProductQueries';
@@ -123,18 +124,16 @@ function ProductDetailView({ productRef }: ProductDetailViewProps) {
 
       {/* Product Image - centered */}
       <View align="center">
-        <img
-          src={ipfsUrl(product.photoUrl)}
-          alt={product.name}
-          style={{
-            width: '100%',
-            maxWidth: '500px',
-            height: 'auto',
-            maxHeight: '400px',
-            objectFit: 'cover',
-            borderRadius: '8px',
-          }}
-        />
+        <div style={{ position: 'relative', width: '100%', maxWidth: '500px', height: '400px' }}>
+          <Image
+            src={ipfsUrl(product.photoUrl)}
+            alt={product.name}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 500px"
+            style={{ objectFit: 'cover', borderRadius: '8px' }}
+          />
+        </div>
       </View>
 
       {/* Category tag */}

@@ -5,6 +5,7 @@ import { View, Text, Button, Divider } from "reshaped";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
 import { useCart } from "@/hooks/useCart";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ipfsUrl } from "@/lib/ipfs";
 
@@ -112,14 +113,12 @@ export function CartContents() {
               overflow="hidden"
               attributes={{ style: { flexShrink: 0 } }}
             >
-              <img
+              <Image
                 src={ipfsUrl(item.product.photoUrl)}
                 alt={item.product.name}
-                style={{
-                  objectFit: "cover",
-                  width: "100%",
-                  height: "100%",
-                }}
+                fill
+                sizes="80px"
+                style={{ objectFit: "cover" }}
               />
             </View>
 

@@ -5,6 +5,7 @@ import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { View, Text, Card, Button, Skeleton } from "reshaped";
 import { useLazyLoadQuery } from "react-relay";
 import Link from "next/link";
+import Image from "next/image";
 import { FeaturedRecipeQuery } from "@/graphql/queries/FeaturedRecipeQuery";
 import { stripHtml } from "@/lib/textUtils";
 import { StarRating } from "@/components/ratings/StarRating";
@@ -99,29 +100,27 @@ function FeaturedRecipeContent() {
                 muted
                 loop
               />
-              <img
-                src={ipfsUrl(recipe.previewImageUrl || recipe.mediaUrl)}
-                alt={recipe.name}
-                style={{
-                  width: "100%",
-                  height: "320px",
-                  objectFit: "cover",
-                  objectPosition: "center center",
-                  display: isHovered ? "none" : "block",
-                }}
-              />
+              <div style={{ position: 'relative', width: '100%', height: '320px', display: isHovered ? 'none' : 'block' }}>
+                <Image
+                  src={ipfsUrl(recipe.previewImageUrl || recipe.mediaUrl)}
+                  alt={recipe.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  style={{ objectFit: "cover", objectPosition: "center center" }}
+                />
+              </div>
             </>
           ) : (
-            <img
-              src={ipfsUrl(recipe.previewImageUrl || recipe.mediaUrl)}
-              alt={recipe.name}
-              style={{
-                width: "100%",
-                height: "320px",
-                objectFit: "cover",
-                objectPosition: "center center",
-              }}
-            />
+            <div style={{ position: 'relative', width: '100%', height: '320px' }}>
+              <Image
+                src={ipfsUrl(recipe.previewImageUrl || recipe.mediaUrl)}
+                alt={recipe.name}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                style={{ objectFit: "cover", objectPosition: "center center" }}
+              />
+            </div>
           )}
         </View>
 

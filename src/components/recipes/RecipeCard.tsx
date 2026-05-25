@@ -69,37 +69,28 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
               height="200px"
               overflow="hidden"
             >
-              {(() => {
-                // Use preview image if available, otherwise try video thumbnail
-                const imageSrc = data.previewImageUrl
-                  ? ipfsUrl(data.previewImageUrl)
-                  : data.mediaUrl
-                    ? `/api/video-thumb?cid=${encodeURIComponent(data.mediaUrl.replace(/.*\/ipfs\//, '').replace(/\?.*/, ''))}&w=640`
-                    : null;
-
-                return imageSrc ? (
-                  <Image
-                    src={imageSrc}
-                    alt={data.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{ objectFit: "cover" }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      backgroundColor: "#e0ddd8",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center"
-                    }}
-                  >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
-                  </div>
-                );
-              })()}
+              {data.previewImageUrl ? (
+                <Image
+                  src={ipfsUrl(data.previewImageUrl)}
+                  alt={data.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{ objectFit: "cover" }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "#e0ddd8",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
+                </div>
+              )}
             </View>
 
             {/* Content section */}
