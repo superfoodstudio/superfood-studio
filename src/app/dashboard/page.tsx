@@ -7,8 +7,10 @@ import { useEffect, useState, Suspense } from "react";
 import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
 import { View, Text, Button, Skeleton } from "reshaped";
 import { useLazyLoadQuery } from "react-relay";
+import Image from "next/image";
 import { AppContainer } from "@/components/layout/AppContainer";
 import { FeaturedRecipe } from "@/components/recipes/FeaturedRecipe";
+import { LiveBanner } from "@/components/livestream/LiveBanner";
 import { WeeklyGroceryList } from "@/components/dashboard/WeeklyGroceryList";
 import { ProductCard } from "@/components/products/ProductCard";
 import { StarRating } from "@/components/ratings/StarRating";
@@ -55,6 +57,9 @@ function DashboardContent() {
   return (
     <AppContainer>
       <View direction="column" gap={6}>
+        {/* Live Stream Banner */}
+        <LiveBanner />
+
         {/* Hero Section */}
         <View direction="column" align="center" gap={6} padding={8}>
           {/* Content Section */}
