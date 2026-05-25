@@ -21,6 +21,10 @@ export function RootLayoutClient({ children }: { children: React.ReactNode }) {
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',
+          walletList: [],
+        },
+        embeddedWallets: {
+          createOnLogin: 'off',
         },
       }}
     >
