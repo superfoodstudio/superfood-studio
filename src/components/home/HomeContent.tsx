@@ -201,7 +201,7 @@ export function HomeContent() {
                 onClick={() => joinModal.activate()}
                 attributes={{
                   style: {
-                    backgroundColor: 'var(--rs-color-sky-blue)',
+                    backgroundColor: 'var(--rs-color-lavender)',
                     color: '#fff',
                   }
                 }}
