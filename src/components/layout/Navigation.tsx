@@ -127,8 +127,8 @@ export function Navigation() {
             <Image
               src="/ss-logo.png"
               alt="Superfood Studio"
-              width={180}
-              height={40}
+              width={240}
+              height={54}
               priority
               style={{ objectFit: 'contain' }}
             />
