@@ -46,7 +46,7 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
           {categories.map((category) => (
             <Button
               key={category.value}
-              variant={selectedCategory === category.value ? 'solid' : 'ghost'}
+              variant={selectedCategory === category.value ? 'solid' : 'outline'}
               size="small"
               color="primary"
               fullWidth
@@ -55,7 +55,12 @@ function ProductFilters({ selectedCategory, selectedSort, onCategoryChange, onSo
                 style: {
                   justifyContent: 'flex-start',
                   textAlign: 'left',
-                  fontWeight: selectedCategory === category.value ? '600' : '400'
+                  fontWeight: selectedCategory === category.value ? '600' : '400',
+                  ...(selectedCategory !== category.value ? {
+                    backgroundColor: 'var(--rs-color-sky-blue)',
+                    color: '#fff',
+                    borderColor: 'var(--rs-color-sky-blue)',
+                  } : {})
                 }
               }}
             >

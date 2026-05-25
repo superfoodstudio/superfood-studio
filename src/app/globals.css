@@ -39,6 +39,12 @@ table {
   width: 100%;
 }
 
+/* Modal overrides - remove default border */
+[class*="Modal"] > [class*="elevation"] {
+  border: none !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+}
+
 /* Rich text display paragraph spacing */
 div p {
   margin-bottom: 1em;
