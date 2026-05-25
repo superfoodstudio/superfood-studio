@@ -6,9 +6,9 @@ import { usePrivy } from '@privy-io/react-auth';
 
 function LivepeerPlayer({ playbackId }: { playbackId: string }) {
   return (
-    <View attributes={{ style: { position: 'relative', paddingTop: '56.25%', backgroundColor: '#000', borderRadius: '2px', overflow: 'hidden' } }}>
+    <View attributes={{ style: { position: 'relative', width: '100%', aspectRatio: '16/9', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden' } }}>
       <iframe
-        src={`https://lvpr.tv?v=${playbackId}`}
+        src={`https://lvpr.tv?v=${playbackId}&autoplay=true`}
         allowFullScreen
         allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
         style={{
