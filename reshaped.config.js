@@ -7,9 +7,9 @@ const config = {
         body: { family: "var(--font-nunito)" }
       },
       color: {
-        backgroundPrimary: { hex: "#002A29" },
-        foregroundPrimary: { hex: "#002A29" },
-        borderPrimary: { hex: "#002A29" },
+        backgroundPrimary: { hex: "#AC83DB" },
+        foregroundPrimary: { hex: "#AC83DB" },
+        borderPrimary: { hex: "#AC83DB" },
         borderButtonOutline: { hex: "#4C263C" },
         backgroundPage: { hex: "#FDEEE4" },
         backgroundPageFaded: { hex: "#f5e6da" },

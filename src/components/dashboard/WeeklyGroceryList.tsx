@@ -58,7 +58,7 @@ function WeeklyGroceryListContent() {
         position={isMobile ? "bottom" : "center"}
         size="500px"
       >
-        <View padding={6} gap={4}>
+        <View padding={6} gap={4} attributes={{ style: { backgroundColor: 'var(--rs-color-cream)' } }}>
             <Text
               variant="featured-2"
               align="center"

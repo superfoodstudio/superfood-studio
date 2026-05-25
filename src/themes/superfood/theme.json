@@ -212,21 +212,21 @@
   },
   "color": {
     "backgroundPrimary": {
-      "hex": "#002A29"
+      "hex": "#AC83DB"
     },
     "backgroundPrimaryFaded": {
       "hex": "#ecebfe",
       "hexDark": "#252544"
     },
     "borderPrimary": {
-      "hex": "#002A29"
+      "hex": "#AC83DB"
     },
     "borderPrimaryFaded": {
       "hex": "#dedcfb",
       "hexDark": "#323164"
     },
     "foregroundPrimary": {
-      "hex": "#002A29"
+      "hex": "#AC83DB"
     },
     "backgroundCritical": {
       "hex": "#e22c2c",
@@ -390,7 +390,7 @@
       "hex": "#ffffff"
     },
     "rgbBackgroundPrimary": {
-      "hex": "0, 41.9985, 41.004"
+      "hex": "171.9975, 130.9935, 218.994"
     },
     "rgbBackgroundPrimaryFaded": {
       "hex": "236.0025, 235.00799999999998, 254.00549999999998",

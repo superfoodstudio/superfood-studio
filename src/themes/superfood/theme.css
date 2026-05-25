@@ -85,9 +85,9 @@
 --rs-radius-small: 4px;
 --rs-radius-medium: 8px;
 --rs-radius-large: 12px;
---rs-color-background-primary: #002A29;
---rs-color-border-primary: #002A29;
---rs-color-foreground-primary: #002A29;
+--rs-color-background-primary: #AC83DB;
+--rs-color-border-primary: #AC83DB;
+--rs-color-foreground-primary: #AC83DB;
 --rs-color-background-elevation-base: #FDEEE4;
 --rs-color-background-page: #FDEEE4;
 --rs-color-background-page-faded: #f5e6da;
@@ -104,7 +104,7 @@
 --rs-color-burgundy: #4C263C;
 --rs-color-cream: #FDEEE4;
 --rs-color-on-background-primary: oklch(1 0 0);
---rs-color-rgb-background-primary: 0, 41.9985, 41.004;
+--rs-color-rgb-background-primary: 171.9975, 130.9935, 218.994;
 --rs-color-on-background-critical: oklch(1 0 0);
 --rs-color-on-background-warning: oklch(0 0 0);
 --rs-color-on-background-positive: oklch(1 0 0);

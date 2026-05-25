@@ -33,11 +33,11 @@ function HeroVideoSection() {
         poster=""
         style={{
           width: "100%",
-          maxHeight: "66vh",
+          height: "66vh",
           objectFit: "cover",
           borderRadius: "96px",
           display: "block",
-          backgroundColor: "#e0ddd8",
+          backgroundColor: "var(--rs-color-cream)",
         }}
       >
         <source src={ipfsUrl(videoUrl)} type="video/mp4" />
@@ -185,22 +185,26 @@ export function HomeContent() {
               </Text>
               <View gap={4}>
                 <Text variant="body-1" color="neutral">
-                  Learn the craft of building a plant-forward plate.
+                  Superfood Studio is an online platform grounded in the art of culinary storytelling. We are a membership-based culinary playhouse featuring plant-forward recipes for eating, as well as beauty and self-care rituals.
                 </Text>
                 <Text variant="body-1" color="neutral">
-                  Unlock access to weekly recipes, special offers on our small
-                  batch goods, quarterly master-classes with top culinary
-                  artists and member rates on our in person garden-to-table
-                  activations.
+                  We feature contributions from chefs, food creatives, critics, nutritionists, wellness practitioners, farmers, gardeners, and food justice organizers sharing their distinct perspectives on food.
                 </Text>
               </View>
-              <Button
-                size="xlarge"
-                variant="solid"
-                attributes={{ color: "var(--rs-color-sky-blue)" }}
-              >
-                Join
-              </Button>
+              <Link href="/subscription" style={{ textDecoration: 'none' }}>
+                <Button
+                  size="xlarge"
+                  variant="solid"
+                  attributes={{
+                    style: {
+                      backgroundColor: 'var(--rs-color-sky-blue)',
+                      color: '#fff',
+                    }
+                  }}
+                >
+                  Join
+                </Button>
+              </Link>
             </View>
 
             {/* Right Section - Blue Rounded Box */}
@@ -348,7 +352,7 @@ export function HomeContent() {
                   },
                 }}
               >
-                Sign Up
+                Subscribe
               </Button>
             </View>
             <Text
@@ -368,45 +372,6 @@ export function HomeContent() {
         </View>
       </View>
 
-      {/* Footer links */}
-      <View padding={{ s: 0, m: 4 }}>
-        <View
-          as="section"
-          direction="row"
-          justify="space-between"
-          padding={6}
-          attributes={{
-            style: {
-              borderTop: "1px solid #e5e7eb",
-            },
-          }}
-        >
-          <View direction="column" gap={2}>
-            <Text variant="caption-1">let's chat</Text>
-            <Text variant="caption-1">admin@superfoodstudio.com</Text>
-          </View>
-          <View direction="column" gap={2} align="end">
-            <Link href="/">
-              <Text variant="caption-1">home</Text>
-            </Link>
-            <Link href="/signup">
-              <Text variant="caption-1">sign up</Text>
-            </Link>
-            <Link href="/about-us">
-              <Text variant="caption-1">about us</Text>
-            </Link>
-            <Link href="/faqs">
-              <Text variant="caption-1">faqs</Text>
-            </Link>
-            <Link href="/privacy">
-              <Text variant="caption-1">privacy</Text>
-            </Link>
-            <Link href="/terms">
-              <Text variant="caption-1">t & c</Text>
-            </Link>
-          </View>
-        </View>
-      </View>
     </View>
   );
 }

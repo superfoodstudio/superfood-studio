@@ -118,7 +118,7 @@ export function LiveBanner() {
               </View>
 
               <Text
-                variant="title-3"
+                variant="featured-2"
                 weight="bold"
                 attributes={{
                   style: { fontFamily: 'var(--font-big-caslon)' },
