@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<0f7be9ebf06f2ff9aa2e6598dbac2745>>
+ * @generated SignedSource<<08bc614ba10a6c47cead7fd10546d44a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -213,27 +213,8 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "User",
-                "kind": "LinkedField",
-                "name": "user",
-                "plural": false,
-                "selections": [
-                  (v2/*: any*/),
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "firstName",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "lastName",
-                    "storageKey": null
-                  }
-                ],
+                "kind": "ScalarField",
+                "name": "userId",
                 "storageKey": null
               }
             ],
@@ -245,12 +226,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "be7adca64f795f71a19a7d4bd0ef7a69",
+    "cacheID": "07d18e1db1780710bcee79f9b182b97e",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeDetailBySlugQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeDetailBySlugQuery(\n  $slug: String!\n) {\n  recipeBySlug(slug: $slug) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeDetailBySlugQuery(\n  $slug: String!\n) {\n  recipeBySlug(slug: $slug) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    userId\n  }\n}\n"
   }
 };
 })();

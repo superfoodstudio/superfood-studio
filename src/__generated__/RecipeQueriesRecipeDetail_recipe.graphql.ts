@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<00a6c362ed1b27c6b689eac9033ef709>>
+ * @generated SignedSource<<a5200d24016b8397568c3f6fd8c699c6>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -26,11 +26,7 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
     readonly createdAt: any;
     readonly id: string;
     readonly rating: number;
-    readonly user: {
-      readonly firstName: string | null;
-      readonly id: string;
-      readonly lastName: string | null;
-    };
+    readonly userId: string;
   }>;
   readonly servingSize: string | null;
   readonly slug: string;
@@ -185,27 +181,8 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "User",
-          "kind": "LinkedField",
-          "name": "user",
-          "plural": false,
-          "selections": [
-            (v0/*: any*/),
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "firstName",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "lastName",
-              "storageKey": null
-            }
-          ],
+          "kind": "ScalarField",
+          "name": "userId",
           "storageKey": null
         }
       ],
@@ -217,6 +194,6 @@ return {
 };
 })();
 
-(node as any).hash = "370dcd6cc313f2c090898eb2587eff89";
+(node as any).hash = "a17049f7ccc36851f50cd9de12aef3f7";
 
 export default node;

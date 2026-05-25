@@ -17,27 +17,30 @@ interface CreateCommentInput {
 
 export const commentResolvers = {
   Query: {
-    recipeComments: async (_parent: unknown, { recipeId }: { recipeId: string }, { prisma }: GraphQLContext) => {
-      return prisma.comment.findMany({
+    recipeComments: async (_parent: unknown, { recipeId }: { recipeId: string }, context: GraphQLContext) => {
+      const comments = await context.prisma.comment.findMany({
         where: {
           recipeId,
-          isHidden: false // Only show non-hidden comments to public
+          isHidden: false,
         },
-        include: {
-          recipe: true
-        },
-        orderBy: {
-          createdAt: 'asc'
-        },
-        take: 100
+        include: { recipe: true },
+        orderBy: { createdAt: 'asc' },
+        take: 100,
       });
+      // Strip email for non-admin users
+      const user = await context.getFullUser().catch(() => null);
+      if (user?.role !== 'ADMIN') {
+        return comments.map(c => ({ ...c, email: null }));
+      }
+      return comments;
     },
 
     recipeCommentsConnection: async (
       _parent: unknown,
       { recipeId, first = 10, after }: { recipeId: string; first?: number; after?: string },
-      { prisma }: GraphQLContext
+      context: GraphQLContext
     ) => {
+      const { prisma } = context;
       const where = {
         recipeId,
         isHidden: false,
@@ -62,9 +65,13 @@ export const commentResolvers = {
       const hasNextPage = comments.length > first;
       const nodes = hasNextPage ? comments.slice(0, -1) : comments;
 
+      // Strip email for non-admin users
+      const user = await context.getFullUser().catch(() => null);
+      const isAdmin = user?.role === 'ADMIN';
+
       const edges = nodes.map((comment) => ({
         cursor: comment.id,
-        node: comment
+        node: isAdmin ? comment : { ...comment, email: null },
       }));
 
       return {

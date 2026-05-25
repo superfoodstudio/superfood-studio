@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<223de95ae07d8b0559776d70108890e1>>
+ * @generated SignedSource<<23ce275b6ca8a63a0fc895896fcdb4b3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -22,11 +22,7 @@ export type RatingMutationsRateRecipeMutation$data = {
     readonly id: string;
     readonly rating: number;
     readonly updatedAt: any;
-    readonly user: {
-      readonly firstName: string | null;
-      readonly id: string;
-      readonly lastName: string | null;
-    };
+    readonly userId: string;
   };
 };
 export type RatingMutationsRateRecipeMutation = {
@@ -42,14 +38,7 @@ var v0 = [
     "name": "input"
   }
 ],
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
-v2 = [
+v1 = [
   {
     "kind": "ClientExtension",
     "selections": [
@@ -67,7 +56,13 @@ v2 = [
         "name": "rateRecipe",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
           {
             "alias": null,
             "args": null,
@@ -92,27 +87,8 @@ v2 = [
           {
             "alias": null,
             "args": null,
-            "concreteType": "User",
-            "kind": "LinkedField",
-            "name": "user",
-            "plural": false,
-            "selections": [
-              (v1/*: any*/),
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "firstName",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "lastName",
-                "storageKey": null
-              }
-            ],
+            "kind": "ScalarField",
+            "name": "userId",
             "storageKey": null
           }
         ],
@@ -127,7 +103,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RatingMutationsRateRecipeMutation",
-    "selections": (v2/*: any*/),
+    "selections": (v1/*: any*/),
     "type": "Mutation",
     "abstractKey": null
   },
@@ -136,7 +112,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "RatingMutationsRateRecipeMutation",
-    "selections": (v2/*: any*/)
+    "selections": (v1/*: any*/)
   },
   "params": {
     "cacheID": "ad4c4b536b1832d6eb166ebd8bb0494b",
@@ -149,6 +125,6 @@ return {
 };
 })();
 
-(node as any).hash = "9f0563dc86a850ba72279405634a642e";
+(node as any).hash = "fd185b6c6d67103f2ad3667fe3a0f59d";
 
 export default node;

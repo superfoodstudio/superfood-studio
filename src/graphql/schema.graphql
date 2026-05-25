@@ -523,7 +523,6 @@ type DeleteCommentResponse {
 type RecipeRating {
   id: ID!
   rating: Int!
-  user: User!
   userId: ID!
   recipe: Recipe!
   recipeId: ID!
@@ -534,7 +533,6 @@ type RecipeRating {
 type ProductRating {
   id: ID!
   rating: Int!
-  user: User!
   userId: ID!
   product: Product!
   productId: ID!

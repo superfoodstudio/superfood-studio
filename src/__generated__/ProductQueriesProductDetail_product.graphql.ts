@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c97b337885b7f70b9aeb9a2564209162>>
+ * @generated SignedSource<<5c5dd6b23846043ea9395014ddab393d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -23,11 +23,7 @@ export type ProductQueriesProductDetail_product$data = {
     readonly createdAt: any;
     readonly id: string;
     readonly rating: number;
-    readonly user: {
-      readonly firstName: string | null;
-      readonly id: string;
-      readonly lastName: string | null;
-    };
+    readonly userId: string;
   }>;
   readonly slug: string;
   readonly tags: ReadonlyArray<string>;
@@ -158,27 +154,8 @@ return {
         {
           "alias": null,
           "args": null,
-          "concreteType": "User",
-          "kind": "LinkedField",
-          "name": "user",
-          "plural": false,
-          "selections": [
-            (v0/*: any*/),
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "firstName",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "lastName",
-              "storageKey": null
-            }
-          ],
+          "kind": "ScalarField",
+          "name": "userId",
           "storageKey": null
         }
       ],
@@ -190,6 +167,6 @@ return {
 };
 })();
 
-(node as any).hash = "c5279ab9dd82f643eaeb3263277c9b6e";
+(node as any).hash = "caceaa831bd82dbd45ad4bf22817b239";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6dbe4453994e7a7741629c4e6fd7589d>>
+ * @generated SignedSource<<de3a123e400f261a78627408ed062ea6>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -190,27 +190,8 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "User",
-                "kind": "LinkedField",
-                "name": "user",
-                "plural": false,
-                "selections": [
-                  (v2/*: any*/),
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "firstName",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "lastName",
-                    "storageKey": null
-                  }
-                ],
+                "kind": "ScalarField",
+                "name": "userId",
                 "storageKey": null
               }
             ],
@@ -222,12 +203,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d5b6996c981bead6e3909c7e0d402b2b",
+    "cacheID": "76c1e76108475870fdb96514ce0244b3",
     "id": null,
     "metadata": {},
     "name": "ProductQueriesProductDetailQuery",
     "operationKind": "query",
-    "text": "query ProductQueriesProductDetailQuery(\n  $id: ID!\n) {\n  product(id: $id) {\n    ...ProductQueriesProductDetail_product\n    id\n  }\n}\n\nfragment ProductQueriesProductDetail_product on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  videoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
+    "text": "query ProductQueriesProductDetailQuery(\n  $id: ID!\n) {\n  product(id: $id) {\n    ...ProductQueriesProductDetail_product\n    id\n  }\n}\n\nfragment ProductQueriesProductDetail_product on Product {\n  id\n  name\n  slug\n  description\n  photoUrl\n  videoUrl\n  price\n  category\n  tags\n  inventory\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    userId\n  }\n}\n"
   }
 };
 })();

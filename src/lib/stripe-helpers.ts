@@ -25,6 +25,14 @@ export function getInvoicePeriod(invoice: any): { start: Date; end: Date } | nul
   };
 }
 
+export function getShippingCents(totalQuantity: number): number {
+  return totalQuantity > 5 ? 1000 : 500;
+}
+
+export function hasLivestreamAccess(role: string | null, subscriptionStatus: string | null): boolean {
+  return role === 'ADMIN' || subscriptionStatus === 'ACTIVE';
+}
+
 export function getSubscriptionStatus(stripeStatus: string): 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'EXPIRED' {
   switch (stripeStatus) {
     case 'active':

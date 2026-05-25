@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
 import { getPlaybackUrl } from '@/lib/livepeer';
+import { hasLivestreamAccess } from '@/lib/stripe-helpers';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
       select: { role: true, subscription: { select: { status: true } } },
     });
 
-    const hasAccess = dbUser?.role === 'ADMIN' || dbUser?.subscription?.status === 'ACTIVE';
+    const hasAccess = hasLivestreamAccess(dbUser?.role || null, dbUser?.subscription?.status || null);
     if (!hasAccess) {
       return NextResponse.json({ error: 'Active subscription required' }, { status: 403 });
     }

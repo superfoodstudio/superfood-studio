@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<000b12797a4f4715f62c8bd2acab5c49>>
+ * @generated SignedSource<<812e985906828c12964515442b642b7d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -213,27 +213,8 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "User",
-                "kind": "LinkedField",
-                "name": "user",
-                "plural": false,
-                "selections": [
-                  (v2/*: any*/),
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "firstName",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "lastName",
-                    "storageKey": null
-                  }
-                ],
+                "kind": "ScalarField",
+                "name": "userId",
                 "storageKey": null
               }
             ],
@@ -245,12 +226,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "487882387e3b07f5bde1df2b4218329f",
+    "cacheID": "3ebcb86c1ce2b3c18c152c70de563f5a",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeDetailQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    user {\n      id\n      firstName\n      lastName\n    }\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeDetailQuery(\n  $id: ID!\n) {\n  recipe(id: $id) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    userId\n  }\n}\n"
   }
 };
 })();

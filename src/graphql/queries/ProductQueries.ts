@@ -45,11 +45,7 @@ export const ProductDetailFragment = graphql`
       id
       rating
       createdAt
-      user {
-        id
-        firstName
-        lastName
-      }
+      userId
     }
   }
 `;

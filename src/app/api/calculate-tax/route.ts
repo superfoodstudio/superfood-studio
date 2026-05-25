@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { getShippingCents } from '@/lib/stripe-helpers';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-08-16' as Stripe.LatestApiVersion,
 });
-
-function getShippingCents(totalQuantity: number) {
-  return totalQuantity > 5 ? 1000 : 500; // $10 for 6+, $5 for 1-5
-}
 
 export async function POST(req: NextRequest) {
   try {

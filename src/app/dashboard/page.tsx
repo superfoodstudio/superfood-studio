@@ -140,17 +140,19 @@ function DashboardContent() {
               >
                 latest products
               </Text>
-              <Link href="/shop">
+              <Link href="/shop" style={{ textDecoration: "none" }}>
                 <Text
                   variant="body-2"
                   attributes={{
                     style: {
-                      textDecoration: "underline",
-                      textUnderlineOffset: "3px",
+                      fontFamily: "var(--font-big-caslon)",
+                      textTransform: "lowercase",
+                      color: "#8a8a8a",
+                      fontSize: "14px",
                     },
                   }}
                 >
-                  view shop
+                  view shop →
                 </Text>
               </Link>
             </View>

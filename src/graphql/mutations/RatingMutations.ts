@@ -7,11 +7,7 @@ export const RateRecipeMutation = graphql`
       rating
       createdAt
       updatedAt
-      user {
-        id
-        firstName
-        lastName
-      }
+      userId
     }
   }
 `;
@@ -23,11 +19,7 @@ export const RateProductMutation = graphql`
       rating
       createdAt
       updatedAt
-      user {
-        id
-        firstName
-        lastName
-      }
+      userId
     }
   }
 `;

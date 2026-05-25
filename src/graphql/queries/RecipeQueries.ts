@@ -82,11 +82,7 @@ export const RecipeDetailFragment = graphql`
       id
       rating
       createdAt
-      user {
-        id
-        firstName
-        lastName
-      }
+      userId
     }
   }
 `; 
