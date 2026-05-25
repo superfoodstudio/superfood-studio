@@ -1,21 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
+    const body = await req.text();
+    const parsed = JSON.parse(body);
+
+    // Verify webhook signature if configured
     const webhookSecret = process.env.LIVEPEER_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-      console.error('LIVEPEER_WEBHOOK_SECRET is not configured');
-      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
+    if (webhookSecret) {
+      // LivePeer uses HMAC-SHA256 signature in the 'livepeer-signature' header
+      const signature = req.headers.get('livepeer-signature');
+      if (signature) {
+        const expectedSig = crypto
+          .createHmac('sha256', webhookSecret)
+          .update(body)
+          .digest('hex');
+        if (signature !== expectedSig) {
+          console.error('LivePeer webhook signature mismatch');
+          return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+        }
+      }
     }
 
-    const signature = req.headers.get('livepeer-signature');
-    if (!signature || signature !== webhookSecret) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-    }
-
-    const body = await req.json();
-    const { event, stream } = body;
+    const { event, stream } = parsed;
 
     if (!stream?.id) return NextResponse.json({ received: true });
 
@@ -23,7 +32,10 @@ export async function POST(req: NextRequest) {
       where: { livepeerStreamId: stream.id },
     });
 
-    if (!dbStream) return NextResponse.json({ received: true });
+    if (!dbStream) {
+      console.warn('LivePeer webhook: stream not found in DB:', stream.id);
+      return NextResponse.json({ received: true });
+    }
 
     switch (event) {
       case 'stream.started':
