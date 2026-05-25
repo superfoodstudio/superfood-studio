@@ -102,7 +102,7 @@ function OrderDetailContent({ orderId }: { orderId: string }) {
               weight="bold"
               attributes={{
                 style: {
-                  color: order.status === 'COMPLETED' ? '#6b4c7a' : undefined
+                  color: order.status === 'COMPLETED' ? '#4C263C' : undefined
                 }
               }}
             >

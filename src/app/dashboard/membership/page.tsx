@@ -666,7 +666,7 @@ function MembershipContent() {
                 attributes={{
                   style: {
                     fontSize: '13px', fontWeight: '400',
-                    color: subscription?.status === 'ACTIVE' ? '#6b4c7a' : '#4a4a4a',
+                    color: subscription?.status === 'ACTIVE' ? '#4C263C' : '#4a4a4a',
                     textAlign: 'right'
                   }
                 }}
@@ -690,7 +690,7 @@ function MembershipContent() {
                   attributes={{
                     style: {
                       fontSize: '13px', fontWeight: '400',
-                      color: subscription.cancelAtPeriodEnd ? '#ef4444' : '#6b4c7a',
+                      color: subscription.cancelAtPeriodEnd ? '#ef4444' : '#4C263C',
                       textAlign: 'right'
                     }
                   }}

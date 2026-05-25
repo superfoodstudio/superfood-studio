@@ -41,7 +41,7 @@ export function LoadMore({ hasNext, isLoadingNext, onLoadMore }: LoadMoreProps) 
               height: '20px',
               border: '2px solid rgba(0, 0, 0, 0.1)',
               borderRadius: '50%',
-              borderTopColor: '#2E1A47',
+              borderTopColor: '#4C263C',
               animation: 'spin 1s linear infinite'
             }} 
           />

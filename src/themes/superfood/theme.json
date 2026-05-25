@@ -212,21 +212,21 @@
   },
   "color": {
     "backgroundPrimary": {
-      "hex": "#18540b"
+      "hex": "#002A29"
     },
     "backgroundPrimaryFaded": {
       "hex": "#ecebfe",
       "hexDark": "#252544"
     },
     "borderPrimary": {
-      "hex": "#0f3a07"
+      "hex": "#002A29"
     },
     "borderPrimaryFaded": {
       "hex": "#dedcfb",
       "hexDark": "#323164"
     },
     "foregroundPrimary": {
-      "hex": "#18540b"
+      "hex": "#002A29"
     },
     "backgroundCritical": {
       "hex": "#e22c2c",
@@ -329,7 +329,7 @@
       "hexDark": "#434959"
     },
     "backgroundElevationBase": {
-      "hex": "#ffffff"
+      "hex": "#FDEEE4"
     },
     "backgroundElevationRaised": {
       "hex": "#ffffff",
@@ -340,10 +340,10 @@
       "hexDark": "#1c1f28"
     },
     "backgroundPage": {
-      "hex": "#fef3dc"
+      "hex": "#FDEEE4"
     },
     "backgroundPageFaded": {
-      "hex": "#F5EDDA"
+      "hex": "#f5e6da"
     },
     "brand": {
       "hex": "#5a58f2"
@@ -355,31 +355,31 @@
       "hex": "#000000"
     },
     "borderButtonOutline": {
-      "hex": "#2A0028"
+      "hex": "#4C263C"
     },
     "lavender": {
-      "hex": "#b98dd8"
+      "hex": "#AC83DB"
     },
     "limeGreen": {
-      "hex": "#a7e22c"
+      "hex": "#CAD844"
     },
     "coralRed": {
-      "hex": "#ff404f"
+      "hex": "#EF5C54"
     },
     "charcoal": {
-      "hex": "#352c2f"
+      "hex": "#002A29"
     },
     "skyBlue": {
-      "hex": "#add2f7"
+      "hex": "#74C4C2"
     },
     "forestGreen": {
-      "hex": "#18540b"
+      "hex": "#002A29"
     },
     "burgundy": {
-      "hex": "#77122f"
+      "hex": "#4C263C"
     },
     "cream": {
-      "hex": "#fef3dc"
+      "hex": "#FDEEE4"
     },
     "onBackgroundPrimary": {
       "oklch": {
@@ -390,7 +390,7 @@
       "hex": "#ffffff"
     },
     "rgbBackgroundPrimary": {
-      "hex": "23.9955, 83.997, 10.990499999999999"
+      "hex": "0, 41.9985, 41.004"
     },
     "rgbBackgroundPrimaryFaded": {
       "hex": "236.0025, 235.00799999999998, 254.00549999999998",
@@ -493,7 +493,7 @@
       "hexDark": "23.001, 24.990000000000002, 32.997"
     },
     "rgbBackgroundElevationBase": {
-      "hex": "255, 255, 255"
+      "hex": "253.011, 237.9915, 227.9955"
     },
     "rgbBackgroundElevationRaised": {
       "hex": "255, 255, 255",
@@ -504,10 +504,10 @@
       "hexDark": "27.999, 31.008, 40.0095"
     },
     "rgbBackgroundPage": {
-      "hex": "254.00549999999998, 242.9895, 219.98850000000002"
+      "hex": "253.011, 237.9915, 227.9955"
     },
     "rgbBackgroundPageFaded": {
-      "hex": "245.004, 236.997, 217.9995"
+      "hex": "245.004, 230.01000000000002, 217.9995"
     },
     "onBrand": {
       "oklch": {

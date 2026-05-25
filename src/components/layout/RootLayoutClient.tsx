@@ -20,7 +20,7 @@ export function RootLayoutClient({ children }: { children: React.ReactNode }) {
         loginMethods: ['email'],
         appearance: {
           theme: 'light',
-          accentColor: '#676FFF',
+          accentColor: '#4C263C',
           walletList: [],
         },
         embeddedWallets: {

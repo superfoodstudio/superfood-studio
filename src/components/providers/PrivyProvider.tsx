@@ -10,7 +10,7 @@ export function PrivyProvider({ children }: { children: React.ReactNode }) {
         loginMethods: ['email'],
         appearance: {
           theme: 'light',
-          accentColor: '#2E1A47',
+          accentColor: '#4C263C',
         },
       }}
     >

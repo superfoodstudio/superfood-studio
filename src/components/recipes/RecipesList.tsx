@@ -107,7 +107,7 @@ function RecipesListFallback() {
         height: '40px',
         border: '4px solid rgba(0, 0, 0, 0.1)',
         borderRadius: '50%',
-        borderTopColor: '#2E1A47',
+        borderTopColor: '#4C263C',
         animation: 'spin 1s linear infinite'
       }} />
       <style jsx>{`

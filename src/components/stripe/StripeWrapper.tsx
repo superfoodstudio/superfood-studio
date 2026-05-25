@@ -19,7 +19,7 @@ export function StripeWrapper({ children, clientSecret }: StripeWrapperProps) {
     appearance: {
       theme: 'stripe' as const,
       variables: {
-        colorPrimary: '#6b4c7a',
+        colorPrimary: '#4C263C',
         colorBackground: '#ffffff',
         colorText: '#4a4a4a',
         colorDanger: '#df1b41',

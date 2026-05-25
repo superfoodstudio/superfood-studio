@@ -251,7 +251,7 @@ function AdminDashboardContent() {
               style: {
                 width: "140px",
                 height: "100px",
-                backgroundColor: "#6b4c7a",
+                backgroundColor: "#4C263C",
                 borderRadius: "2px",
               },
             }}
@@ -467,7 +467,7 @@ function AdminDashboardContent() {
                   style: {
                     fontSize: "11px",
                     fontWeight: "500",
-                    color: "#6b4c7a",
+                    color: "#4C263C",
                     letterSpacing: "0.5px",
                     cursor: "pointer",
                   },

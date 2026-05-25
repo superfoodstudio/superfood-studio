@@ -47,9 +47,10 @@ export function LiveBanner() {
           attributes={{
             style: {
               overflow: 'hidden',
-              border: '2px solid #22c55e',
               borderRadius: '12px',
               cursor: 'pointer',
+              maxWidth: '700px',
+              margin: '0 auto',
             },
           }}
         >

@@ -2,6 +2,7 @@
 
 import { View, Text, Button, Badge, DropdownMenu } from 'reshaped';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePrivy } from '@privy-io/react-auth';
 import { useEffect, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
@@ -123,56 +124,14 @@ export function Navigation() {
           }}
         >
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <View
-              attributes={{
-                className: 'nav-logo-inner',
-                style: {
-                  position: 'relative',
-                  width: '160px',
-                  height: '60px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }
-              }}
-            >
-              {/* Superfood - Top left, larger */}
-              <Text
-                variant="featured-1"
-                attributes={{
-                  className: 'nav-logo-superfood',
-                  style: {
-                    fontFamily: 'var(--font-midruns-script)',
-                    color: 'var(--rs-color-forest-green)',
-                    fontSize: '2.6rem',
-                    position: 'absolute',
-                    top: '-6px',
-                    left: '0px',
-                    lineHeight: '1.2'
-                  }
-                }}
-              >
-                Superfood
-              </Text>
-              {/* Studio - Bottom right, with proper spacing */}
-              <Text
-                variant="featured-1"
-                attributes={{
-                  className: 'nav-logo-studio',
-                  style: {
-                    fontFamily: 'var(--font-midruns-sans)',
-                    color: 'var(--rs-color-forest-green)',
-                    fontSize: '1.8rem',
-                    position: 'absolute',
-                    bottom: '0px',
-                    right: '-4px',
-                    lineHeight: '1.2'
-                  }
-                }}
-              >
-                Studio
-              </Text>
-            </View>
+            <Image
+              src="/ss-logo.png"
+              alt="Superfood Studio"
+              width={180}
+              height={40}
+              priority
+              style={{ objectFit: 'contain' }}
+            />
           </Link>
         </View>
 

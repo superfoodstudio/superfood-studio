@@ -121,7 +121,7 @@ function FeaturedProductContent() {
               size="small"
               attributes={{
                 style: {
-                  backgroundColor: '#6b4c7a',
+                  backgroundColor: '#4C263C',
                   borderRadius: '15px',
                   fontSize: '10px',
                   fontWeight: '600',

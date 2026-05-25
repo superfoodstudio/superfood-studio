@@ -133,7 +133,7 @@ function OrdersContent() {
                       style={{
                         fontSize: '13px',
                         fontWeight: '500',
-                        color: '#6b4c7a',
+                        color: '#4C263C',
                         cursor: 'pointer',
                         textDecoration: 'underline',
                         textAlign: 'left'
@@ -153,7 +153,7 @@ function OrdersContent() {
                       variant="caption-1"
                       attributes={{
                         style: {
-                          color: order.status === 'COMPLETED' ? '#6b4c7a' : '#8a8a8a'
+                          color: order.status === 'COMPLETED' ? '#4C263C' : '#8a8a8a'
                         }
                       }}
                     >
