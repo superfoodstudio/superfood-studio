@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     const streams = await prisma.livestream.findMany({
+      where: { status: { in: ['IDLE', 'LIVE'] } },
       orderBy: { createdAt: 'desc' },
     });
 
