@@ -75,8 +75,8 @@ export async function deleteStream(livepeerStreamId: string): Promise<void> {
   }
 }
 
-export function getRtmpIngestUrl(streamKey: string): string {
-  return `rtmp://rtmp.livepeer.studio/live/${streamKey}`;
+export function getRtmpIngestUrl(): string {
+  return 'rtmp://rtmp.livepeer.com/live';
 }
 
 export function getPlaybackUrl(playbackId: string): string {

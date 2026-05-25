@@ -44,7 +44,7 @@ export async function GET(
     return NextResponse.json({
       stream: {
         ...stream,
-        rtmpUrl: getRtmpIngestUrl(stream.streamKey),
+        rtmpUrl: getRtmpIngestUrl(),
         playbackUrl: getPlaybackUrl(stream.playbackId),
       },
     });
