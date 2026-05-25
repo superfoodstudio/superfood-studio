@@ -188,7 +188,7 @@ function AdminOrdersContent() {
                     </Text>
                   </Table.Cell>
                   <Table.Cell attributes={{ className: 'hide-on-mobile' }}>
-                    <Text variant="caption-1" color="neutral-faded">{formatDate(order.date)}</Text>
+                    <Text variant="caption-1" color="neutral-faded">{order.date ? formatDate(order.date) : ''}</Text>
                   </Table.Cell>
                 </Table.Row>
               ))}

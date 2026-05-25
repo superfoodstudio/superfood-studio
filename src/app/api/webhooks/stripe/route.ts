@@ -130,7 +130,8 @@ async function handleCheckoutSessionCompleted(event: Stripe.Event) {
         where: { id: orderId },
         data: {
           status: 'PROCESSING',
-          shippingAddress: shippingAddress || undefined,
+          // Only update address if Stripe provided one and order doesn't already have one
+          ...(shippingAddress && !order.shippingAddress ? { shippingAddress } : {}),
         },
       });
 

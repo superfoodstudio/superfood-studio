@@ -227,6 +227,12 @@ export function Navigation() {
                 <Link href="/dashboard" style={{ textDecoration: 'none', color: 'black' }}>
                   <DropdownMenu.Item>Dashboard</DropdownMenu.Item>
                 </Link>
+                <Link href="/shop" style={{ textDecoration: 'none', color: 'black' }}>
+                  <DropdownMenu.Item>Shop</DropdownMenu.Item>
+                </Link>
+                <Link href="/recipes" style={{ textDecoration: 'none', color: 'black' }}>
+                  <DropdownMenu.Item>Recipes</DropdownMenu.Item>
+                </Link>
                 <Link href="/dashboard/profile" style={{ textDecoration: 'none', color: 'black' }}>
                   <DropdownMenu.Item>Profile</DropdownMenu.Item>
                 </Link>

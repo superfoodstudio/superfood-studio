@@ -125,12 +125,26 @@ export const adminResolvers = {
 
         return orders.map(order => ({
           id: order.id,
+          userId: order.userId,
           customerName: `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() || order.user.email,
           customerEmail: order.user.email,
           total: order.total,
           status: order.status,
           date: order.createdAt.toISOString(),
-          itemCount: order.items.length
+          itemCount: order.items.length,
+          createdAt: order.createdAt.toISOString(),
+          updatedAt: order.updatedAt.toISOString(),
+          shippingAddress: order.shippingAddress,
+          user: order.user,
+          items: order.items.map(item => ({
+            id: item.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+            product: item.product,
+            productName: (item.product as any)?.name || 'Deleted product',
+            photoUrl: (item.product as any)?.photoUrl || '',
+          })),
         }));
       } catch (error) {
         console.error(error);
@@ -245,18 +259,25 @@ export const adminResolvers = {
 
         return orders.map(order => ({
           id: order.id,
+          userId: order.userId,
           customerName: `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() || order.user.email,
           customerEmail: order.user.email,
           total: order.total,
           status: order.status,
           date: order.createdAt.toISOString(),
-          items: order.items.map(item => ({
-            id: item.id,
-            productName: item.product?.name || 'Deleted product',
-            quantity: item.quantity,
-            price: item.price,
-            photoUrl: item.product?.photoUrl || ''
-          }))
+          createdAt: order.createdAt.toISOString(),
+          updatedAt: order.updatedAt.toISOString(),
+          shippingAddress: order.shippingAddress,
+          user: order.user,
+          items: order.items
+            .filter(item => item.product !== null)
+            .map(item => ({
+              id: item.id,
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+              product: item.product,
+            })),
         }));
       } catch (error) {
         console.error(error);
@@ -316,19 +337,24 @@ export const adminResolvers = {
           cursor: order.id,
           node: {
             id: order.id,
+            userId: order.userId,
             customerName: `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() || order.user.email,
             customerEmail: order.user.email,
             total: order.total,
             status: order.status,
-            date: order.createdAt.toISOString(),
+            createdAt: order.createdAt.toISOString(),
+            updatedAt: order.updatedAt.toISOString(),
             shippingAddress: order.shippingAddress,
-            items: order.items.map(item => ({
-              id: item.id,
-              productName: item.product?.name || 'Deleted product',
-              quantity: item.quantity,
-              price: item.price,
-              photoUrl: item.product?.photoUrl || ''
-            }))
+            user: order.user,
+            items: order.items
+              .filter(item => item.product !== null)
+              .map(item => ({
+                id: item.id,
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price,
+                product: item.product,
+              })),
           }
         }));
 
@@ -385,11 +411,16 @@ export const adminResolvers = {
 
         return {
           id: updatedOrder.id,
+          userId: updatedOrder.userId,
           customerName: `${updatedOrder.user.firstName || ''} ${updatedOrder.user.lastName || ''}`.trim() || updatedOrder.user.email,
           customerEmail: updatedOrder.user.email,
           total: updatedOrder.total,
           status: updatedOrder.status,
-          date: updatedOrder.createdAt.toISOString()
+          createdAt: updatedOrder.createdAt.toISOString(),
+          updatedAt: updatedOrder.updatedAt.toISOString(),
+          shippingAddress: updatedOrder.shippingAddress,
+          user: updatedOrder.user,
+          items: [],
         };
       } catch (error) {
         console.error(error);

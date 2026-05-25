@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9a5e0e5e7d97d6d2339393f015d86f72>>
+ * @generated SignedSource<<5a13d576a64e1d8f1dc52a114589ff05>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -18,9 +18,9 @@ export type AdminQueriesQuery$data = {
     readonly totalRevenue: number;
   };
   readonly recentOrders: ReadonlyArray<{
-    readonly customerEmail: string;
-    readonly customerName: string;
-    readonly date: string;
+    readonly customerEmail: string | null;
+    readonly customerName: string | null;
+    readonly date: string | null;
     readonly id: string;
     readonly itemCount: number | null;
     readonly status: string;
@@ -82,7 +82,7 @@ var v0 = [
         "value": 5
       }
     ],
-    "concreteType": "AdminOrder",
+    "concreteType": "Order",
     "kind": "LinkedField",
     "name": "recentOrders",
     "plural": true,

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<954bb4b57db13f30fbbc2a366e7dd278>>
+ * @generated SignedSource<<459cd06fe20f92123aa6732a2d0e8f26>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,17 +15,17 @@ export type pageOrdersPaginationFragment$data = {
     readonly edges: ReadonlyArray<{
       readonly cursor: string;
       readonly node: {
-        readonly customerEmail: string;
-        readonly customerName: string;
-        readonly date: string;
+        readonly customerEmail: string | null;
+        readonly customerName: string | null;
+        readonly date: string | null;
         readonly id: string;
         readonly items: ReadonlyArray<{
           readonly id: string;
           readonly photoUrl: string | null;
           readonly price: number;
-          readonly productName: string;
+          readonly productName: string | null;
           readonly quantity: number;
-        }> | null;
+        }>;
         readonly status: string;
         readonly total: number;
       };
@@ -127,7 +127,7 @@ return {
             {
               "alias": null,
               "args": null,
-              "concreteType": "AdminOrder",
+              "concreteType": "Order",
               "kind": "LinkedField",
               "name": "node",
               "plural": false,
@@ -171,7 +171,7 @@ return {
                 {
                   "alias": null,
                   "args": null,
-                  "concreteType": "AdminOrderItem",
+                  "concreteType": "OrderItem",
                   "kind": "LinkedField",
                   "name": "items",
                   "plural": true,

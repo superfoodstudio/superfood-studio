@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { View, Text } from 'reshaped';
+import { usePrivy } from '@privy-io/react-auth';
 
 function HlsPlayer({ url }: { url: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -46,13 +47,17 @@ interface ActiveStream {
 }
 
 export default function LivestreamPage() {
+  const { getAccessToken } = usePrivy();
   const [stream, setStream] = useState<ActiveStream | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function checkStream() {
       try {
-        const res = await fetch('/api/livestream/active');
+        const token = await getAccessToken();
+        const res = await fetch('/api/livestream/active', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (res.ok) {
           const data = await res.json();
           setStream(data);

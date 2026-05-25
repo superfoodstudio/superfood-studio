@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
 import { useEffect, useState, Suspense } from "react";
 import { QueryErrorBoundary } from '@/components/ui/QueryErrorBoundary';
@@ -127,17 +128,32 @@ function DashboardContent() {
         {/* Latest Products */}
         <View padding={4}>
           <View direction="column" gap={4}>
-            <Text
-              variant="featured-1"
-              attributes={{
-                style: {
-                  fontFamily: "var(--font-big-caslon)",
-                  textTransform: "lowercase",
-                },
-              }}
-            >
-              latest products
-            </Text>
+            <View direction="row" align="center" justify="space-between">
+              <Text
+                variant="featured-1"
+                attributes={{
+                  style: {
+                    fontFamily: "var(--font-big-caslon)",
+                    textTransform: "lowercase",
+                  },
+                }}
+              >
+                latest products
+              </Text>
+              <Link href="/shop">
+                <Text
+                  variant="body-2"
+                  attributes={{
+                    style: {
+                      textDecoration: "underline",
+                      textUnderlineOffset: "3px",
+                    },
+                  }}
+                >
+                  view shop
+                </Text>
+              </Link>
+            </View>
             <LatestProducts />
           </View>
         </View>

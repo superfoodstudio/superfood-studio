@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1d90209db1817df65e9468ecf0895508>>
+ * @generated SignedSource<<03117924f2568f17712a862a1ba30c09>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,17 +15,17 @@ export type AdminQueriesOrdersQuery$variables = {
 };
 export type AdminQueriesOrdersQuery$data = {
   readonly adminOrders: ReadonlyArray<{
-    readonly customerEmail: string;
-    readonly customerName: string;
-    readonly date: string;
+    readonly customerEmail: string | null;
+    readonly customerName: string | null;
+    readonly date: string | null;
     readonly id: string;
     readonly items: ReadonlyArray<{
       readonly id: string;
       readonly photoUrl: string | null;
       readonly price: number;
-      readonly productName: string;
+      readonly productName: string | null;
       readonly quantity: number;
-    }> | null;
+    }>;
     readonly status: string;
     readonly total: number;
   }>;
@@ -70,7 +70,7 @@ v2 = [
         "variableName": "offset"
       }
     ],
-    "concreteType": "AdminOrder",
+    "concreteType": "Order",
     "kind": "LinkedField",
     "name": "adminOrders",
     "plural": true,
@@ -114,7 +114,7 @@ v2 = [
       {
         "alias": null,
         "args": null,
-        "concreteType": "AdminOrderItem",
+        "concreteType": "OrderItem",
         "kind": "LinkedField",
         "name": "items",
         "plural": true,

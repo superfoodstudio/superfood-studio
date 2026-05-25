@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<35872736eca7d69ad1e2a50a6bd07a2b>>
+ * @generated SignedSource<<7424b3213a5015db59495f71c6efd79a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,17 +19,17 @@ export type AdminQueriesOrdersConnectionQuery$data = {
     readonly edges: ReadonlyArray<{
       readonly cursor: string;
       readonly node: {
-        readonly customerEmail: string;
-        readonly customerName: string;
-        readonly date: string;
+        readonly customerEmail: string | null;
+        readonly customerName: string | null;
+        readonly date: string | null;
         readonly id: string;
         readonly items: ReadonlyArray<{
           readonly id: string;
           readonly photoUrl: string | null;
           readonly price: number;
-          readonly productName: string;
+          readonly productName: string | null;
           readonly quantity: number;
-        }> | null;
+        }>;
         readonly status: string;
         readonly total: number;
       };
@@ -94,7 +94,7 @@ v5 = [
       {
         "alias": null,
         "args": null,
-        "concreteType": "AdminOrder",
+        "concreteType": "Order",
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
@@ -138,7 +138,7 @@ v5 = [
           {
             "alias": null,
             "args": null,
-            "concreteType": "AdminOrderItem",
+            "concreteType": "OrderItem",
             "kind": "LinkedField",
             "name": "items",
             "plural": true,

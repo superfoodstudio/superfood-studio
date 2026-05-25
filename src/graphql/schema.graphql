@@ -286,6 +286,8 @@ type OrderItem {
   quantity: Int!
   price: Float!
   product: Product!
+  productName: String
+  photoUrl: String
 }
 
 type Order {
@@ -299,6 +301,10 @@ type Order {
   shippingAddress: Address
   user: User
   items: [OrderItem!]!
+  customerName: String
+  customerEmail: String
+  date: String
+  itemCount: Int
 }
 
 # Admin schema
@@ -332,7 +338,7 @@ type AdminOrder {
 # Admin Order Connection for pagination
 type AdminOrderEdge {
   cursor: String!
-  node: AdminOrder!
+  node: Order!
 }
 
 type AdminOrderConnection {
@@ -430,8 +436,8 @@ type Query {
   
   # Admin queries
   adminMetrics: AdminMetrics!
-  recentOrders(limit: Int): [AdminOrder!]!
-  adminOrders(limit: Int, offset: Int): [AdminOrder!]!
+  recentOrders(limit: Int): [Order!]!
+  adminOrders(limit: Int, offset: Int): [Order!]!
   adminOrdersConnection(
     first: Int
     after: String
@@ -487,7 +493,7 @@ type Mutation {
   reactivateSubscription: UserSubscription!
   
   # Admin mutations
-  updateOrderStatus(orderId: ID!, status: String!): AdminOrder!
+  updateOrderStatus(orderId: ID!, status: String!): Order!
   
   # Comment mutations
   createComment(input: CreateCommentInput!): Comment!

@@ -438,7 +438,7 @@ function AdminDashboardContent() {
                         },
                       }}
                     >
-                      {formatDate(order.date)}
+                      {order.date ? formatDate(order.date) : ''}
                     </Text>
                   </View>
                   <View width="40%">

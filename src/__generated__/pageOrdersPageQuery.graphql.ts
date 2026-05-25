@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<f7b53122b033e28ba8a39e1911ee1832>>
+ * @generated SignedSource<<e2e2640d7cfbd53a117f61f324ad3c33>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -119,7 +119,7 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "AdminOrder",
+                "concreteType": "Order",
                 "kind": "LinkedField",
                 "name": "node",
                 "plural": false,
@@ -163,7 +163,7 @@ return {
                   {
                     "alias": null,
                     "args": null,
-                    "concreteType": "AdminOrderItem",
+                    "concreteType": "OrderItem",
                     "kind": "LinkedField",
                     "name": "items",
                     "plural": true,
