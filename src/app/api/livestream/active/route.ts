@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       live: true,
       title: activeStream.title,
       description: activeStream.description,
-      playbackUrl: getPlaybackUrl(activeStream.playbackId),
+      playbackId: activeStream.playbackId,
     });
   } catch (error) {
     console.error('Active stream error:', error);

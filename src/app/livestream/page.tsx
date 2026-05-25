@@ -1,39 +1,24 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text } from 'reshaped';
 import { usePrivy } from '@privy-io/react-auth';
 
-function HlsPlayer({ url }: { url: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Safari native HLS
-      video.src = url;
-    } else {
-      // Use hls.js for other browsers
-      import('hls.js').then(({ default: Hls }) => {
-        if (Hls.isSupported()) {
-          const hls = new Hls();
-          hls.loadSource(url);
-          hls.attachMedia(video);
-        }
-      });
-    }
-  }, [url]);
-
+function LivepeerPlayer({ playbackId }: { playbackId: string }) {
   return (
     <View attributes={{ style: { position: 'relative', paddingTop: '56.25%', backgroundColor: '#000', borderRadius: '2px', overflow: 'hidden' } }}>
-      <video
-        ref={videoRef}
-        controls
-        autoPlay
-        playsInline
-        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+      <iframe
+        src={`https://lvpr.tv?v=${playbackId}`}
+        allowFullScreen
+        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          border: 'none',
+        }}
       />
     </View>
   );
@@ -43,6 +28,7 @@ interface ActiveStream {
   live: boolean;
   title?: string;
   description?: string;
+  playbackId?: string;
   playbackUrl?: string;
 }
 
@@ -105,7 +91,7 @@ export default function LivestreamPage() {
         <Text variant="title-3" weight="bold">{stream.title}</Text>
       )}
 
-      <HlsPlayer url={stream.playbackUrl!} />
+      <LivepeerPlayer playbackId={stream.playbackId!} />
 
       {stream.description && (
         <Text attributes={{ style: { color: '#6b7280', fontSize: '14px' } }}>
