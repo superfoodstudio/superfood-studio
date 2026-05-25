@@ -35,11 +35,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ live: false });
     }
 
+    // Fetch thumbnail URL from LivePeer playback API
+    let thumbnailUrl: string | null = null;
+    try {
+      const playbackRes = await fetch(`https://livepeer.studio/api/playback/${activeStream.playbackId}`);
+      if (playbackRes.ok) {
+        const playbackData = await playbackRes.json();
+        const thumbSource = playbackData.meta?.source?.find((s: any) => s.type === 'image/png');
+        if (thumbSource) thumbnailUrl = thumbSource.url;
+      }
+    } catch {}
+
     return NextResponse.json({
       live: true,
       title: activeStream.title,
       description: activeStream.description,
       playbackId: activeStream.playbackId,
+      thumbnailUrl,
     });
   } catch (error) {
     console.error('Active stream error:', error);

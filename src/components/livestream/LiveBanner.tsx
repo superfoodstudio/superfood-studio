@@ -10,6 +10,7 @@ interface StreamInfo {
   title?: string;
   description?: string;
   playbackId?: string;
+  thumbnailUrl?: string;
 }
 
 export function LiveBanner() {
@@ -67,20 +68,38 @@ export function LiveBanner() {
                 },
               }}
             >
-              <iframe
-                src={`https://lvpr.tv?v=${stream.playbackId}&autoplay=true&muted=true`}
-                allow="autoplay"
-                style={{
-                  position: 'absolute',
-                  top: '-48px',
-                  left: 0,
-                  width: '100%',
-                  height: 'calc(100% + 96px)',
-                  border: 'none',
-                  pointerEvents: 'none',
-                }}
-                tabIndex={-1}
-              />
+              {stream.thumbnailUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={stream.thumbnailUrl}
+                  alt={stream.title || 'Live'}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
+              ) : (
+                <View
+                  align="center"
+                  justify="center"
+                  attributes={{
+                    style: {
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      backgroundColor: 'var(--rs-color-lavender)',
+                    }
+                  }}
+                >
+                  <Text variant="featured-3" attributes={{ style: { color: '#fff' } }}>LIVE</Text>
+                </View>
+              )}
             </View>
 
             {/* Info */}
