@@ -92,14 +92,16 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
 
     const firstName = userData.currentUser.firstName || '';
     const lastName = userData.currentUser.lastName || '';
-    const authorName = [firstName, lastName].filter(Boolean).join(' ') || userData.currentUser.email;
+    const fullName = [firstName, lastName].filter(Boolean).join(' ');
+    // Generate a short hash from the user ID for anonymous display names
+    const userHash = userData.currentUser.id?.slice(-4).toUpperCase() || '0000';
+    const authorName = fullName || `Superfoodie #${userHash}`;
 
     createComment({
       variables: {
         input: {
           content: formData.content.trim(),
           author: authorName,
-          email: userData.currentUser.email,
           recipeId: recipeId,
         },
       },
@@ -226,9 +228,9 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
             >
               <View direction="row" justify="space-between" align="center">
                 <Text variant="body-2" weight="medium">
-                  {comment.author && comment.author !== 'null null' && comment.author.trim()
+                  {comment.author && comment.author !== 'null null' && comment.author.trim() && !comment.author.includes('@')
                     ? comment.author
-                    : 'Anonymous'}
+                    : `Superfoodie #${comment.id?.slice(-4).toUpperCase() || '0000'}`}
                 </Text>
                 <Text variant="caption-1" color="neutral-faded">
                   {formatDate(comment.createdAt)}
