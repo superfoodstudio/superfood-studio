@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
 import { Suspense, useEffect, useCallback } from 'react';
@@ -116,17 +117,15 @@ function OrdersContent() {
                   }}
                 >
                   {firstItem?.product?.photoUrl && (
-                    <img
-                      src={ipfsUrl(firstItem.product.photoUrl)}
-                      alt={firstItem.product.name}
-                      style={{
-                        width: '48px',
-                        height: '48px',
-                        objectFit: 'cover',
-                        borderRadius: '6px',
-                        flexShrink: 0,
-                      }}
-                    />
+                    <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 }}>
+                      <Image
+                        src={ipfsUrl(firstItem.product.photoUrl)}
+                        alt={firstItem.product.name}
+                        fill
+                        sizes="48px"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
                   )}
                   <View direction="column" gap={1} attributes={{ style: { flex: 1 } }}>
                     <a

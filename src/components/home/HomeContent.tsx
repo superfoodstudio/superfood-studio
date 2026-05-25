@@ -2,6 +2,7 @@
 
 import { View, Text, Button, Skeleton } from "reshaped";
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import { QueryErrorBoundary } from "@/components/ui/QueryErrorBoundary";
 import { useLazyLoadQuery } from "react-relay";
@@ -216,13 +217,12 @@ export function HomeContent() {
                 },
               }}
             >
-              <img
+              <Image
                 src="/superfood-studio-2015.png"
                 alt="Superfood Studio logo"
-                style={{
-                  maxWidth: "80%",
-                  height: "auto",
-                }}
+                width={400}
+                height={300}
+                style={{ maxWidth: "80%", height: "auto" }}
               />
             </View>
           </View>

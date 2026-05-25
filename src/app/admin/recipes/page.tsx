@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, Suspense } from 'react';
 import { View, Text, Table, Button } from 'reshaped';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
 import { useLazyLoadQuery, usePaginationFragment } from 'react-relay';
@@ -201,11 +202,15 @@ function AdminRecipesContent() {
           >
             <View direction="row" align="center">
               {featuredData.featuredRecipe.previewImageUrl && (
-                <img
-                  src={ipfsUrl(featuredData.featuredRecipe.previewImageUrl)}
-                  alt={featuredData.featuredRecipe.name}
-                  style={{ width: '80px', height: '80px', objectFit: 'cover', flexShrink: 0 }}
-                />
+                <div style={{ position: 'relative', width: '80px', height: '80px', flexShrink: 0 }}>
+                  <Image
+                    src={ipfsUrl(featuredData.featuredRecipe.previewImageUrl)}
+                    alt={featuredData.featuredRecipe.name}
+                    fill
+                    sizes="80px"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
               )}
               <View direction="row" justify="space-between" align="center" padding={4} attributes={{ style: { flex: 1 } }}>
                 <View direction="column" gap={1}>

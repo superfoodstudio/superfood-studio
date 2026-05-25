@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { View, TextField, NumberField, Switch } from 'reshaped';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { FormField } from '@/components/admin/FormField';
 import { FormError } from '@/components/admin/FormError';
@@ -408,11 +409,15 @@ export default function EditProductPage() {
                 }}
               />
               {photoUrl && (
-                <img
-                  src={ipfsUrl(photoUrl)}
-                  alt="Product preview"
-                  style={{ maxWidth: '300px', height: 'auto' }}
-                />
+                <div style={{ position: 'relative', width: '300px', height: '200px' }}>
+                  <Image
+                    src={ipfsUrl(photoUrl)}
+                    alt="Product preview"
+                    fill
+                    sizes="300px"
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
               )}
             </View>
           </FormField>

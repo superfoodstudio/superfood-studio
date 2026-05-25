@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import React, { useState, Suspense } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { View, Text, Card, Button, Grid, Divider } from 'reshaped';
 import { ContentSkeleton } from '@/components/ui/ListSkeleton';
 import { useLazyLoadQuery } from 'react-relay';
@@ -215,12 +216,12 @@ function AdminOrderContent({ orderId }: { orderId: string }) {
                     }
                   }}
                 >
-                  <img
+                  <Image
                     src={ipfsUrl(item.product.photoUrl)}
-                    alt={item.product.name} 
-                    width={60}
-                    height={60}
-                    style={{ objectFit: 'cover', width: '100%', height: '100%' }} 
+                    alt={item.product.name}
+                    fill
+                    sizes="60px"
+                    style={{ objectFit: 'cover' }}
                   />
                 </View>
                 <View direction="column" gap={1} attributes={{ style: { flex: 1 } }}>

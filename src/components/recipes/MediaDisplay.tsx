@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { View, Text } from 'reshaped';
+import Image from 'next/image';
 import { ipfsUrl } from '@/lib/ipfs';
 
 interface MediaDisplayProps {
@@ -135,31 +137,12 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
         className
       }}
     >
-      <img
+      <Image
         src={ipfsUrl(mediaUrl)}
         alt={altText}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover'
-        }}
-        onError={(e) => {
-          // If image fails to load, show placeholder using safe DOM manipulation
-          const target = e.target as HTMLImageElement;
-          target.style.display = 'none';
-          const parent = target.parentElement!;
-          while (parent.firstChild) parent.removeChild(parent.firstChild);
-
-          const wrapper = document.createElement('div');
-          wrapper.style.cssText = 'background: #f5f5f5; display: flex; align-items: center; justify-content: center; height: 100%; border-radius: 8px;';
-
-          const message = document.createElement('span');
-          message.style.cssText = 'color: #666; font-size: 14px;';
-          message.textContent = 'Media not available';
-
-          wrapper.appendChild(message);
-          parent.appendChild(wrapper);
-        }}
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
+        style={{ objectFit: 'cover' }}
       />
     </View>
   );
