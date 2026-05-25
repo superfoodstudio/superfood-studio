@@ -39,21 +39,32 @@ export const adminResolvers = {
           }
         });
 
-        // Calculate subscription revenue from our own subscription records
-        // instead of fetching each subscription from Stripe individually (N+1)
+        // Calculate monthly subscription revenue from Stripe prices
         let subscriptionRevenue = 0;
         try {
-          const activeSubscriptions = await prisma.subscription.findMany({
+          let monthlyPrice = 0;
+          let yearlyPrice = 0;
+          const monthlyPriceId = process.env.STRIPE_MONTHLY_PRICE_ID;
+          const yearlyPriceId = process.env.STRIPE_YEARLY_PRICE_ID;
+
+          const stripeClient = getStripe();
+          const [monthlyStripe, yearlyStripe] = await Promise.all([
+            monthlyPriceId ? stripeClient.prices.retrieve(monthlyPriceId).catch(() => null) : null,
+            yearlyPriceId ? stripeClient.prices.retrieve(yearlyPriceId).catch(() => null) : null,
+          ]);
+
+          if (monthlyStripe) monthlyPrice = (monthlyStripe.unit_amount || 0) / 100;
+          if (yearlyStripe) yearlyPrice = ((yearlyStripe.unit_amount || 0) / 100) / 12;
+
+          const activeSubs = await prisma.subscription.groupBy({
+            by: ['plan'],
             where: { status: 'ACTIVE' },
-            select: { plan: true },
+            _count: true,
           });
 
-          for (const sub of activeSubscriptions) {
-            if (sub.plan === 'MONTHLY') {
-              subscriptionRevenue += 9.99; // monthly price
-            } else if (sub.plan === 'YEARLY') {
-              subscriptionRevenue += 99.99 / 12; // yearly price divided by 12
-            }
+          for (const group of activeSubs) {
+            if (group.plan === 'MONTHLY') subscriptionRevenue += group._count * monthlyPrice;
+            else if (group.plan === 'YEARLY') subscriptionRevenue += group._count * yearlyPrice;
           }
         } catch (e) {
           console.error('Failed to calculate subscription revenue:', e);
