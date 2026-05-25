@@ -80,6 +80,12 @@ export function Navigation() {
         if (!response.ok) {
           throw new Error('Auth callback failed');
         }
+        // Check for post-login redirect (e.g. from Join modal)
+        const redirect = sessionStorage.getItem('redirect_after_login');
+        if (redirect) {
+          sessionStorage.removeItem('redirect_after_login');
+          window.location.href = redirect;
+        }
         return response.json();
       })
       .catch(() => {});

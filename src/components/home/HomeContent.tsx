@@ -380,9 +380,10 @@ export function HomeContent() {
         active={joinModal.active}
         onClose={joinModal.deactivate}
         position="center"
-        size="450px"
+        size="600px"
+        attributes={{ style: { border: 'none', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' } }}
       >
-        <View padding={8} gap={6} attributes={{ style: { backgroundColor: 'var(--rs-color-cream)' } }}>
+        <View padding={10} gap={6} attributes={{ style: { backgroundColor: 'var(--rs-color-cream)', borderRadius: '12px' } }}>
           <Text
             variant="featured-2"
             weight="bold"
@@ -393,29 +394,21 @@ export function HomeContent() {
           </Text>
 
           <View gap={3}>
-            <View direction="row" align="center" gap={2}>
-              <Text variant="body-2">&#10003;</Text>
+            <View direction="row" align="start" gap={2}>
+              <Text variant="body-2" color="neutral-faded">&#8226;</Text>
               <Text variant="body-2">Weekly plant-forward recipes &amp; tutorials</Text>
             </View>
-            <View direction="row" align="center" gap={2}>
-              <Text variant="body-2">&#10003;</Text>
-              <Text variant="body-2">Beauty &amp; self-care rituals</Text>
-            </View>
-            <View direction="row" align="center" gap={2}>
-              <Text variant="body-2">&#10003;</Text>
+            <View direction="row" align="start" gap={2}>
+              <Text variant="body-2" color="neutral-faded">&#8226;</Text>
               <Text variant="body-2">Access to the shop &amp; small batch goods</Text>
             </View>
-            <View direction="row" align="center" gap={2}>
-              <Text variant="body-2">&#10003;</Text>
-              <Text variant="body-2">Quarterly masterclasses with top culinary artists</Text>
+            <View direction="row" align="start" gap={2}>
+              <Text variant="body-2" color="neutral-faded">&#8226;</Text>
+              <Text variant="body-2">Masterclasses with top culinary artists</Text>
             </View>
-            <View direction="row" align="center" gap={2}>
-              <Text variant="body-2">&#10003;</Text>
+            <View direction="row" align="start" gap={2}>
+              <Text variant="body-2" color="neutral-faded">&#8226;</Text>
               <Text variant="body-2">Live streams &amp; exclusive content</Text>
-            </View>
-            <View direction="row" align="center" gap={2}>
-              <Text variant="body-2">&#10003;</Text>
-              <Text variant="body-2">Member rates on garden-to-table events</Text>
             </View>
           </View>
 
@@ -446,6 +439,8 @@ export function HomeContent() {
               if (authenticated) {
                 window.location.href = '/subscription';
               } else {
+                // Set flag so after login they go to membership
+                sessionStorage.setItem('redirect_after_login', '/dashboard/membership');
                 login();
               }
             }}
