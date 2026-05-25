@@ -63,6 +63,7 @@ export function LiveBanner() {
                   position: 'relative',
                   minHeight: '200px',
                   backgroundColor: '#000',
+                  overflow: 'hidden',
                 },
               }}
             >
@@ -71,10 +72,10 @@ export function LiveBanner() {
                 allow="autoplay"
                 style={{
                   position: 'absolute',
-                  top: 0,
+                  top: '-48px',
                   left: 0,
                   width: '100%',
-                  height: '100%',
+                  height: 'calc(100% + 96px)',
                   border: 'none',
                   pointerEvents: 'none',
                 }}
