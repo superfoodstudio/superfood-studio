@@ -723,13 +723,15 @@ function MembershipContent() {
           <View direction="column" align="center" paddingTop={4}>
             <Button
               variant={isActive ? "outline" : "solid"}
-              size="medium"
+              size="xlarge"
+              rounded
               onClick={() => setModalStep('select-plan')}
               attributes={!isActive ? {
                 style: {
                   backgroundColor: 'var(--rs-color-lavender)',
                   color: '#fff',
-                  paddingInline: '32px',
+                  paddingInline: '48px',
+                  fontSize: '16px',
                 }
               } : undefined}
             >
