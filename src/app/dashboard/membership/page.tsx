@@ -34,6 +34,7 @@ function MembershipContent() {
   const [reactivateSubscription] = useMutation(ReactivateSubscriptionMutation);
 
   const subscription = data.userSubscription;
+  const isActive = subscription && subscription.status === 'ACTIVE';
 
   const defaultCard = data.userPaymentMethods?.find(pm => pm.isDefault)
     || data.userPaymentMethods?.[0] || null;
@@ -721,11 +722,11 @@ function MembershipContent() {
           {/* Button Section */}
           <View direction="column" align="center" paddingTop={4}>
             <Button
-              variant="outline"
+              variant={isActive ? "outline" : "solid"}
               size="small"
               onClick={() => setModalStep('select-plan')}
             >
-              Edit Membership
+              {isActive ? 'Edit Membership' : 'Join'}
             </Button>
           </View>
         </View>

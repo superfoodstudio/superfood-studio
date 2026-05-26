@@ -41,7 +41,9 @@ function LatestProducts() {
 
 function DashboardContent() {
   const router = useRouter();
+  const { getAccessToken } = usePrivy();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [subChecked, setSubChecked] = useState(false);
 
   const data = useLazyLoadQuery<UserQueriesCurrentUserQuery>(
     CurrentUserQuery,
@@ -53,6 +55,38 @@ function DashboardContent() {
     user?.firstName ||
     (user?.email ? user.email.split("@")[0] : null) ||
     "friend";
+
+  // Redirect non-subscribers to membership page
+  useEffect(() => {
+    async function checkSubscription() {
+      try {
+        const token = await getAccessToken();
+        if (!token) return;
+        const res = await fetch('/api/subscription', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.subscription || data.subscription.status !== 'ACTIVE') {
+            router.replace('/dashboard/membership');
+            return;
+          }
+        }
+      } catch {}
+      setSubChecked(true);
+    }
+    checkSubscription();
+  }, [getAccessToken, router]);
+
+  if (!subChecked) {
+    return (
+      <AppContainer>
+        <View padding={10} align="center">
+          <Skeleton width="200px" height="20px" />
+        </View>
+      </AppContainer>
+    );
+  }
 
   return (
     <AppContainer>
