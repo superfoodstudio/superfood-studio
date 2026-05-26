@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a5200d24016b8397568c3f6fd8c699c6>>
+ * @generated SignedSource<<11d1633c2a7cac79cade41fb801a22b8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -22,6 +22,7 @@ export type RecipeQueriesRecipeDetail_recipe$data = {
   readonly mediaUrl: string;
   readonly name: string;
   readonly prepTime: number | null;
+  readonly previewImageUrl: string | null;
   readonly ratings: ReadonlyArray<{
     readonly createdAt: any;
     readonly id: string;
@@ -129,6 +130,13 @@ return {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
+      "name": "previewImageUrl",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
       "name": "ingredients",
       "storageKey": null
     },
@@ -194,6 +202,6 @@ return {
 };
 })();
 
-(node as any).hash = "a17049f7ccc36851f50cd9de12aef3f7";
+(node as any).hash = "9bf09c8011aec49a37d569485d6041eb";
 
 export default node;

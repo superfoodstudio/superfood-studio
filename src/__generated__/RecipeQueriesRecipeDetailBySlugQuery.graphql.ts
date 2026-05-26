@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<08bc614ba10a6c47cead7fd10546d44a>>
+ * @generated SignedSource<<732a7d2488c16d2e6b4c2373423d3091>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -161,6 +161,13 @@ return {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "previewImageUrl",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "ingredients",
             "storageKey": null
           },
@@ -226,12 +233,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "07d18e1db1780710bcee79f9b182b97e",
+    "cacheID": "0e83c8d8d8fc5c5f1ca91348beaf1375",
     "id": null,
     "metadata": {},
     "name": "RecipeQueriesRecipeDetailBySlugQuery",
     "operationKind": "query",
-    "text": "query RecipeQueriesRecipeDetailBySlugQuery(\n  $slug: String!\n) {\n  recipeBySlug(slug: $slug) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    userId\n  }\n}\n"
+    "text": "query RecipeQueriesRecipeDetailBySlugQuery(\n  $slug: String!\n) {\n  recipeBySlug(slug: $slug) {\n    ...RecipeQueriesRecipeDetail_recipe\n    id\n  }\n}\n\nfragment RecipeQueriesRecipeDetail_recipe on Recipe {\n  id\n  name\n  slug\n  description\n  category\n  servingSize\n  totalTime\n  prepTime\n  cookTime\n  mediaUrl\n  previewImageUrl\n  ingredients\n  instructions\n  uploadDate\n  createdAt\n  averageRating\n  totalRatings\n  ratings {\n    id\n    rating\n    createdAt\n    userId\n  }\n}\n"
   }
 };
 })();

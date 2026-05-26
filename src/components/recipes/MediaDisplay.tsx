@@ -1,18 +1,18 @@
 'use client';
 
-import { useState } from 'react';
 import { View, Text } from 'reshaped';
 import Image from 'next/image';
 import { ipfsUrl } from '@/lib/ipfs';
 
 interface MediaDisplayProps {
   mediaUrl: string;
+  previewImageUrl?: string | null;
   altText: string;
   className?: string;
   style?: React.CSSProperties;
 }
 
-export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDisplayProps) {
+export function MediaDisplay({ mediaUrl, previewImageUrl, altText, className, style }: MediaDisplayProps) {
   if (!mediaUrl) {
     return (
       <View
@@ -23,7 +23,8 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            minHeight: '200px',
           },
           className
         }}
@@ -33,7 +34,6 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
     );
   }
 
-  // Detect media type from URL
   const isAudio = mediaUrl.includes('.wav') || mediaUrl.includes('audio/') || mediaUrl.toLowerCase().includes('wav');
   const isVideo = mediaUrl.includes('.mp4') || mediaUrl.includes('video/') || mediaUrl.toLowerCase().includes('mp4') || (!isAudio && !mediaUrl.includes('.jpg') && !mediaUrl.includes('.png') && !mediaUrl.includes('.jpeg') && !mediaUrl.includes('.gif'));
 
@@ -54,38 +54,12 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
         }}
       >
         <View direction="row" align="center" gap={3}>
-          <View
-            attributes={{
-              style: {
-                width: '48px',
-                height: '48px',
-                backgroundColor: '#e9ecef',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }
-            }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b6b6b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18V5l12-2v13" />
-              <circle cx="6" cy="18" r="3" />
-              <circle cx="18" cy="16" r="3" />
-            </svg>
-          </View>
           <View direction="column">
             <Text variant="title-4">{altText}</Text>
-            <Text variant="body-2" color="neutral-faded">
-              Audio Recipe
-            </Text>
+            <Text variant="body-2" color="neutral-faded">Audio Recipe</Text>
           </View>
         </View>
-        
-        <audio
-          src={ipfsUrl(mediaUrl)}
-          controls
-          style={{ width: '100%' }}
-        >
+        <audio src={ipfsUrl(mediaUrl)} controls style={{ width: '100%' }}>
           <Text>Your browser does not support audio playback.</Text>
         </audio>
       </View>
@@ -93,7 +67,11 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
   }
 
   if (isVideo) {
-    // Video content - match homepage style
+    // Extract CID and use our IPFS proxy to avoid CORB issues
+    const cid = mediaUrl.replace(/.*\/ipfs\//, '').replace(/\?.*/, '');
+    const videoSrc = `/api/ipfs/${cid}`;
+    const posterSrc = previewImageUrl ? ipfsUrl(previewImageUrl) : undefined;
+
     return (
       <View
         attributes={{
@@ -109,13 +87,15 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
         }}
       >
         <video
-          src={ipfsUrl(mediaUrl)}
+          src={videoSrc}
+          poster={posterSrc}
           controls
+          preload="metadata"
           style={{
             width: '100%',
             height: 'auto',
             maxHeight: '600px',
-            borderRadius: '24px'
+            borderRadius: '24px',
           }}
         >
           <Text>Your browser does not support video playback.</Text>
@@ -124,7 +104,7 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
     );
   }
 
-  // Fallback to image for backward compatibility
+  // Image fallback
   return (
     <View
       attributes={{
@@ -132,6 +112,7 @@ export function MediaDisplay({ mediaUrl, altText, className, style }: MediaDispl
           position: 'relative',
           borderRadius: '8px',
           overflow: 'hidden',
+          minHeight: '300px',
           ...style
         },
         className

@@ -72,6 +72,7 @@ export const RecipeDetailFragment = graphql`
     prepTime
     cookTime
     mediaUrl
+    previewImageUrl
     ingredients
     instructions
     uploadDate

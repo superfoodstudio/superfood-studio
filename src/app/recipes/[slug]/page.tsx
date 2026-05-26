@@ -117,6 +117,7 @@ function RecipeDetailView({ recipeRef }: RecipeDetailViewProps) {
         {/* Recipe Media */}
         <MediaDisplay
           mediaUrl={recipe.mediaUrl}
+          previewImageUrl={recipe.previewImageUrl}
           altText={recipe.name}
           style={{
             width: "100%",

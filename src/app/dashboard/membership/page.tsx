@@ -120,6 +120,8 @@ function MembershipContent() {
         });
       });
       showSuccess('Your subscription is now active.');
+      // Reload to reflect new subscription status everywhere
+      setTimeout(() => window.location.reload(), 1500);
     } catch {
       setIsProcessing(false);
     }
@@ -356,10 +358,11 @@ function MembershipContent() {
                     setModalStep('payment');
                   }
                 }}
+                rounded
                 attributes={{
                   style: {
-                    backgroundColor: '#3d3d3d', color: '#ffffff', border: 'none',
-                    borderRadius: '6px', fontSize: '13px', fontWeight: '500', padding: '8px 20px',
+                    backgroundColor: 'var(--rs-color-lavender)', color: '#ffffff', border: 'none',
+                    fontSize: '14px', fontWeight: '500', padding: '10px 28px',
                   }
                 }}
               >
