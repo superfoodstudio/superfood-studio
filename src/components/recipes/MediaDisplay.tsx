@@ -67,7 +67,9 @@ export function MediaDisplay({ mediaUrl, previewImageUrl, altText, className, st
   }
 
   if (isVideo) {
-    const videoSrc = ipfsUrl(mediaUrl);
+    // Stream through our proxy to avoid CORB on direct Pinata gateway
+    const cid = mediaUrl.replace(/.*\/ipfs\//, '').replace(/\?.*/, '');
+    const videoSrc = `/api/ipfs/${cid}`;
     const posterSrc = previewImageUrl ? ipfsUrl(previewImageUrl) : undefined;
 
     return (
