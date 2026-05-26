@@ -67,9 +67,7 @@ export function MediaDisplay({ mediaUrl, previewImageUrl, altText, className, st
   }
 
   if (isVideo) {
-    // Extract CID and use our IPFS proxy to avoid CORB issues
-    const cid = mediaUrl.replace(/.*\/ipfs\//, '').replace(/\?.*/, '');
-    const videoSrc = `/api/ipfs/${cid}`;
+    const videoSrc = ipfsUrl(mediaUrl);
     const posterSrc = previewImageUrl ? ipfsUrl(previewImageUrl) : undefined;
 
     return (
