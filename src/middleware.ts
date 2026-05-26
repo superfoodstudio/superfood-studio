@@ -122,7 +122,7 @@ export async function middleware(request: NextRequest) {
       if (cached.role === 'SUBSCRIBER' && cached.subscriptionStatus === 'ACTIVE') {
         return NextResponse.next();
       }
-      return NextResponse.redirect(new URL('/subscription', request.url));
+      return NextResponse.redirect(new URL('/dashboard/membership', request.url));
     }
 
     try {
@@ -186,7 +186,7 @@ export async function middleware(request: NextRequest) {
         }
       }
 
-      return NextResponse.redirect(new URL('/subscription', request.url));
+      return NextResponse.redirect(new URL('/dashboard/membership', request.url));
     } catch (error) {
       return NextResponse.redirect(new URL('/', request.url));
     }
