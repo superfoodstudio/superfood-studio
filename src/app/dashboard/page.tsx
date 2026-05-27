@@ -207,20 +207,6 @@ function DashboardSkeleton() {
   return (
     <AppContainer>
       <View direction="column" gap={6}>
-        {/* Hero Section Skeleton */}
-        <View direction="column" align="center" gap={6} padding={8}>
-          <View direction="column" align="center" gap={4}>
-            <View direction="column" align="center" gap={2}>
-              <Skeleton height="1.25rem" width="14rem" borderRadius="small" />
-              <Skeleton height="1rem" width="20rem" borderRadius="small" />
-            </View>
-            <View direction={{ s: "column", m: "row" }} gap={3}>
-              <Skeleton height="2.75rem" width="10rem" borderRadius="large" />
-              <Skeleton height="2.75rem" width="10rem" borderRadius="large" />
-            </View>
-          </View>
-        </View>
-
         {/* Featured Recipe Skeleton */}
         <View padding={4}>
           <Skeleton height="280px" width="100%" borderRadius="medium" />
@@ -228,15 +214,12 @@ function DashboardSkeleton() {
 
         {/* Latest Products Skeleton */}
         <View padding={4}>
-          <View direction="column" gap={4}>
-            <Skeleton height="1.25rem" width="10rem" borderRadius="small" />
-            <View direction="row" gap={4}>
-              <View attributes={{ style: { flex: 1 } }}>
-                <Skeleton height="200px" width="100%" borderRadius="medium" />
-              </View>
-              <View attributes={{ style: { flex: 1 } }}>
-                <Skeleton height="200px" width="100%" borderRadius="medium" />
-              </View>
+          <View direction="row" gap={4}>
+            <View attributes={{ style: { flex: 1 } }}>
+              <Skeleton height="200px" width="100%" borderRadius="medium" />
+            </View>
+            <View attributes={{ style: { flex: 1 } }}>
+              <Skeleton height="200px" width="100%" borderRadius="medium" />
             </View>
           </View>
         </View>
