@@ -6,6 +6,8 @@ import {
   useLazyLoadQuery,
   useMutation,
   usePaginationFragment,
+  useRelayEnvironment,
+  fetchQuery,
 } from "react-relay";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
@@ -36,6 +38,8 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
     activate: openModal,
     deactivate: closeModal,
   } = useToggle(false);
+
+  const environment = useRelayEnvironment();
 
   const queryData = useLazyLoadQuery<CommentQueriesRecipeCommentsQuery>(
     RecipeCommentsQuery,
@@ -110,6 +114,8 @@ function RecipeCommentsContent({ recipeId }: RecipeCommentsContentProps) {
         reset();
         setError(null);
         closeModal();
+        // Refetch comments to show the new one at the top
+        fetchQuery(environment, RecipeCommentsQuery, { recipeId, first: 10 }).subscribe({});
       },
       onError: (error) => {
         setSubmitting(false);

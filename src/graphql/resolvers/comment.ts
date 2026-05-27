@@ -24,7 +24,7 @@ export const commentResolvers = {
           isHidden: false,
         },
         include: { recipe: true },
-        orderBy: { createdAt: 'asc' },
+        orderBy: { createdAt: 'desc' },
         take: 100,
       });
       // Strip email for non-admin users
@@ -58,7 +58,7 @@ export const commentResolvers = {
       const comments = await prisma.comment.findMany({
         where,
         take: first + 1, // Take one extra to check if there are more
-        orderBy: { createdAt: 'asc' },
+        orderBy: { createdAt: 'desc' },
         include: { recipe: true }
       });
 
